@@ -5,5 +5,6 @@ export type RootStackParamList = {
   Notifications: undefined;
   Camera: undefined;
   AboutYou: undefined;
+  Loading: undefined;
   Home: undefined;
 };

@@ -5,6 +5,8 @@ import WelcomeScreen from "../screens/Welcome/WelcomeScreen";
 import LocationScreen from "../screens/Location/LocationScreen";
 import NotificationsScreen from "../screens/Notifications/NotificationsScreen";
 import CameraScreen from "../screens/Camera/CameraScreen";
+import AboutYouScreen from "../screens/AboutYou/AboutYouScreen";
+import LoadingScreen from "../screens/Loading/LoadingScreen";
 import { RootStackParamList } from "./types";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -22,6 +24,8 @@ export default function AppNavigator() {
       <Stack.Screen name="Location" component={LocationScreen} />
       <Stack.Screen name="Notifications" component={NotificationsScreen} />
       <Stack.Screen name="Camera" component={CameraScreen} />
+      <Stack.Screen name="AboutYou" component={AboutYouScreen} />
+      <Stack.Screen name="Loading" component={LoadingScreen} />
     </Stack.Navigator>
   );
 }
