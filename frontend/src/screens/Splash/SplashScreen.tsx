@@ -13,7 +13,6 @@ export default function SplashScreen() {
 
   useEffect(() => {
     async function initialize() {
-      // da splash ostane oko 2 sekunde
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
       const completed = await hasCompletedOnboarding();

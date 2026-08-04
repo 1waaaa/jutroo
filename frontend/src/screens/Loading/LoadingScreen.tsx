@@ -1,37 +1,101 @@
 import { useEffect, useState } from "react";
-import { View, StyleSheet, Text } from "react-native";
+import { View, StyleSheet, Text, Alert } from "react-native";
 import { Sun, Check } from "lucide-react-native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { RootStackParamList } from "../../navigation/types";
 import ScreenContainer from "../../components/ScreenContainer/ScreenContainer";
 import AppTitle from "../../components/AppTitle/AppTitle";
 import { Colors } from "../../theme/colors";
 
+import { useOnboarding } from "../../context/OnboardingContext";
+import { registerUser } from "../../api/auth";
+import { completeOnboarding } from "../../services/storageService";
+
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Loading">;
 
 export default function LoadingScreen() {
   const navigation = useNavigation<NavigationProp>();
 
+  const { data, updateData } = useOnboarding();
+
   const [step, setStep] = useState(0);
 
+  function delay(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  async function initializeApp() {
+    try {
+      console.log("========== ONBOARDING ==========");
+      console.log(data);
+
+      setStep(1);
+      await delay(500);
+
+      setStep(2);
+      await delay(500);
+
+      if (data.latitude === null || data.longitude === null) {
+        Alert.alert("Location missing", "Please enable location permission.");
+
+        navigation.replace("Location");
+        return;
+      }
+
+      setStep(3);
+
+      const request = {
+        username: data.username,
+        height: data.height,
+        weight: data.weight,
+        city: data.city,
+        latitude: data.latitude,
+        longitude: data.longitude,
+      };
+
+      console.log("========== REQUEST ==========");
+      console.log(request);
+
+      const user = await registerUser(request);
+
+      console.log("========== RESPONSE ==========");
+      console.log(user);
+
+      updateData({
+        userId: user.id,
+      });
+
+      setStep(4);
+
+      await completeOnboarding();
+
+      await AsyncStorage.setItem("userId", user.id.toString());
+
+      await delay(700);
+
+      navigation.replace("Home");
+    } catch (error: any) {
+      console.log("========== ERROR ==========");
+      console.log(error);
+
+      console.log("STATUS:");
+      console.log(error.response?.status);
+
+      console.log("DATA:");
+      console.log(error.response?.data);
+
+      Alert.alert(
+        "Registration failed",
+        JSON.stringify(error.response?.data ?? error.message),
+      );
+    }
+  }
+
   useEffect(() => {
-    const timers = [
-      setTimeout(() => setStep(1), 400),
-
-      setTimeout(() => setStep(2), 900),
-
-      setTimeout(() => setStep(3), 1400),
-
-      setTimeout(() => setStep(4), 1900),
-
-      setTimeout(() => {
-        navigation.replace("Home");
-      }, 2700),
-    ];
-
-    return () => timers.forEach(clearTimeout);
+    initializeApp();
   }, []);
 
   return (
@@ -39,17 +103,14 @@ export default function LoadingScreen() {
       <View style={styles.container}>
         <Sun size={80} color={Colors.accent} />
 
-        <AppTitle>
-          Building your{"\n"}
-          morning...
-        </AppTitle>
+        <AppTitle>Building your{"\n"}morning...</AppTitle>
 
         <View style={styles.list}>
-          {step >= 1 && <LoadingItem text="Weather forecast ready" />}
+          {step >= 1 && <LoadingItem text="Preparing weather services" />}
 
-          {step >= 2 && <LoadingItem text="Hydration goal calculated" />}
+          {step >= 2 && <LoadingItem text="Calculating hydration goal" />}
 
-          {step >= 3 && <LoadingItem text="Planner initialized" />}
+          {step >= 3 && <LoadingItem text="Creating your account" />}
 
           {step >= 4 && <LoadingItem text="Personalizing your experience" />}
         </View>
@@ -73,39 +134,30 @@ function LoadingItem({ text }: { text: string }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-
     justifyContent: "center",
-
     alignItems: "center",
   },
 
   list: {
     marginTop: 40,
-
     gap: 18,
-
     width: "90%",
   },
 
   item: {
     flexDirection: "row",
-
     alignItems: "center",
-
     gap: 12,
   },
 
   itemText: {
     fontSize: 17,
-
-    color: "#374151",
+    color: Colors.text,
   },
 
   footer: {
     marginTop: 50,
-
     fontSize: 16,
-
-    color: "#94A3B8",
+    color: Colors.subtitle,
   },
 });

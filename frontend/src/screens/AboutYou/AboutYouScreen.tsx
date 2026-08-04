@@ -4,7 +4,6 @@ import { View, StyleSheet, Alert, Keyboard } from "react-native";
 import { UserRound, Droplets } from "lucide-react-native";
 
 import { useNavigation } from "@react-navigation/native";
-
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import { RootStackParamList } from "../../navigation/types";
@@ -20,8 +19,6 @@ import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
 
 import { Colors } from "../../theme/colors";
 
-import { completeOnboarding } from "../../services/storageService";
-
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "AboutYou">;
 
 export default function AboutYouScreen() {
@@ -30,12 +27,10 @@ export default function AboutYouScreen() {
   const { updateData } = useOnboarding();
 
   const [username, setUsername] = useState("");
-
   const [height, setHeight] = useState("");
-
   const [weight, setWeight] = useState("");
 
-  async function handleFinish() {
+  function handleFinish() {
     Keyboard.dismiss();
 
     if (
@@ -50,23 +45,22 @@ export default function AboutYouScreen() {
     const heightNumber = Number(height);
     const weightNumber = Number(weight);
 
-    if (heightNumber < 80 || heightNumber > 250) {
+    if (isNaN(heightNumber) || heightNumber < 80 || heightNumber > 250) {
       Alert.alert("Invalid Height", "Please enter a valid height.");
       return;
     }
 
-    if (weightNumber < 20 || weightNumber > 300) {
+    if (isNaN(weightNumber) || weightNumber < 20 || weightNumber > 300) {
       Alert.alert("Invalid Weight", "Please enter a valid weight.");
       return;
     }
 
     updateData({
-      username,
+      username: username.trim(),
       height: heightNumber,
       weight: weightNumber,
     });
 
-    await completeOnboarding();
     navigation.replace("Loading");
   }
 
@@ -108,7 +102,7 @@ export default function AboutYouScreen() {
           onChangeText={setWeight}
           keyboardType="numeric"
           returnKeyType="done"
-          onSubmitEditing={Keyboard.dismiss}
+          onSubmitEditing={() => Keyboard.dismiss()}
         />
 
         <View style={styles.infoCard}>
@@ -122,7 +116,11 @@ export default function AboutYouScreen() {
         </View>
       </View>
 
-      <PrimaryButton title="✨ Finish Setup" onPress={handleFinish} />
+      <PrimaryButton
+        title="✨ Finish Setup"
+        onPress={handleFinish}
+        disabled={false}
+      />
     </ScreenContainer>
   );
 }

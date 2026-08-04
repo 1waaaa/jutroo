@@ -7,8 +7,9 @@ import GreetingCard from "../../components/GreetingCard/GreetingCard";
 import WeatherCard from "../../components/WeatherCard/WeatherCard";
 import HydrationCard from "../../components/HydrationCard/HydrationCard";
 import CTAActionCard from "../../components/CTAActionCard/CTAActionCard";
-
+import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
 import { useOnboarding } from "../../context/OnboardingContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { RootStackParamList } from "../../navigation/types";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Home">;

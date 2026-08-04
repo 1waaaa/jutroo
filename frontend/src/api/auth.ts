@@ -19,9 +19,7 @@ export interface UserResponse {
   longitude: number;
 }
 
-export async function registerUser(
-  data: RegisterUserRequest,
-): Promise<UserResponse> {
+export async function registerUser(data: RegisterUserRequest) {
   const response = await api.post<UserResponse>("/api/auth/register", data);
 
   return response.data;
