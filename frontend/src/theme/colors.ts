@@ -5,6 +5,8 @@ export const Colors = {
 
   primary: "#7CB8E8",
 
+  primaryLight: "#EAF5FD",
+
   accent: "#FFD66B",
 
   success: "#A8D8C8",
@@ -18,4 +20,8 @@ export const Colors = {
   subtitle: "#6E7C8A",
 
   border: "#EEF2F6",
+
+  overlay: "rgba(36,52,71,0.35)",
+
+  handle: "#D8E1E8",
 };

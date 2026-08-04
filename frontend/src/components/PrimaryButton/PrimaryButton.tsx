@@ -5,6 +5,7 @@ import { Colors } from "../../theme/colors";
 interface Props {
   title: string;
   onPress: () => void;
+  disabled: boolean;
 }
 
 export default function PrimaryButton({ title, onPress }: Props) {

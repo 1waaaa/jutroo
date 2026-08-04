@@ -1,59 +1,113 @@
 import { useState } from "react";
-import { Text, StyleSheet } from "react-native";
+import { StyleSheet, Text } from "react-native";
+
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import ScrollScreenContainer from "../../components/ScrollScreenContainer/ScrollScreenContainer";
+import BackButton from "../../components/BackButton/BackButton";
 import AppTitle from "../../components/AppTitle/AppTitle";
 import AppSubtitle from "../../components/AppSubtitle/AppSubtitle";
 import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
 
-import ActivityCard from "../../components/ActivityCard/ActivityCard";
+import ActivityCard from "../../components/planner/ActivityCard/ActivityCard";
+import ActivityBottomSheet from "../../components/ActivityBottomSheet/ActivityBottomSheet";
 
-import { ACTIVITIES } from "../../constants/activities";
+import {
+  ACTIVITIES,
+  Activity,
+  ConfiguredActivity,
+} from "../../constants/activities";
+
+import { RootStackParamList } from "../../navigation/types";
+import { Colors } from "../../theme/colors";
+
+type NavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  "Activities"
+>;
 
 export default function ActivitiesScreen() {
-  const [selected, setSelected] = useState<string[]>([]);
+  const navigation = useNavigation<NavigationProp>();
 
-  function toggle(id: string) {
-    if (selected.includes(id)) {
-      setSelected(selected.filter((x) => x !== id));
-    } else {
-      setSelected([...selected, id]);
-    }
+  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(
+    null,
+  );
+
+  const [configuredActivities, setConfiguredActivities] = useState<
+    ConfiguredActivity[]
+  >([]);
+
+  function getConfiguration(id: string) {
+    return configuredActivities.find((x) => x.id === id);
+  }
+
+  function handleSave(configuration: ConfiguredActivity) {
+    setConfiguredActivities((prev) => {
+      const exists = prev.find((x) => x.id === configuration.id);
+
+      if (exists) {
+        return prev.map((item) =>
+          item.id === configuration.id ? configuration : item,
+        );
+      }
+
+      return [...prev, configuration];
+    });
+
+    setSelectedActivity(null);
   }
 
   return (
-    <ScrollScreenContainer>
-      <AppTitle>
-        What are you{"\n"}
-        doing today?
-      </AppTitle>
+    <>
+      <ScrollScreenContainer>
+        <BackButton onPress={() => navigation.goBack()} />
 
-      <AppSubtitle>Select every activity you plan to do today.</AppSubtitle>
+        <AppTitle>What are you{"\n"}doing today?</AppTitle>
 
-      <Text style={styles.counter}>{selected.length} activities selected</Text>
+        <AppSubtitle>Select the activities you plan to do today.</AppSubtitle>
 
-      {ACTIVITIES.map((activity) => (
-        <ActivityCard
-          key={activity.id}
-          emoji={activity.emoji}
-          title={activity.title}
-          description={activity.description}
-          selected={selected.includes(activity.id)}
-          onPress={() => toggle(activity.id)}
+        <Text style={styles.counter}>
+          {configuredActivities.length} configured
+        </Text>
+
+        {ACTIVITIES.map((activity) => (
+          <ActivityCard
+            key={activity.id}
+            emoji={activity.emoji}
+            title={activity.title}
+            configuration={getConfiguration(activity.id)}
+            onPress={() => setSelectedActivity(activity)}
+          />
+        ))}
+
+        <PrimaryButton
+          title="Continue"
+          onPress={() => navigation.navigate("ReviewPlan")}
+          disabled={configuredActivities.length === 0}
         />
-      ))}
+      </ScrollScreenContainer>
 
-      <PrimaryButton title="Continue" onPress={() => {}} />
-    </ScrollScreenContainer>
+      <ActivityBottomSheet
+        visible={selectedActivity !== null}
+        activity={selectedActivity}
+        configuration={
+          selectedActivity ? getConfiguration(selectedActivity.id) : undefined
+        }
+        onClose={() => setSelectedActivity(null)}
+        onSave={handleSave}
+      />
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   counter: {
-    marginVertical: 20,
+    marginTop: 18,
+    marginBottom: 18,
+
+    color: Colors.subtitle,
 
     fontSize: 15,
-
-    color: "#64748B",
   },
 });

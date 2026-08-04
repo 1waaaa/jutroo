@@ -9,4 +9,5 @@ export type RootStackParamList = {
   Loading: undefined;
   Home: undefined;
   Activities: undefined;
+  ReviewPlan: undefined;
 };

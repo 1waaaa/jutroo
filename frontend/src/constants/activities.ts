@@ -1,19 +1,20 @@
 export interface Activity {
   id: string;
-
   title: string;
-
   emoji: string;
+  supportsTimeRange: boolean;
+}
 
-  description: string;
+export interface ConfiguredActivity {
+  id: string;
 
-  fixed: boolean;
+  duration?: number;
 
-  earliest: string;
+  preferredTime?: "Morning" | "Afternoon" | "Evening";
 
-  latest: string;
+  startTime?: string;
 
-  defaultDuration: number;
+  endTime?: string;
 }
 
 export const ACTIVITIES: Activity[] = [
@@ -21,98 +22,76 @@ export const ACTIVITIES: Activity[] = [
     id: "UNIVERSITY",
     title: "University",
     emoji: "🎓",
-    description: "Fixed • 09:00–13:00",
-    fixed: true,
-    earliest: "09:00",
-    latest: "13:00",
-    defaultDuration: 240,
+    supportsTimeRange: true,
   },
 
   {
     id: "WORK",
     title: "Work",
     emoji: "💼",
-    description: "Flexible • 08:00–18:00",
-    fixed: false,
-    earliest: "08:00",
-    latest: "18:00",
-    defaultDuration: 480,
+    supportsTimeRange: true,
   },
 
   {
     id: "GYM",
     title: "Gym",
     emoji: "🏋️",
-    description: "Flexible • After 16:00",
-    fixed: false,
-    earliest: "16:00",
-    latest: "21:00",
-    defaultDuration: 60,
+    supportsTimeRange: false,
   },
 
   {
     id: "WALK",
     title: "Walk",
     emoji: "🚶",
-    description: "Flexible • Evening",
-    fixed: false,
-    earliest: "18:00",
-    latest: "22:00",
-    defaultDuration: 45,
+    supportsTimeRange: false,
   },
 
   {
     id: "SHOPPING",
     title: "Shopping",
     emoji: "🛍",
-    description: "Flexible",
-    fixed: false,
-    earliest: "10:00",
-    latest: "22:00",
-    defaultDuration: 90,
+    supportsTimeRange: false,
   },
 
   {
     id: "CAFE",
     title: "Cafe",
     emoji: "☕",
-    description: "Flexible",
-    fixed: false,
-    earliest: "08:00",
-    latest: "23:00",
-    defaultDuration: 60,
+    supportsTimeRange: false,
   },
 
   {
     id: "DINNER",
     title: "Dinner",
     emoji: "🍽",
-    description: "Flexible",
-    fixed: false,
-    earliest: "18:00",
-    latest: "23:00",
-    defaultDuration: 90,
+    supportsTimeRange: false,
   },
 
   {
     id: "DATE",
     title: "Date",
     emoji: "❤️",
-    description: "Flexible",
-    fixed: false,
-    earliest: "17:00",
-    latest: "23:00",
-    defaultDuration: 120,
+    supportsTimeRange: false,
+  },
+
+  {
+    id: "STUDY",
+    title: "Study",
+    emoji: "📚",
+    supportsTimeRange: false,
+  },
+
+  {
+    id: "FAMILY",
+    title: "Family",
+    emoji: "👨‍👩‍👧",
+    supportsTimeRange: false,
   },
 
   {
     id: "CUSTOM",
     title: "Custom",
     emoji: "➕",
-    description: "Create your own",
-    fixed: false,
-    earliest: "00:00",
-    latest: "23:59",
-    defaultDuration: 60,
+    supportsTimeRange: false,
   },
 ];
