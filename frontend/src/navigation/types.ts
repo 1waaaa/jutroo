@@ -1,5 +1,6 @@
 export type RootStackParamList = {
   Splash: undefined;
+  Startup: undefined;
   Welcome: undefined;
   Location: undefined;
   Notifications: undefined;
@@ -7,4 +8,5 @@ export type RootStackParamList = {
   AboutYou: undefined;
   Loading: undefined;
   Home: undefined;
+  Activities: undefined;
 };

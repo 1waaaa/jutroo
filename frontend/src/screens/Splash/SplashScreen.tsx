@@ -1,17 +1,33 @@
 import { View, Text, StyleSheet } from "react-native";
 import { useEffect } from "react";
 import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+
+import { RootStackParamList } from "../../navigation/types";
+import { hasCompletedOnboarding } from "../../services/storageService";
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Splash">;
 
 export default function SplashScreen() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp>();
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      navigation.navigate("Welcome" as never);
-    }, 2000);
+    async function initialize() {
+      // da splash ostane oko 2 sekunde
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    return () => clearTimeout(timer);
+      const completed = await hasCompletedOnboarding();
+
+      if (completed) {
+        navigation.replace("Home");
+      } else {
+        navigation.replace("Welcome");
+      }
+    }
+
+    initialize();
   }, []);
+
   return (
     <View style={styles.container}>
       <Text style={styles.logo}>☀️</Text>

@@ -7,6 +7,8 @@ import NotificationsScreen from "../screens/Notifications/NotificationsScreen";
 import CameraScreen from "../screens/Camera/CameraScreen";
 import AboutYouScreen from "../screens/AboutYou/AboutYouScreen";
 import LoadingScreen from "../screens/Loading/LoadingScreen";
+import HomeScreen from "../screens/Home/HomeScreen";
+import ActivitiesScreen from "../screens/Activities/ActivitiesScreen";
 import { RootStackParamList } from "./types";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -26,6 +28,8 @@ export default function AppNavigator() {
       <Stack.Screen name="Camera" component={CameraScreen} />
       <Stack.Screen name="AboutYou" component={AboutYouScreen} />
       <Stack.Screen name="Loading" component={LoadingScreen} />
+      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="Activities" component={ActivitiesScreen} />
     </Stack.Navigator>
   );
 }

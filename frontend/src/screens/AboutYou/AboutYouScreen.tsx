@@ -20,6 +20,8 @@ import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
 
 import { Colors } from "../../theme/colors";
 
+import { completeOnboarding } from "../../services/storageService";
+
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "AboutYou">;
 
 export default function AboutYouScreen() {
@@ -33,7 +35,7 @@ export default function AboutYouScreen() {
 
   const [weight, setWeight] = useState("");
 
-  function handleFinish() {
+  async function handleFinish() {
     Keyboard.dismiss();
 
     if (
@@ -64,7 +66,8 @@ export default function AboutYouScreen() {
       weight: weightNumber,
     });
 
-    navigation.navigate("Loading");
+    await completeOnboarding();
+    navigation.replace("Loading");
   }
 
   return (
