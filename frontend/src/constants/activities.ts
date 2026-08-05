@@ -2,19 +2,20 @@ export interface Activity {
   id: string;
   title: string;
   emoji: string;
-  supportsTimeRange: boolean;
+  minTime: string;
+  maxTime: string;
 }
 
 export interface ConfiguredActivity {
-  id: string;
+  type: string;
 
-  duration?: number;
+  duration: number;
 
-  preferredTime?: "Morning" | "Afternoon" | "Evening";
+  fixed: boolean;
 
-  startTime?: string;
+  earliest: string;
 
-  endTime?: string;
+  latest: string;
 }
 
 export const ACTIVITIES: Activity[] = [
@@ -22,76 +23,73 @@ export const ACTIVITIES: Activity[] = [
     id: "UNIVERSITY",
     title: "University",
     emoji: "🎓",
-    supportsTimeRange: true,
+    minTime: "08:00",
+    maxTime: "20:00",
   },
 
   {
     id: "WORK",
     title: "Work",
     emoji: "💼",
-    supportsTimeRange: true,
+    minTime: "08:00",
+    maxTime: "20:00",
   },
 
   {
     id: "GYM",
     title: "Gym",
     emoji: "🏋️",
-    supportsTimeRange: false,
+    minTime: "16:00",
+    maxTime: "22:00",
   },
 
   {
     id: "WALK",
     title: "Walk",
     emoji: "🚶",
-    supportsTimeRange: false,
+    minTime: "06:00",
+    maxTime: "22:00",
   },
 
   {
     id: "SHOPPING",
     title: "Shopping",
-    emoji: "🛍",
-    supportsTimeRange: false,
+    emoji: "🛍️",
+    minTime: "09:00",
+    maxTime: "21:00",
   },
 
   {
     id: "CAFE",
     title: "Cafe",
     emoji: "☕",
-    supportsTimeRange: false,
+    minTime: "08:00",
+    maxTime: "23:00",
   },
 
   {
     id: "DINNER",
     title: "Dinner",
-    emoji: "🍽",
-    supportsTimeRange: false,
+    emoji: "🍽️",
+    minTime: "17:00",
+    maxTime: "23:00",
   },
 
   {
     id: "DATE",
     title: "Date",
     emoji: "❤️",
-    supportsTimeRange: false,
-  },
-
-  {
-    id: "STUDY",
-    title: "Study",
-    emoji: "📚",
-    supportsTimeRange: false,
-  },
-
-  {
-    id: "FAMILY",
-    title: "Family",
-    emoji: "👨‍👩‍👧",
-    supportsTimeRange: false,
+    minTime: "17:00",
+    maxTime: "23:30",
   },
 
   {
     id: "CUSTOM",
     title: "Custom",
-    emoji: "➕",
-    supportsTimeRange: false,
+    emoji: "✨",
+    minTime: "00:00",
+    maxTime: "23:30",
   },
 ];
+
+export const DURATIONS = [30, 45, 60, 90, 120, 180, 240];

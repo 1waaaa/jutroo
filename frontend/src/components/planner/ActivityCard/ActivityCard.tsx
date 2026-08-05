@@ -1,10 +1,12 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { CheckCircle2, ChevronRight } from "lucide-react-native";
 
-import { Colors } from "../../../theme/colors";
 import { ConfiguredActivity } from "../../../constants/activities";
+import { Colors } from "../../../theme/colors";
 
 interface Props {
   emoji: string;
+
   title: string;
 
   configuration?: ConfiguredActivity;
@@ -18,41 +20,37 @@ export default function ActivityCard({
   configuration,
   onPress,
 }: Props) {
-  function getSubtitle() {
-    if (!configuration) {
-      return "Not configured";
-    }
-
-    if (configuration.startTime && configuration.endTime) {
-      return `${configuration.startTime} – ${configuration.endTime}`;
-    }
-
-    if (configuration.duration && configuration.preferredTime) {
-      return `${configuration.duration} min • ${configuration.preferredTime}`;
-    }
-
-    return "Configured";
-  }
-
   return (
-    <Pressable onPress={onPress} style={styles.card}>
-      <Text style={styles.emoji}>{emoji}</Text>
+    <Pressable style={styles.card} onPress={onPress}>
+      <View style={styles.left}>
+        <Text style={styles.emoji}>{emoji}</Text>
 
-      <View style={styles.info}>
-        <Text style={styles.title}>{title}</Text>
+        <View style={styles.info}>
+          <Text style={styles.title}>{title}</Text>
 
-        <Text
-          style={[styles.subtitle, configuration && styles.configuredSubtitle]}
-        >
-          {getSubtitle()}
-        </Text>
+          {configuration ? (
+            <>
+              <Text style={styles.subtitle}>{configuration.duration} min</Text>
+
+              <Text style={styles.subtitle}>
+                {configuration.fixed
+                  ? `${configuration.earliest} – ${configuration.latest}`
+                  : "Flexible"}
+              </Text>
+            </>
+          ) : (
+            <Text style={styles.placeholder}>Tap to configure</Text>
+          )}
+        </View>
       </View>
 
-      {configuration && (
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>✓</Text>
-        </View>
-      )}
+      <View style={styles.right}>
+        {configuration && (
+          <CheckCircle2 size={22} color="#32C671" style={styles.check} />
+        )}
+
+        <ChevronRight size={20} color={Colors.subtitle} />
+      </View>
     </Pressable>
   );
 }
@@ -65,9 +63,11 @@ const styles = StyleSheet.create({
 
     padding: 18,
 
-    marginBottom: 16,
+    marginBottom: 14,
 
     flexDirection: "row",
+
+    justifyContent: "space-between",
 
     alignItems: "center",
 
@@ -76,10 +76,18 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
   },
 
-  emoji: {
-    fontSize: 30,
+  left: {
+    flexDirection: "row",
 
-    marginRight: 18,
+    alignItems: "center",
+
+    flex: 1,
+  },
+
+  emoji: {
+    fontSize: 34,
+
+    marginRight: 16,
   },
 
   info: {
@@ -95,38 +103,32 @@ const styles = StyleSheet.create({
   },
 
   subtitle: {
-    marginTop: 6,
+    marginTop: 3,
+
+    fontSize: 14,
+
+    color: Colors.subtitle,
+  },
+
+  placeholder: {
+    marginTop: 4,
+
+    fontSize: 14,
 
     color: Colors.subtitle,
 
-    fontSize: 14,
+    fontStyle: "italic",
   },
 
-  configuredSubtitle: {
-    color: Colors.primary,
-
-    fontWeight: "600",
-  },
-
-  badge: {
-    width: 32,
-
-    height: 32,
-
-    borderRadius: 16,
-
-    backgroundColor: Colors.success,
+  right: {
+    alignItems: "center",
 
     justifyContent: "center",
 
-    alignItems: "center",
+    gap: 8,
   },
 
-  badgeText: {
-    color: Colors.surface,
-
-    fontSize: 18,
-
-    fontWeight: "700",
+  check: {
+    marginBottom: 6,
   },
 });

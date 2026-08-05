@@ -38,21 +38,23 @@ export default function ActivitiesScreen() {
     ConfiguredActivity[]
   >([]);
 
-  function getConfiguration(id: string) {
-    return configuredActivities.find((x) => x.id === id);
+  function getConfiguration(type: string) {
+    return configuredActivities.find((activity) => activity.type === type);
   }
 
   function handleSave(configuration: ConfiguredActivity) {
-    setConfiguredActivities((prev) => {
-      const exists = prev.find((x) => x.id === configuration.id);
+    setConfiguredActivities((previous) => {
+      const exists = previous.some(
+        (activity) => activity.type === configuration.type,
+      );
 
       if (exists) {
-        return prev.map((item) =>
-          item.id === configuration.id ? configuration : item,
+        return previous.map((activity) =>
+          activity.type === configuration.type ? configuration : activity,
         );
       }
 
-      return [...prev, configuration];
+      return [...previous, configuration];
     });
 
     setSelectedActivity(null);
@@ -65,10 +67,13 @@ export default function ActivitiesScreen() {
 
         <AppTitle>What are you{"\n"}doing today?</AppTitle>
 
-        <AppSubtitle>Select the activities you plan to do today.</AppSubtitle>
+        <AppSubtitle>
+          Build your perfect day by configuring today's activities.
+        </AppSubtitle>
 
         <Text style={styles.counter}>
-          {configuredActivities.length} configured
+          {configuredActivities.length} activit
+          {configuredActivities.length !== 1 ? "ies" : "y"} configured
         </Text>
 
         {ACTIVITIES.map((activity) => (
@@ -83,8 +88,8 @@ export default function ActivitiesScreen() {
 
         <PrimaryButton
           title="Continue"
-          onPress={() => navigation.navigate("ReviewPlan")}
           disabled={configuredActivities.length === 0}
+          onPress={() => navigation.navigate("ReviewPlan")}
         />
       </ScrollScreenContainer>
 
@@ -109,5 +114,7 @@ const styles = StyleSheet.create({
     color: Colors.subtitle,
 
     fontSize: 15,
+
+    fontWeight: "600",
   },
 });

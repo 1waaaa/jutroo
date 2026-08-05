@@ -2,7 +2,7 @@ import { StyleSheet, Text } from "react-native";
 
 import BottomSheet from "../BottomSheet/BottomSheet";
 
-import TimeRangeForm from "./forms/TimeRangeForm";
+import ActivityForm from "../../components/planner/ActivityForm";
 
 import { Activity, ConfiguredActivity } from "../../constants/activities";
 
@@ -29,13 +29,25 @@ export default function ActivityBottomSheet({
 }: Props) {
   if (!activity) return null;
 
+  function handleSave(config: ConfiguredActivity) {
+    onSave(config);
+
+    onClose();
+  }
+
   return (
     <BottomSheet visible={visible} onClose={onClose}>
       <Text style={styles.emoji}>{activity.emoji}</Text>
 
       <Text style={styles.title}>{activity.title}</Text>
 
-      <Text style={styles.subtitle}>Configure activity</Text>
+      <Text style={styles.subtitle}>Configure today's activity</Text>
+
+      <ActivityForm
+        activity={activity}
+        initialConfiguration={configuration}
+        onSave={handleSave}
+      />
     </BottomSheet>
   );
 }
@@ -58,7 +70,7 @@ const styles = StyleSheet.create({
 
     textAlign: "center",
 
-    marginTop: 10,
+    marginTop: 8,
   },
 
   subtitle: {
@@ -68,8 +80,8 @@ const styles = StyleSheet.create({
 
     textAlign: "center",
 
-    marginBottom: 28,
-
     marginTop: 8,
+
+    marginBottom: 26,
   },
 });
