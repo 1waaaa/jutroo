@@ -1,10 +1,20 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.database.database import Base, engine
 from app.models.user import User
 from app.routes.auth import router as auth_router
 
 app = FastAPI()
+
+# Dozvoli pristup sa React Native aplikacije
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Za hakaton je sasvim u redu
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 Base.metadata.create_all(bind=engine)
 
