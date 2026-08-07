@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
@@ -9,21 +8,26 @@ import ScrollScreenContainer from "../../components/ScrollScreenContainer/Scroll
 import GreetingCard from "../../components/GreetingCard/GreetingCard";
 import WeatherCard from "../../components/WeatherCard/WeatherCard";
 import HydrationCard from "../../components/HydrationCard/HydrationCard";
+import TodayScheduleCard from "../../components/home/TodayScheduleCard";
 import CTAActionCard from "../../components/CTAActionCard/CTAActionCard";
 import AppLoader from "../../components/AppLoader/AppLoader";
 
 import { useOnboarding } from "../../context/OnboardingContext";
+import { usePlanner } from "../../context/PlannerContext";
+import { useUser } from "../../context/UserContext";
 
 import { WeatherResponse, getCurrentWeather } from "../../api/weatherApi";
 
-import { mockWeather } from "../../mock/weather";
-import { getWaterGoal, HydrationResponse } from "../../api/hydrationApi";
+import { HydrationResponse, getWaterGoal } from "../../api/hydrationApi";
 
+// import { getPlan } from "../../api/plannerApi";
+
+import { mockWeather } from "../../mock/weather";
 import { mockHydration } from "../../mock/hydration";
+import { mockSchedule } from "../../mock/schedule";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Home">;
 
-// Promeni na false za backend podatke.
 const USE_MOCK_DATA = true;
 
 export default function HomeScreen() {
@@ -31,9 +35,14 @@ export default function HomeScreen() {
 
   const { data } = useOnboarding();
 
-  const [weather, setWeather] = useState<WeatherResponse | null>(null);
+  const { userId } = useUser();
+
+  const { schedule, setSchedule, hasSchedule } = usePlanner();
 
   const [loading, setLoading] = useState(true);
+
+  const [weather, setWeather] = useState<WeatherResponse | null>(null);
+
   const [hydration, setHydration] = useState<HydrationResponse | null>(null);
 
   useEffect(() => {
@@ -41,43 +50,43 @@ export default function HomeScreen() {
       try {
         if (USE_MOCK_DATA) {
           setWeather(mockWeather);
+
           setHydration(mockHydration);
+
+          if (!hasSchedule) {
+            setSchedule(mockSchedule);
+          }
+
           return;
         }
 
-        let id = data.userId;
-
-        if (!id) {
-          const storedId = await AsyncStorage.getItem("userId");
-
-          if (storedId) {
-            id = Number(storedId);
-          }
-        }
-
-        if (!id) {
+        if (!userId) {
           console.log("User ID not found.");
 
-          setWeather(mockWeather);
-          setHydration(mockHydration);
           return;
         }
 
-        const weatherData = await getCurrentWeather(id);
+        const weatherData = await getCurrentWeather(userId);
+
+        const hydrationData = await getWaterGoal(userId);
 
         setWeather(weatherData);
-        const hydrationData = await getWaterGoal(id);
 
         setHydration(hydrationData);
-      } catch (error) {
-        console.log("Weather API unavailable.");
 
+        // kasnije
+        // const plan = await getPlan(userId);
+        // setSchedule(plan.items);
+      } catch (error) {
         console.log(error);
 
-        // Ako backend nije gotov ili padne,
-        // nastavljamo sa mock podacima.
         setWeather(mockWeather);
+
         setHydration(mockHydration);
+
+        if (!hasSchedule) {
+          setSchedule(mockSchedule);
+        }
       } finally {
         setLoading(false);
       }
@@ -94,18 +103,36 @@ export default function HomeScreen() {
     <ScrollScreenContainer>
       <GreetingCard username={data.username} />
 
-      {weather && (
-        <WeatherCard
-          temperature={weather.temperature}
-          condition={weather.condition}
-          feelsLike={weather.feelsLike}
-          uv={weather.uv}
-        />
-      )}
+      <WeatherCard
+        temperature={weather.temperature}
+        condition={weather.condition}
+        feelsLike={weather.feelsLike}
+        uv={weather.uv}
+      />
 
       <HydrationCard waterGoal={hydration.goal} />
 
-      <CTAActionCard onPress={() => navigation.navigate("Activities")} />
+      <TodayScheduleCard
+        schedule={schedule}
+        onPress={() => navigation.navigate("GeneratedSchedule")}
+      />
+
+      <CTAActionCard
+        title={
+          hasSchedule
+            ? "Want to update your schedule?"
+            : "Start planning your day"
+        }
+        subtitle={
+          hasSchedule
+            ? "Generate a brand new optimized schedule."
+            : "Tell us what you need to accomplish today."
+        }
+        buttonTitle={
+          hasSchedule ? "Regenerate Schedule" : "Create Today's Plan"
+        }
+        onPress={() => navigation.navigate("Activities")}
+      />
     </ScrollScreenContainer>
   );
 }

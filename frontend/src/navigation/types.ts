@@ -1,6 +1,9 @@
+import { ConfiguredActivity } from "../constants/activities";
+import { ScheduleItem } from "../api/plannerApi";
+
 export type RootStackParamList = {
-  Splash: undefined;
   Startup: undefined;
+  Splash: undefined;
   Welcome: undefined;
   Location: undefined;
   Notifications: undefined;
@@ -9,5 +12,10 @@ export type RootStackParamList = {
   Loading: undefined;
   Home: undefined;
   Activities: undefined;
-  ReviewPlan: undefined;
+
+  ReviewPlan: {
+    activities: ConfiguredActivity[];
+  };
+  GeneratingPlan: undefined;
+  GeneratedSchedule: undefined;
 };

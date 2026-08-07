@@ -18,6 +18,18 @@ export interface ConfiguredActivity {
   latest: string;
 }
 
+export const FIXED_ACTIVITIES = ["UNIVERSITY", "WORK"];
+
+export const FLEXIBLE_ACTIVITIES = [
+  "GYM",
+  "WALK",
+  "SHOPPING",
+  "CAFE",
+  "DINNER",
+  "DATE",
+  "CUSTOM",
+];
+
 export const ACTIVITIES: Activity[] = [
   {
     id: "UNIVERSITY",

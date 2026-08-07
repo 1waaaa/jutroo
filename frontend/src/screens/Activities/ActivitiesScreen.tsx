@@ -1,3 +1,4 @@
+import { Alert } from "react-native";
 import { useState } from "react";
 import { StyleSheet, Text } from "react-native";
 
@@ -42,7 +43,58 @@ export default function ActivitiesScreen() {
     return configuredActivities.find((activity) => activity.type === type);
   }
 
+  function toMinutes(time: string) {
+    const [h, m] = time.split(":").map(Number);
+
+    return h * 60 + m;
+  }
+
+  function overlaps(
+    start1: string,
+    end1: string,
+    start2: string,
+    end2: string,
+  ) {
+    const s1 = toMinutes(start1);
+    const e1 = toMinutes(end1);
+
+    const s2 = toMinutes(start2);
+    const e2 = toMinutes(end2);
+
+    return s1 < e2 && s2 < e1;
+  }
+
   function handleSave(configuration: ConfiguredActivity) {
+    const conflict = configuredActivities.find((activity) => {
+      // Zanima nas samo Fixed vs Fixed
+      if (!activity.fixed || !configuration.fixed) {
+        return false;
+      }
+
+      // Ako korisnik samo menja istu aktivnost
+      if (activity.type === configuration.type) {
+        return false;
+      }
+
+      return overlaps(
+        activity.earliest,
+        activity.latest,
+        configuration.earliest,
+        configuration.latest,
+      );
+    });
+
+    if (conflict) {
+      const activityInfo = ACTIVITIES.find((a) => a.id === conflict.type);
+
+      Alert.alert(
+        "Time Conflict",
+        `This overlaps with ${activityInfo?.emoji ?? ""} ${activityInfo?.title ?? conflict.type} (${conflict.earliest} - ${conflict.latest}).\n\nPlease choose another time.`,
+      );
+
+      return;
+    }
+
     setConfiguredActivities((previous) => {
       const exists = previous.some(
         (activity) => activity.type === configuration.type,
@@ -89,7 +141,11 @@ export default function ActivitiesScreen() {
         <PrimaryButton
           title="Continue"
           disabled={configuredActivities.length === 0}
-          onPress={() => navigation.navigate("ReviewPlan")}
+          onPress={() =>
+            navigation.navigate("ReviewPlan", {
+              activities: configuredActivities,
+            })
+          }
         />
       </ScrollScreenContainer>
 

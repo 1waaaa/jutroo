@@ -27,6 +27,7 @@ export default function WelcomeScreen() {
         <PrimaryButton
           title="Let's Begin"
           onPress={() => navigation.navigate("Location")}
+          disabled={false}
         />
       }
     >

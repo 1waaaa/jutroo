@@ -1,25 +1,47 @@
 import { useEffect } from "react";
-import { ActivityIndicator, View, StyleSheet } from "react-native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+
 import { RootStackParamList } from "../../navigation/types";
 
-import { hasCompletedOnboarding } from "../../services/storageService";
+import {
+  hasCompletedOnboarding,
+  resetOnboarding,
+} from "../../services/storageService";
+
+import { useUser } from "../../context/UserContext";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Startup">;
+
+const DEV_RESET = false;
 
 export default function StartupScreen() {
   const navigation = useNavigation<NavigationProp>();
 
+  const { setUserId } = useUser();
+
   useEffect(() => {
     async function check() {
-      const completed = await hasCompletedOnboarding();
-
-      if (completed) {
-        navigation.replace("Home");
-      } else {
-        navigation.replace("Splash");
+      if (DEV_RESET) {
+        await resetOnboarding();
       }
+
+      const completed = await hasCompletedOnboarding();
+      //posle ispraviti
+      if (!completed) {
+        navigation.replace("Home");
+        return;
+      }
+
+      const storedId = await AsyncStorage.getItem("userId");
+
+      if (storedId) {
+        setUserId(Number(storedId));
+      }
+
+      navigation.replace("Home");
     }
 
     check();

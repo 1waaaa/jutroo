@@ -1,17 +1,22 @@
 import { useEffect, useState } from "react";
-import { View, StyleSheet, Text, Alert } from "react-native";
-import { Sun, Check } from "lucide-react-native";
+import { Alert, StyleSheet, Text, View } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Check } from "lucide-react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { RootStackParamList } from "../../navigation/types";
+
 import ScreenContainer from "../../components/ScreenContainer/ScreenContainer";
 import AppTitle from "../../components/AppTitle/AppTitle";
+
 import { Colors } from "../../theme/colors";
 
 import { useOnboarding } from "../../context/OnboardingContext";
+import { useUser } from "../../context/UserContext";
+
 import { registerUser } from "../../api/auth";
+
 import { completeOnboarding } from "../../services/storageService";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Loading">;
@@ -21,6 +26,8 @@ export default function LoadingScreen() {
 
   const { data, updateData } = useOnboarding();
 
+  const { setUserId } = useUser();
+
   const [step, setStep] = useState(0);
 
   function delay(ms: number) {
@@ -29,9 +36,6 @@ export default function LoadingScreen() {
 
   async function initializeApp() {
     try {
-      console.log("========== ONBOARDING ==========");
-      console.log(data);
-
       setStep(1);
       await delay(500);
 
@@ -56,17 +60,13 @@ export default function LoadingScreen() {
         longitude: data.longitude,
       };
 
-      console.log("========== REQUEST ==========");
-      console.log(request);
-
       const user = await registerUser(request);
-
-      console.log("========== RESPONSE ==========");
-      console.log(user);
 
       updateData({
         userId: user.id,
       });
+
+      setUserId(user.id);
 
       setStep(4);
 
@@ -78,14 +78,7 @@ export default function LoadingScreen() {
 
       navigation.replace("Home");
     } catch (error: any) {
-      console.log("========== ERROR ==========");
       console.log(error);
-
-      console.log("STATUS:");
-      console.log(error.response?.status);
-
-      console.log("DATA:");
-      console.log(error.response?.data);
 
       Alert.alert(
         "Registration failed",
@@ -101,8 +94,6 @@ export default function LoadingScreen() {
   return (
     <ScreenContainer>
       <View style={styles.container}>
-        <Sun size={80} color={Colors.accent} />
-
         <AppTitle>Building your{"\n"}morning...</AppTitle>
 
         <View style={styles.list}>
@@ -124,7 +115,7 @@ export default function LoadingScreen() {
 function LoadingItem({ text }: { text: string }) {
   return (
     <View style={styles.item}>
-      <Check size={20} color="#32C671" />
+      <Check size={20} color={Colors.primary} />
 
       <Text style={styles.itemText}>{text}</Text>
     </View>
@@ -134,30 +125,39 @@ function LoadingItem({ text }: { text: string }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+
     justifyContent: "center",
+
     alignItems: "center",
   },
 
   list: {
     marginTop: 40,
+
     gap: 18,
+
     width: "90%",
   },
 
   item: {
     flexDirection: "row",
+
     alignItems: "center",
+
     gap: 12,
   },
 
   itemText: {
     fontSize: 17,
+
     color: Colors.text,
   },
 
   footer: {
     marginTop: 50,
+
     fontSize: 16,
+
     color: Colors.subtitle,
   },
 });
