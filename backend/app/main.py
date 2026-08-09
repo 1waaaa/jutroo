@@ -1,6 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes.weather import router as weather_router
+from app.routes.planner import router as planner_router
+from app.routes.outfit import router as outfit_router
+
 
 from app.database.database import Base, engine
 from app.models.user import User
@@ -20,7 +23,8 @@ app.add_middleware(
 Base.metadata.create_all(bind=engine)
 
 app.include_router(auth_router)
-
+app.include_router(planner_router)
+app.include_router(outfit_router)
 
 @app.get("/")
 def root():
