@@ -1,29 +1,26 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { AppState, AppStateStatus } from "react-native";
+
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import { RootStackParamList } from "../../navigation/types";
 
 import ScrollScreenContainer from "../../components/ScrollScreenContainer/ScrollScreenContainer";
-import GreetingCard from "../../components/GreetingCard/GreetingCard";
 import WeatherCard from "../../components/WeatherCard/WeatherCard";
 import HydrationCard from "../../components/HydrationCard/HydrationCard";
 import TodayScheduleCard from "../../components/home/TodayScheduleCard";
 import OutfitAdvisorCard from "../../components/home/OutfitAdvisorCard";
+import TodayOutfitCard from "../../components/home/TodayOutfitCard";
 import CTAActionCard from "../../components/CTAActionCard/CTAActionCard";
-import AppLoader from "../../components/AppLoader/AppLoader";
 
-import { useOnboarding } from "../../context/OnboardingContext";
 import { usePlanner } from "../../context/PlannerContext";
 import { useUser } from "../../context/UserContext";
+import { useOutfit } from "../../context/OutfitContext";
 
 import { WeatherResponse, getCurrentWeather } from "../../api/weatherApi";
 
 import { HydrationResponse, getWaterGoal } from "../../api/hydrationApi";
-import { useOutfit } from "../../context/OutfitContext";
-import TodayOutfitCard from "../../components/home/TodayOutfitCard";
-
-// import { getPlan } from "../../api/plannerApi";
 
 import { mockWeather } from "../../mock/weather";
 import { mockHydration } from "../../mock/hydration";
@@ -31,12 +28,15 @@ import { mockSchedule } from "../../mock/schedule";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Home">;
 
+// false kada backend bude spreman.
 const USE_MOCK_DATA = true;
+
+const WEATHER_REFRESH_INTERVAL = 60 * 60 * 1000;
 
 export default function HomeScreen() {
   const navigation = useNavigation<NavigationProp>();
+
   const { outfit } = useOutfit();
-  const { data } = useOnboarding();
 
   const { userId } = useUser();
 
@@ -48,6 +48,63 @@ export default function HomeScreen() {
 
   const [hydration, setHydration] = useState<HydrationResponse | null>(null);
 
+  /*
+   * Prevent multiple weather requests
+   * from running at the same time.
+   */
+  const weatherLoading = useRef(false);
+
+  /*
+   * Fetch current weather.
+   *
+   * This function is intentionally separate
+   * from the initial Home loading because
+   * weather can refresh without reloading
+   * the whole screen.
+   */
+  const refreshWeather = useCallback(async () => {
+    if (weatherLoading.current) {
+      return;
+    }
+
+    weatherLoading.current = true;
+
+    try {
+      if (USE_MOCK_DATA) {
+        setWeather(mockWeather);
+        return;
+      }
+
+      if (!userId) {
+        console.log("User ID not found.");
+        return;
+      }
+
+      const weatherData = await getCurrentWeather(userId);
+
+      setWeather(weatherData);
+    } catch (error) {
+      console.log("Weather refresh failed.", error);
+
+      /*
+       * If we already have weather,
+       * keep showing it instead of
+       * replacing it with mock data.
+       */
+      if (!weather) {
+        setWeather(mockWeather);
+      }
+    } finally {
+      weatherLoading.current = false;
+    }
+  }, [userId, weather]);
+
+  /*
+   * Initial Home loading.
+   *
+   * Weather + hydration are loaded here.
+   * Schedule comes from PlannerContext.
+   */
   useEffect(() => {
     async function loadHome() {
       try {
@@ -66,6 +123,9 @@ export default function HomeScreen() {
         if (!userId) {
           console.log("User ID not found.");
 
+          setWeather(mockWeather);
+          setHydration(mockHydration);
+
           return;
         }
 
@@ -77,11 +137,14 @@ export default function HomeScreen() {
 
         setHydration(hydrationData);
 
-        // kasnije
-        // const plan = await getPlan(userId);
-        // setSchedule(plan.items);
+        /*
+         * Later:
+         *
+         * const plan = await getPlan(userId);
+         * setSchedule(plan.items);
+         */
       } catch (error) {
-        console.log(error);
+        console.log("Home loading failed.", error);
 
         setWeather(mockWeather);
 
@@ -96,16 +159,57 @@ export default function HomeScreen() {
     }
 
     loadHome();
-  }, []);
+  }, [userId, hasSchedule, setSchedule]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refreshWeather();
+    }, WEATHER_REFRESH_INTERVAL);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [refreshWeather]);
+
+  /*
+   * Refresh weather immediately when
+   * the user comes back to the app.
+   *
+   * Example:
+   *
+   * Home
+   *   ↓
+   * Instagram
+   *   ↓
+   * 2 hours later
+   *   ↓
+   * Jutroo
+   *   ↓
+   * GET /weather/current
+   */
+  useEffect(() => {
+    const handleAppStateChange = (nextState: AppStateStatus) => {
+      if (nextState === "active") {
+        refreshWeather();
+      }
+    };
+
+    const subscription = AppState.addEventListener(
+      "change",
+      handleAppStateChange,
+    );
+
+    return () => {
+      subscription.remove();
+    };
+  }, [refreshWeather]);
 
   if (loading || !weather || !hydration) {
-    return <AppLoader text="Loading your morning..." />;
+    return null;
   }
 
   return (
     <ScrollScreenContainer>
-      <GreetingCard username={data.username} />
-
       <WeatherCard
         temperature={weather.temperature}
         condition={weather.condition}
@@ -136,6 +240,7 @@ export default function HomeScreen() {
         }
         onPress={() => navigation.navigate("Activities")}
       />
+
       {outfit ? (
         <TodayOutfitCard
           outfit={outfit}

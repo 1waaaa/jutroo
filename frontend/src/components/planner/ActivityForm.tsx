@@ -15,16 +15,21 @@ import { Activity, ConfiguredActivity } from "../../constants/activities";
 
 interface Props {
   activity: Activity;
+
   initialConfiguration?: ConfiguredActivity;
+
   onSave: (configuration: ConfiguredActivity) => void;
+
+  onPickerChange?: (open: boolean) => void;
 }
 
-type PickerType = "none" | "start" | "end";
+type PickerType = "none" | "time";
 
 export default function ActivityForm({
   activity,
   initialConfiguration,
   onSave,
+  onPickerChange,
 }: Props) {
   const isLocked = activity.id === "UNIVERSITY" || activity.id === "WORK";
 
@@ -41,106 +46,128 @@ export default function ActivityForm({
   const fixed = isLocked ? true : userFixed;
 
   const [earliest, setEarliest] = useState(
-    initialConfiguration?.earliest ?? activity.minTime,
+    initialConfiguration?.earliest || activity.minTime,
   );
 
   const [latest, setLatest] = useState(
-    initialConfiguration?.latest ?? activity.maxTime,
+    initialConfiguration?.latest || activity.maxTime,
   );
 
   function toMinutes(time: string) {
-    const [h, m] = time.split(":").map(Number);
+    const [hours, minutes] = time.split(":").map(Number);
 
-    return h * 60 + m;
+    return hours * 60 + minutes;
   }
 
+  /*
+   * Fixed:
+   * duration = end - start
+   *
+   * Flexible:
+   * duration is chosen manually.
+   */
   useEffect(() => {
-    if (!fixed) return;
+    if (!fixed) {
+      return;
+    }
 
-    setDuration(Math.max(30, toMinutes(latest) - toMinutes(earliest)));
+    const calculatedDuration = toMinutes(latest) - toMinutes(earliest);
+
+    setDuration(Math.max(30, calculatedDuration));
   }, [fixed, earliest, latest]);
+
+  /*
+   * Called when the user finishes
+   * choosing the time range.
+   */
+  function handleTimeSelect(start: string, end: string) {
+    setEarliest(start);
+    setLatest(end);
+
+    setPicker("none");
+
+    onPickerChange?.(false);
+  }
+
+  /*
+   * Open the time picker.
+   */
+  function openTimePicker() {
+    setPicker("time");
+
+    onPickerChange?.(true);
+  }
+
+  /*
+   * Close the time picker.
+   */
+  function closeTimePicker() {
+    setPicker("none");
+
+    onPickerChange?.(false);
+  }
 
   function handleSave() {
     onSave({
       type: activity.id,
+
       duration,
+
       fixed,
-      earliest: fixed ? earliest : "",
-      latest: fixed ? latest : "",
+
+      earliest,
+
+      latest,
     });
   }
 
-  if (picker === "start") {
+  /*
+   * TIME PICKER MODE
+   *
+   * ActivityBottomSheet knows that
+   * picker is open and hides its header.
+   */
+  if (picker === "time") {
     return (
-      <>
-        <BackButton onPress={() => setPicker("none")} />
+      <View>
+        <BackButton onPress={closeTimePicker} />
 
         <TimePickerSheet
-          title="Choose Start Time"
+          title={fixed ? "Choose Your Time" : "Choose Your Time Window"}
           min={activity.minTime}
           max={activity.maxTime}
-          value={earliest}
-          onSelect={(time) => {
-            setEarliest(time);
-
-            if (toMinutes(time) > toMinutes(latest)) {
-              setLatest(time);
-            }
-
-            setPicker("none");
-          }}
+          start={earliest}
+          end={latest}
+          fixed={fixed}
+          onBack={closeTimePicker}
+          onSelect={handleTimeSelect}
         />
-      </>
+      </View>
     );
   }
 
-  if (picker === "end") {
-    return (
-      <>
-        <BackButton onPress={() => setPicker("none")} />
-
-        <TimePickerSheet
-          title="Choose End Time"
-          min={earliest}
-          max={activity.maxTime}
-          value={latest}
-          onSelect={(time) => {
-            setLatest(time);
-
-            setPicker("none");
-          }}
-        />
-      </>
-    );
-  }
+  /*
+   * NORMAL FORM
+   */
 
   return (
     <View>
-      {!fixed && <DurationSelector value={duration} onChange={setDuration} />}
-
       {!isLocked && <FixedToggle value={userFixed} onChange={setUserFixed} />}
 
-      {fixed && (
-        <>
-          <TimeSelector
-            label="Start Time"
-            value={earliest}
-            onPress={() => setPicker("start")}
-          />
+      <TimeSelector
+        label={fixed ? "Start & End Time" : "Earliest & Latest Start"}
+        value={fixed ? `${earliest} → ${latest}` : `${earliest} – ${latest}`}
+        onPress={openTimePicker}
+      />
 
-          <TimeSelector
-            label="End Time"
-            value={latest}
-            onPress={() => setPicker("end")}
-          />
+      {!fixed && <DurationSelector value={duration} onChange={setDuration} />}
 
-          <ActivitySummaryCard
-            start={earliest}
-            end={latest}
-            duration={duration}
-          />
-        </>
-      )}
+      <ActivitySummaryCard
+        start={earliest}
+        end={latest}
+        duration={duration}
+        fixed={fixed}
+      />
 
       <PrimaryButton
         title="✨ Add Activity"

@@ -35,54 +35,70 @@ export default function FixedToggle({ value, onChange }: Props) {
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 26,
+    marginBottom: 24,
   },
 
   label: {
-    fontSize: 18,
+    fontSize: 17,
+
     fontWeight: "700",
+
     color: Colors.text,
 
-    marginBottom: 14,
+    marginBottom: 10,
   },
 
   segment: {
     flexDirection: "row",
 
-    backgroundColor: Colors.surface,
+    backgroundColor: "#F1F5F9",
 
     borderRadius: 16,
 
-    borderWidth: 1,
-
-    borderColor: Colors.border,
-
     padding: 4,
+
+    height: 52,
   },
 
   option: {
     flex: 1,
 
-    paddingVertical: 14,
-
-    borderRadius: 12,
+    justifyContent: "center",
 
     alignItems: "center",
+
+    borderRadius: 13,
   },
 
   selectedOption: {
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.surface,
+
+    shadowColor: "#000",
+
+    shadowOpacity: 0.07,
+
+    shadowRadius: 5,
+
+    shadowOffset: {
+      width: 0,
+
+      height: 2,
+    },
+
+    elevation: 2,
   },
 
   text: {
-    color: Colors.subtitle,
+    fontSize: 15,
 
     fontWeight: "600",
 
-    fontSize: 15,
+    color: Colors.subtitle,
   },
 
   selectedText: {
-    color: "white",
+    color: Colors.text,
+
+    fontWeight: "700",
   },
 });

@@ -17,6 +17,7 @@ import BackButton from "../../components/BackButton/BackButton";
 import AppTitle from "../../components/AppTitle/AppTitle";
 import AppSubtitle from "../../components/AppSubtitle/AppSubtitle";
 import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
+import { recommendOutfit } from "../../api/outfitApi";
 
 import {
   OUTFIT_CATEGORIES,
@@ -168,7 +169,7 @@ export default function OutfitClothesScreen() {
     ]);
   }
 
-  function handleContinue() {
+  async function handleContinue() {
     if (clothes.length === 0) {
       Alert.alert(
         "Add some clothes",
@@ -178,40 +179,99 @@ export default function OutfitClothesScreen() {
       return;
     }
 
-    /*
-     * MOCK RECOMMENDATION
-     *
-     * Za sada uzimamo prvi komad iz
-     * svake kategorije.
-     *
-     * Kada spojimo backend, OVDE ćemo
-     * pozvati POST /api/outfit/recommend
-     * i koristiti Gemini indekse.
-     */
+    const tops = getCategoryItems("tops");
 
-    const top = getCategoryItems("tops")[0];
+    const bottoms = getCategoryItems("bottoms");
 
-    const bottom = getCategoryItems("bottoms")[0];
+    const shoes = getCategoryItems("shoes");
 
-    const shoes = getCategoryItems("shoes")[0];
+    const accessories = getCategoryItems("accessories");
 
-    const accessory = getCategoryItems("accessories")[0];
+    try {
+      /*
+    ============================================================
+    REAL BACKEND
+    ============================================================
+
+    const response = await recommendOutfit({
+      planId: 5, // kasnije uzimamo pravi planId
+      activity,
+
+      tops,
+      bottoms,
+      shoes,
+      accessories,
+    });
+
+    const top =
+      tops[response.selectedTop];
+
+    const bottom =
+      bottoms[response.selectedBottom];
+
+    const selectedShoes =
+      shoes[response.selectedShoes];
+
+    const accessory =
+      accessories[
+        response.selectedAccessory
+      ];
 
     setOutfit({
       activity,
 
       top,
-
       bottom,
 
-      shoes,
+      shoes: selectedShoes,
 
       accessory,
 
-      reason: "This outfit is perfect for your activity and today's weather.",
+      reason: response.reason,
     });
 
     navigation.navigate("OutfitResult");
+
+    return;
+    */
+
+      /*
+    ============================================================
+    MOCK
+    ============================================================
+    */
+
+      const top = tops[0];
+
+      const bottom = bottoms[0];
+
+      const selectedShoes = shoes[0];
+
+      const accessory = accessories[0];
+
+      setOutfit({
+        activity,
+
+        top,
+
+        bottom,
+
+        shoes: selectedShoes,
+
+        accessory,
+
+        reason: "This outfit is perfect for your activity and today's weather.",
+      });
+
+      navigation.navigate("OutfitResult");
+    } catch (error) {
+      console.log("Outfit recommendation failed:", error);
+
+      Alert.alert(
+        "Something went wrong",
+        "We couldn't create your outfit recommendation.",
+      );
+    }
   }
 
   const activityInfo = getActivityInfo(activity);

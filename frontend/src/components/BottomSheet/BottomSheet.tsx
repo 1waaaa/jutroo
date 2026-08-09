@@ -1,4 +1,13 @@
-import { Modal, View, Pressable, StyleSheet, Animated } from "react-native";
+import {
+  Modal,
+  View,
+  StyleSheet,
+  Animated,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from "react-native";
+
 import { useEffect, useRef } from "react";
 
 import { Colors } from "../../theme/colors";
@@ -21,21 +30,41 @@ export default function BottomSheet({ visible, onClose, children }: Props) {
   }, [visible]);
 
   return (
-    <Modal visible={visible} transparent animationType="none">
-      <Pressable style={styles.overlay} onPress={onClose}>
-        <Animated.View
-          style={[
-            styles.sheet,
-            {
-              transform: [{ translateY }],
-            },
-          ]}
+    <Modal
+      visible={visible}
+      transparent
+      animationType="none"
+      onRequestClose={onClose}
+    >
+      <View style={styles.overlay}>
+        <KeyboardAvoidingView
+          style={styles.keyboardContainer}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
-          <View style={styles.handle} />
+          <Animated.View
+            style={[
+              styles.sheet,
+              {
+                transform: [
+                  {
+                    translateY,
+                  },
+                ],
+              },
+            ]}
+          >
+            <View style={styles.handle} />
 
-          {children}
-        </Animated.View>
-      </Pressable>
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+              contentContainerStyle={styles.content}
+            >
+              {children}
+            </ScrollView>
+          </Animated.View>
+        </KeyboardAvoidingView>
+      </View>
     </Modal>
   );
 }
@@ -43,23 +72,35 @@ export default function BottomSheet({ visible, onClose, children }: Props) {
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
+
     justifyContent: "flex-end",
+
     backgroundColor: "rgba(36,52,71,0.35)",
+  },
+
+  keyboardContainer: {
+    width: "100%",
   },
 
   sheet: {
     backgroundColor: Colors.surface,
 
     borderTopLeftRadius: 30,
+
     borderTopRightRadius: 30,
 
-    padding: 24,
+    paddingHorizontal: 24,
+
+    paddingTop: 12,
+
+    maxHeight: "92%",
 
     minHeight: "55%",
   },
 
   handle: {
     width: 55,
+
     height: 5,
 
     backgroundColor: Colors.border,
@@ -69,5 +110,9 @@ const styles = StyleSheet.create({
     alignSelf: "center",
 
     marginBottom: 24,
+  },
+
+  content: {
+    paddingBottom: 30,
   },
 });

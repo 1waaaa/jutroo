@@ -1,4 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
+
 import { ChevronDown } from "lucide-react-native";
 
 import { Colors } from "../../theme/colors";
