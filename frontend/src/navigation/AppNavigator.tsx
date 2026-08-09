@@ -13,6 +13,11 @@ import ActivitiesScreen from "../screens/Activities/ActivitiesScreen";
 import ReviewPlanScreen from "../screens/ReviewPlan/ReviewPlanScreen";
 import GeneratingPlanScreen from "../screens/GeneratingPlan/GeneratingPlanScreen";
 import GeneratedSchedule from "../screens/GeneratedSchedule/GeneratedSchedule";
+
+import OutfitActivityScreen from "../screens/OutfitActivity/OutfitActivityScreen";
+import OutfitClothesScreen from "../screens/OutfitClothes/OutfitClothesScreen";
+import OutfitResultScreen from "../screens/OutfitResult/OutfitResultScreen";
+
 import { RootStackParamList } from "./types";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -50,6 +55,12 @@ export default function AppNavigator() {
       <Stack.Screen name="GeneratingPlan" component={GeneratingPlanScreen} />
 
       <Stack.Screen name="GeneratedSchedule" component={GeneratedSchedule} />
+
+      <Stack.Screen name="OutfitActivity" component={OutfitActivityScreen} />
+
+      <Stack.Screen name="OutfitClothes" component={OutfitClothesScreen} />
+
+      <Stack.Screen name="OutfitResult" component={OutfitResultScreen} />
     </Stack.Navigator>
   );
 }

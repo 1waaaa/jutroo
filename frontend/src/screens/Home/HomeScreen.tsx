@@ -9,6 +9,7 @@ import GreetingCard from "../../components/GreetingCard/GreetingCard";
 import WeatherCard from "../../components/WeatherCard/WeatherCard";
 import HydrationCard from "../../components/HydrationCard/HydrationCard";
 import TodayScheduleCard from "../../components/home/TodayScheduleCard";
+import OutfitAdvisorCard from "../../components/home/OutfitAdvisorCard";
 import CTAActionCard from "../../components/CTAActionCard/CTAActionCard";
 import AppLoader from "../../components/AppLoader/AppLoader";
 
@@ -19,6 +20,8 @@ import { useUser } from "../../context/UserContext";
 import { WeatherResponse, getCurrentWeather } from "../../api/weatherApi";
 
 import { HydrationResponse, getWaterGoal } from "../../api/hydrationApi";
+import { useOutfit } from "../../context/OutfitContext";
+import TodayOutfitCard from "../../components/home/TodayOutfitCard";
 
 // import { getPlan } from "../../api/plannerApi";
 
@@ -32,7 +35,7 @@ const USE_MOCK_DATA = true;
 
 export default function HomeScreen() {
   const navigation = useNavigation<NavigationProp>();
-
+  const { outfit } = useOutfit();
   const { data } = useOnboarding();
 
   const { userId } = useUser();
@@ -133,6 +136,16 @@ export default function HomeScreen() {
         }
         onPress={() => navigation.navigate("Activities")}
       />
+      {outfit ? (
+        <TodayOutfitCard
+          outfit={outfit}
+          onPress={() => navigation.navigate("OutfitResult")}
+        />
+      ) : (
+        <OutfitAdvisorCard
+          onPress={() => navigation.navigate("OutfitActivity")}
+        />
+      )}
     </ScrollScreenContainer>
   );
 }

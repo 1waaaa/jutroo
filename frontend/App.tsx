@@ -7,14 +7,18 @@ import { PlannerProvider } from "./src/context/PlannerContext";
 
 import { UserProvider } from "./src/context/UserContext";
 
+import { OutfitProvider } from "./src/context/OutfitContext";
+
 export default function App() {
   return (
     <OnboardingProvider>
       <UserProvider>
         <PlannerProvider>
-          <NavigationContainer>
-            <AppNavigator />
-          </NavigationContainer>
+          <OutfitProvider>
+            <NavigationContainer>
+              <AppNavigator />
+            </NavigationContainer>
+          </OutfitProvider>
         </PlannerProvider>
       </UserProvider>
     </OnboardingProvider>
