@@ -203,12 +203,12 @@ export default function HomeScreen() {
           uv={weather.uv}
         />
 
-        <HydrationCard waterGoal={hydration.goal} />
-
         <TodayScheduleCard
           schedule={schedule}
           onPress={() => navigation.navigate("GeneratedSchedule")}
         />
+
+        <HydrationCard waterGoal={hydration.goal} />
 
         <CTAActionCard
           title={

@@ -6,16 +6,18 @@ import { LinearGradient } from "expo-linear-gradient";
 
 import { DAY_PALETTES, getDayPhase } from "../../theme/dayTheme";
 
+import { DayThemeProvider } from "../../context/DayThemeContext";
+
 interface Props {
   children: ReactNode;
 }
 
 export default function DayBackground({ children }: Props) {
-  const getCurrentMinutes = () => {
+  function getCurrentMinutes() {
     const now = new Date();
 
     return now.getHours() * 60 + now.getMinutes();
-  };
+  }
 
   const [minutes, setMinutes] = useState(getCurrentMinutes());
 
@@ -26,7 +28,7 @@ export default function DayBackground({ children }: Props) {
   const fade = useRef(new Animated.Value(1)).current;
 
   /*
-   * Update once per minute.
+   * Update once every minute.
    */
   useEffect(() => {
     const interval = setInterval(() => {
@@ -39,7 +41,7 @@ export default function DayBackground({ children }: Props) {
   }, []);
 
   /*
-   * Smoothly transition when
+   * Smooth transition when
    * the day phase changes.
    */
   useEffect(() => {
@@ -69,48 +71,58 @@ export default function DayBackground({ children }: Props) {
     setPalette(nextPalette);
   }, [currentPhase.name]);
 
-  return (
-    <View style={styles.container}>
-      {/* Main atmospheric gradient */}
-      <LinearGradient
-        colors={[palette.top, palette.bottom]}
-        start={{
-          x: 0.15,
-          y: 0,
-        }}
-        end={{
-          x: 0.85,
-          y: 1,
-        }}
-        style={StyleSheet.absoluteFill}
-      />
+  /*
+   * Night starts at 23:00 and lasts
+   * until 05:30.
+   */
+  const isDark = currentPhase.name === "night";
 
-      {/* Very subtle soft light */}
-      <Animated.View
-        pointerEvents="none"
-        style={[
-          styles.glow,
-          {
-            opacity: fade,
-          },
-        ]}
-      >
+  return (
+    <DayThemeProvider isDark={isDark}>
+      <View style={styles.container}>
+        {/* Main atmospheric gradient */}
+
         <LinearGradient
-          colors={[palette.top, "rgba(255,255,255,0)"]}
+          colors={[palette.top, palette.bottom]}
           start={{
-            x: 0.5,
+            x: 0.15,
             y: 0,
           }}
           end={{
-            x: 0.5,
+            x: 0.85,
             y: 1,
           }}
           style={StyleSheet.absoluteFill}
         />
-      </Animated.View>
 
-      <View style={styles.content}>{children}</View>
-    </View>
+        {/* Soft atmospheric glow */}
+
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            styles.glow,
+            {
+              opacity: fade,
+            },
+          ]}
+        >
+          <LinearGradient
+            colors={[palette.top, "rgba(255,255,255,0)"]}
+            start={{
+              x: 0.5,
+              y: 0,
+            }}
+            end={{
+              x: 0.5,
+              y: 1,
+            }}
+            style={StyleSheet.absoluteFill}
+          />
+        </Animated.View>
+
+        <View style={styles.content}>{children}</View>
+      </View>
+    </DayThemeProvider>
   );
 }
 

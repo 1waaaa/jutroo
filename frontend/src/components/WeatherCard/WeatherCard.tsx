@@ -1,10 +1,12 @@
-import { View, Text, StyleSheet } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
+
 import { Sun, CloudSun, Cloud, CloudRain, Moon } from "lucide-react-native";
 
 import { Colors } from "../../theme/colors";
 
-import WeatherBackground from "./WeatherBackground";
 import WeatherVideoBackground from "./WeatherVideoBackground";
+
+import { useDayTheme } from "../../context/DayThemeContext";
 
 interface Props {
   temperature: number;
@@ -13,75 +15,92 @@ interface Props {
   feelsLike: number;
 }
 
-function WeatherIcon({ condition }: { condition: string }) {
-  const normalizedCondition = condition.toLowerCase();
-
-  if (
-    normalizedCondition.includes("rain") ||
-    normalizedCondition.includes("drizzle")
-  ) {
-    return <CloudRain size={42} color={Colors.primary} />;
-  }
-
-  if (
-    normalizedCondition.includes("partly") ||
-    normalizedCondition.includes("partially")
-  ) {
-    return <CloudSun size={42} color={Colors.accent} />;
-  }
-
-  if (
-    normalizedCondition.includes("cloud") ||
-    normalizedCondition.includes("overcast")
-  ) {
-    return <Cloud size={42} color={Colors.text} />;
-  }
-
-  if (
-    normalizedCondition.includes("night") ||
-    normalizedCondition.includes("moon")
-  ) {
-    return <Moon size={42} color={Colors.accent} />;
-  }
-
-  return <Sun size={46} color={Colors.accent} />;
-}
-
 export default function WeatherCard({
   temperature,
   condition,
   uv,
   feelsLike,
 }: Props) {
+  const { isDark } = useDayTheme();
+
+  const textColor = isDark ? "#FFFFFF" : Colors.text;
+
+  const subtitleColor = isDark ? "rgba(255,255,255,0.72)" : Colors.subtitle;
+
   return (
     <View style={styles.card}>
       <WeatherVideoBackground condition={condition} />
 
-      <WeatherBackground condition={condition} />
-
       <View style={styles.content}>
         <View style={styles.topRow}>
           <View>
-            <Text style={styles.label}>WEATHER NOW</Text>
+            <Text
+              style={[
+                styles.label,
+                {
+                  color: subtitleColor,
+                },
+              ]}
+            >
+              WEATHER NOW
+            </Text>
 
-            <Text style={styles.condition}>{condition}</Text>
-          </View>
-
-          {/* NEMA VISE BELOG OKVIRA */}
-          <View style={styles.iconContainer}>
-            <WeatherIcon condition={condition} />
+            <Text
+              style={[
+                styles.condition,
+                {
+                  color: textColor,
+                },
+              ]}
+            >
+              {condition}
+            </Text>
           </View>
         </View>
 
-        <View style={styles.bottomSection}>
-          <Text style={styles.temperature}>{temperature}°</Text>
+        <View style={styles.temperatureRow}>
+          <Text
+            style={[
+              styles.temperature,
+              {
+                color: textColor,
+              },
+            ]}
+          >
+            {temperature}°
+          </Text>
 
           <View style={styles.detailsContainer}>
-            <Text style={styles.detail}>Feels like {feelsLike}°</Text>
+            <Text
+              style={[
+                styles.detail,
+                {
+                  color: subtitleColor,
+                },
+              ]}
+            >
+              Feels like {feelsLike}°
+            </Text>
 
-            <View style={styles.dot} />
+            <View
+              style={[
+                styles.dot,
+                {
+                  backgroundColor: subtitleColor,
+                },
+              ]}
+            />
 
-            <Text style={styles.detail}>UV {uv}</Text>
+            <Text
+              style={[
+                styles.detail,
+                {
+                  color: subtitleColor,
+                },
+              ]}
+            >
+              UV {uv}
+            </Text>
           </View>
         </View>
       </View>
@@ -91,9 +110,7 @@ export default function WeatherCard({
 
 const styles = StyleSheet.create({
   card: {
-    height: 330,
-
-    backgroundColor: Colors.surface,
+    minHeight: 280,
 
     borderRadius: 30,
 
@@ -102,28 +119,29 @@ const styles = StyleSheet.create({
     overflow: "hidden",
 
     borderWidth: 1,
-    borderColor: Colors.border,
+
+    borderColor: "rgba(255,255,255,0.55)",
 
     shadowColor: Colors.text,
-    shadowOpacity: 0.1,
-    shadowRadius: 24,
+
+    shadowOpacity: 0.06,
+
+    shadowRadius: 20,
 
     shadowOffset: {
       width: 0,
-      height: 12,
+      height: 10,
     },
 
-    elevation: 4,
+    elevation: 3,
   },
 
   content: {
     flex: 1,
 
-    padding: 28,
+    padding: 24,
 
     justifyContent: "space-between",
-
-    zIndex: 2,
   },
 
   topRow: {
@@ -139,45 +157,51 @@ const styles = StyleSheet.create({
 
     fontWeight: "800",
 
-    letterSpacing: 3.5,
-
-    color: Colors.text,
-
-    opacity: 0.65,
+    letterSpacing: 1.5,
   },
 
   condition: {
-    marginTop: 8,
+    marginTop: 6,
 
-    fontSize: 28,
+    fontSize: 25,
 
     fontWeight: "700",
-
-    color: Colors.text,
   },
 
   iconContainer: {
     width: 58,
+
     height: 58,
 
+    borderRadius: 20,
+
+    backgroundColor: "rgba(255,255,255,0.55)",
+
     justifyContent: "center",
+
     alignItems: "center",
+
+    borderWidth: 1,
+
+    borderColor: "rgba(255,255,255,0.65)",
   },
 
-  bottomSection: {
-    marginBottom: 4,
+  iconContainerDark: {
+    backgroundColor: "rgba(255,255,255,0.14)",
+
+    borderColor: "rgba(255,255,255,0.28)",
+  },
+
+  temperatureRow: {
+    marginTop: 30,
   },
 
   temperature: {
-    fontSize: 82,
+    fontSize: 58,
 
     fontWeight: "800",
 
-    letterSpacing: -4,
-
-    lineHeight: 88,
-
-    color: Colors.text,
+    letterSpacing: -3,
   },
 
   detailsContainer: {
@@ -185,29 +209,22 @@ const styles = StyleSheet.create({
 
     alignItems: "center",
 
-    marginTop: 8,
+    marginTop: 4,
   },
 
   detail: {
-    fontSize: 17,
+    fontSize: 15,
 
-    fontWeight: "500",
-
-    color: Colors.text,
-
-    opacity: 0.72,
+    fontWeight: "600",
   },
 
   dot: {
-    width: 5,
-    height: 5,
+    width: 4,
 
-    borderRadius: 10,
+    height: 4,
 
-    backgroundColor: Colors.text,
+    borderRadius: 2,
 
-    opacity: 0.5,
-
-    marginHorizontal: 14,
+    marginHorizontal: 9,
   },
 });
