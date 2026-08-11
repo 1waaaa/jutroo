@@ -5,38 +5,38 @@ export interface DayPalette {
 
 export const DAY_PALETTES = {
   dawn: {
-    top: "#E8EEF5",
-    bottom: "#FFF0D8",
+    top: "#DCE8F2",
+    bottom: "#F8E9D4",
   },
 
   morning: {
-    top: "#E8F4FC",
-    bottom: "#FCFBF8",
+    top: "#DCEFFA",
+    bottom: "#F9FBFC",
   },
 
   midday: {
-    top: "#DDF0FC",
-    bottom: "#FAFCFD",
+    top: "#D5ECFA",
+    bottom: "#F7FBFD",
   },
 
   afternoon: {
-    top: "#E5F1F9",
-    bottom: "#FFF5E4",
+    top: "#DCEAF4",
+    bottom: "#F8EBD8",
   },
 
   goldenHour: {
-    top: "#E9E8EF",
-    bottom: "#FFE4BC",
+    top: "#D8DCE5",
+    bottom: "#F2D7B5",
   },
 
   evening: {
-    top: "#C9D5E3",
-    bottom: "#E8D9D5",
+    top: "#34485E",
+    bottom: "#25394F",
   },
 
   night: {
-    top: "#172638",
-    bottom: "#293B50",
+    top: "#18283A",
+    bottom: "#223A52",
   },
 };
 

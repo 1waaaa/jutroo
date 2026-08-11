@@ -27,6 +27,24 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 const WATER_AMOUNTS = [250, 500, 750, 1000];
 
+/*
+ * Local date instead of UTC date.
+ *
+ * This means hydration resets exactly
+ * at the user's local midnight.
+ */
+function getLocalDateKey() {
+  const now = new Date();
+
+  const year = now.getFullYear();
+
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+
+  const day = String(now.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
 export default function HydrationCard({ waterGoal }: Props) {
   const { isDark } = useDayTheme();
 
@@ -67,13 +85,12 @@ export default function HydrationCard({ waterGoal }: Props) {
 
       const data = JSON.parse(stored);
 
-      const today = new Date().toISOString().split("T")[0];
+      const today = getLocalDateKey();
 
       if (data.date !== today) {
         await AsyncStorage.removeItem(STORAGE_KEY);
 
         setConsumed(0);
-
         return;
       }
 
@@ -87,10 +104,11 @@ export default function HydrationCard({ waterGoal }: Props) {
     const newAmount = consumed + amount;
 
     setConsumed(newAmount);
+
     setShowOptions(false);
 
     try {
-      const today = new Date().toISOString().split("T")[0];
+      const today = getLocalDateKey();
 
       await AsyncStorage.setItem(
         STORAGE_KEY,
@@ -136,6 +154,8 @@ export default function HydrationCard({ waterGoal }: Props) {
 
   return (
     <View style={styles.container}>
+      {/* HEADER */}
+
       <View style={styles.header}>
         <View>
           <Text
@@ -169,6 +189,8 @@ export default function HydrationCard({ waterGoal }: Props) {
         </Pressable>
       </View>
 
+      {/* MAIN */}
+
       <View style={styles.main}>
         <View style={styles.circleContainer}>
           <Svg
@@ -190,6 +212,8 @@ export default function HydrationCard({ waterGoal }: Props) {
               </LinearGradient>
             </Defs>
 
+            {/* Background ring */}
+
             <Circle
               cx={CIRCLE_SIZE / 2}
               cy={CIRCLE_SIZE / 2}
@@ -198,6 +222,8 @@ export default function HydrationCard({ waterGoal }: Props) {
               strokeWidth={STROKE_WIDTH}
               fill="none"
             />
+
+            {/* Progress ring */}
 
             <Circle
               cx={CIRCLE_SIZE / 2}
@@ -266,15 +292,22 @@ export default function HydrationCard({ waterGoal }: Props) {
         </View>
       </View>
 
+      {/* WATER OPTIONS */}
+
       {showOptions ? (
         <View style={styles.options}>
           {WATER_AMOUNTS.map((amount) => (
             <Pressable
               key={amount}
-              style={styles.waterOption}
+              style={[styles.waterOption, isDark && styles.waterOptionDark]}
               onPress={() => addWater(amount)}
             >
-              <Text style={styles.waterOptionText}>
+              <Text
+                style={[
+                  styles.waterOptionText,
+                  isDark && styles.waterOptionTextDark,
+                ]}
+              >
                 +{amount >= 1000 ? "1 L" : `${amount} ml`}
               </Text>
             </Pressable>
@@ -295,47 +328,36 @@ export default function HydrationCard({ waterGoal }: Props) {
 const styles = StyleSheet.create({
   container: {
     marginBottom: 28,
-
     paddingHorizontal: 4,
   },
 
   header: {
     flexDirection: "row",
-
     alignItems: "center",
-
     justifyContent: "space-between",
-
     marginBottom: 14,
   },
 
   eyebrow: {
     fontSize: 10,
-
     fontWeight: "800",
-
     letterSpacing: 2.5,
-
     marginBottom: 3,
   },
 
   title: {
     fontSize: 23,
-
     fontWeight: "700",
   },
 
   headerButton: {
     width: 40,
-
     height: 40,
-
     borderRadius: 20,
 
     backgroundColor: "rgba(255,255,255,0.55)",
 
     justifyContent: "center",
-
     alignItems: "center",
   },
 
@@ -345,21 +367,16 @@ const styles = StyleSheet.create({
 
   main: {
     flexDirection: "row",
-
     alignItems: "center",
-
     justifyContent: "space-between",
-
     paddingVertical: 4,
   },
 
   circleContainer: {
     width: CIRCLE_SIZE,
-
     height: CIRCLE_SIZE,
 
     justifyContent: "center",
-
     alignItems: "center",
   },
 
@@ -367,53 +384,41 @@ const styles = StyleSheet.create({
     position: "absolute",
 
     justifyContent: "center",
-
     alignItems: "center",
   },
 
   amount: {
     marginTop: 4,
-
     fontSize: 24,
-
     fontWeight: "800",
   },
 
   ofText: {
     marginTop: 1,
-
     fontSize: 13,
-
     fontWeight: "500",
   },
 
   message: {
     flex: 1,
-
     paddingLeft: 18,
-
     paddingRight: 8,
   },
 
   messageTitle: {
     fontSize: 20,
-
     fontWeight: "700",
-
     marginBottom: 6,
   },
 
   messageSubtitle: {
     fontSize: 15,
-
     lineHeight: 21,
   },
 
   logButton: {
     marginTop: 16,
-
     height: 48,
-
     borderRadius: 16,
 
     backgroundColor: "rgba(255,255,255,0.45)",
@@ -423,9 +428,7 @@ const styles = StyleSheet.create({
     borderColor: "rgba(124,184,232,0.45)",
 
     flexDirection: "row",
-
     justifyContent: "center",
-
     alignItems: "center",
 
     gap: 8,
@@ -439,39 +442,38 @@ const styles = StyleSheet.create({
 
   logButtonText: {
     fontSize: 15,
-
     fontWeight: "700",
-
     color: Colors.primary,
   },
 
   options: {
     flexDirection: "row",
-
     gap: 8,
-
     marginTop: 16,
   },
 
   waterOption: {
     flex: 1,
-
     height: 46,
-
     borderRadius: 15,
 
     backgroundColor: Colors.primaryLight,
 
     justifyContent: "center",
-
     alignItems: "center",
+  },
+
+  waterOptionDark: {
+    backgroundColor: "rgba(124,184,232,0.15)",
   },
 
   waterOptionText: {
     fontSize: 13,
-
     fontWeight: "700",
-
     color: Colors.primary,
+  },
+
+  waterOptionTextDark: {
+    color: "#FFFFFF",
   },
 });

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, ReactNode, useContext, useState } from "react";
 
 import { ScheduleItem } from "../mock/schedule";
 
@@ -29,8 +29,11 @@ export function PlannerProvider({ children }: { children: ReactNode }) {
     <PlannerContext.Provider
       value={{
         schedule,
+
         hasSchedule: schedule.length > 0,
+
         setSchedule,
+
         clearSchedule,
       }}
     >

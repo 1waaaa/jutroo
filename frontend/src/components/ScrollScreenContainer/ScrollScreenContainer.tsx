@@ -1,4 +1,6 @@
-import { SafeAreaView, ScrollView, StyleSheet } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
+
+import { Colors } from "../../theme/colors";
 
 interface Props {
   children: React.ReactNode;
@@ -6,14 +8,14 @@ interface Props {
 
 export default function ScrollScreenContainer({ children }: Props) {
   return (
-    <SafeAreaView style={styles.safe}>
+    <View style={styles.safe}>
       <ScrollView
-        contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.content}
       >
         {children}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -24,7 +26,7 @@ const styles = StyleSheet.create({
   },
 
   content: {
-    padding: 22,
-    paddingBottom: 40,
+    paddingHorizontal: 22,
+    paddingBottom: 50,
   },
 });

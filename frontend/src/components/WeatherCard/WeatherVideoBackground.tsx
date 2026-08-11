@@ -1,5 +1,6 @@
 import { StyleSheet, View } from "react-native";
 import { VideoView, useVideoPlayer } from "expo-video";
+import MaskedView from "@react-native-masked-view/masked-view";
 import { LinearGradient } from "expo-linear-gradient";
 
 interface Props {
@@ -34,39 +35,32 @@ export default function WeatherVideoBackground({ condition }: Props) {
   });
 
   return (
-    <View pointerEvents="none" style={styles.container}>
-      <VideoView
-        player={player}
+    <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+      <MaskedView
         style={StyleSheet.absoluteFill}
-        contentFit="cover"
-        nativeControls={false}
-      />
-
-      {/* Blago posvetljava ceo video */}
-      <View style={styles.lightOverlay} />
-
-      {/* Smooth gradient dole */}
-      <LinearGradient
-        colors={[
-          "rgba(255,255,255,0)",
-          "rgba(248,251,255,0.12)",
-          "rgba(248,251,255,0.55)",
-        ]}
-        locations={[0, 0.45, 1]}
-        style={StyleSheet.absoluteFill}
-      />
+        maskElement={
+          <LinearGradient
+            colors={[
+              "#000000",
+              "#000000",
+              "#000000",
+              "rgba(0,0,0,0.9)",
+              "rgba(0,0,0,0.55)",
+              "rgba(0,0,0,0.15)",
+              "rgba(0,0,0,0)",
+            ]}
+            locations={[0, 0.45, 0.6, 0.72, 0.84, 0.94, 1]}
+            style={StyleSheet.absoluteFill}
+          />
+        }
+      >
+        <VideoView
+          player={player}
+          style={StyleSheet.absoluteFill}
+          contentFit="cover"
+          nativeControls={false}
+        />
+      </MaskedView>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    ...StyleSheet.absoluteFillObject,
-  },
-
-  lightOverlay: {
-    ...StyleSheet.absoluteFillObject,
-
-    backgroundColor: "rgba(255,255,255,0.12)",
-  },
-});

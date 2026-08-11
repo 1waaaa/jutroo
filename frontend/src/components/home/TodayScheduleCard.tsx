@@ -1,119 +1,436 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { ChevronRight } from "lucide-react-native";
+
+import {
+  ArrowRight,
+  BriefcaseBusiness,
+  Coffee,
+  Dumbbell,
+  GraduationCap,
+  Utensils,
+  Clock3,
+} from "lucide-react-native";
 
 import { Colors } from "../../theme/colors";
 import { ScheduleItem } from "../../mock/schedule";
+import { useDayTheme } from "../../context/DayThemeContext";
 
 interface Props {
   schedule: ScheduleItem[];
   onPress: () => void;
 }
 
-export default function TodayScheduleCard({ schedule, onPress }: Props) {
-  return (
-    <Pressable style={styles.card} onPress={onPress}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Today's Schedule</Text>
+function getActivityIcon(title: string) {
+  const normalized = title.toLowerCase();
 
-        <ChevronRight size={20} color={Colors.subtitle} />
-      </View>
+  if (
+    normalized.includes("university") ||
+    normalized.includes("school") ||
+    normalized.includes("study")
+  ) {
+    return GraduationCap;
+  }
+
+  if (
+    normalized.includes("gym") ||
+    normalized.includes("workout") ||
+    normalized.includes("training")
+  ) {
+    return Dumbbell;
+  }
+
+  if (
+    normalized.includes("lunch") ||
+    normalized.includes("dinner") ||
+    normalized.includes("breakfast") ||
+    normalized.includes("food")
+  ) {
+    return Utensils;
+  }
+
+  if (normalized.includes("cafe") || normalized.includes("coffee")) {
+    return Coffee;
+  }
+
+  if (normalized.includes("work") || normalized.includes("job")) {
+    return BriefcaseBusiness;
+  }
+
+  return Clock3;
+}
+
+function toMinutes(time: string) {
+  const [hours, minutes] = time.split(":").map(Number);
+
+  return hours * 60 + minutes;
+}
+
+function isCurrentActivity(item: ScheduleItem) {
+  const now = new Date();
+
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+  return (
+    currentMinutes >= toMinutes(item.start) &&
+    currentMinutes < toMinutes(item.end)
+  );
+}
+
+export default function TodayScheduleCard({ schedule, onPress }: Props) {
+  const { isDark } = useDayTheme();
+
+  const textColor = isDark ? "#FFFFFF" : Colors.text;
+
+  const secondaryColor = isDark ? "rgba(255,255,255,0.58)" : Colors.subtitle;
+
+  const lineColor = isDark ? "rgba(255,255,255,0.16)" : Colors.border;
+
+  return (
+    <View style={styles.container}>
+      {/* HEADER */}
+
+      <Pressable style={styles.header} onPress={onPress}>
+        <View>
+          <Text
+            style={[
+              styles.eyebrow,
+              {
+                color: secondaryColor,
+              },
+            ]}
+          >
+            TODAY
+          </Text>
+
+          <Text
+            style={[
+              styles.title,
+              {
+                color: textColor,
+              },
+            ]}
+          >
+            Your day at a glance
+          </Text>
+        </View>
+
+        <View style={[styles.arrowButton, isDark && styles.arrowButtonDark]}>
+          <ArrowRight size={18} color={textColor} strokeWidth={2.2} />
+        </View>
+      </Pressable>
+
+      {/* TIMELINE */}
 
       {schedule.length === 0 ? (
-        <Text style={styles.empty}>No schedule generated yet.</Text>
-      ) : (
-        schedule.slice(0, 4).map((item) => (
-          <View key={item.id} style={styles.row}>
-            <Text style={styles.time}>{item.start}</Text>
+        <Pressable style={styles.empty} onPress={onPress}>
+          <Text
+            style={[
+              styles.emptyTitle,
+              {
+                color: textColor,
+              },
+            ]}
+          >
+            Nothing planned yet
+          </Text>
 
-            <Text style={styles.activity}>
-              {item.emoji} {item.title}
-            </Text>
-          </View>
-        ))
+          <Text
+            style={[
+              styles.emptySubtitle,
+              {
+                color: secondaryColor,
+              },
+            ]}
+          >
+            Create your plan for today.
+          </Text>
+        </Pressable>
+      ) : (
+        <View style={styles.timeline}>
+          {schedule.slice(0, 4).map((item, index) => {
+            const Icon = getActivityIcon(item.title);
+
+            const active = isCurrentActivity(item);
+
+            const isLast = index === Math.min(schedule.length, 4) - 1;
+
+            return (
+              <Pressable key={item.id} style={styles.item} onPress={onPress}>
+                {/* TIME */}
+
+                <View style={styles.timeColumn}>
+                  <Text
+                    style={[
+                      styles.time,
+                      {
+                        color: active ? Colors.primary : textColor,
+                      },
+                    ]}
+                  >
+                    {item.start}
+                  </Text>
+
+                  <Text
+                    style={[
+                      styles.endTime,
+                      {
+                        color: secondaryColor,
+                      },
+                    ]}
+                  >
+                    {item.end}
+                  </Text>
+                </View>
+
+                {/* TIMELINE */}
+
+                <View style={styles.lineColumn}>
+                  {!isLast && (
+                    <View
+                      style={[
+                        styles.line,
+                        {
+                          backgroundColor: lineColor,
+                        },
+                      ]}
+                    />
+                  )}
+
+                  <View
+                    style={[
+                      styles.dot,
+                      {
+                        backgroundColor: active
+                          ? Colors.primary
+                          : isDark
+                            ? "#718397"
+                            : "#CBD7E2",
+                      },
+                      active && styles.activeDot,
+                    ]}
+                  />
+                </View>
+
+                {/* ACTIVITY */}
+
+                <View
+                  style={[styles.activity, active && styles.activeActivity]}
+                >
+                  <View
+                    style={[
+                      styles.icon,
+                      {
+                        backgroundColor: active
+                          ? Colors.primaryLight
+                          : isDark
+                            ? "rgba(255,255,255,0.08)"
+                            : "rgba(255,255,255,0.42)",
+                      },
+                    ]}
+                  >
+                    <Icon
+                      size={19}
+                      color={
+                        active
+                          ? Colors.primary
+                          : isDark
+                            ? "#FFFFFF"
+                            : Colors.text
+                      }
+                      strokeWidth={2}
+                    />
+                  </View>
+
+                  <View style={styles.activityText}>
+                    <Text
+                      numberOfLines={1}
+                      style={[
+                        styles.activityTitle,
+                        {
+                          color: textColor,
+                        },
+                      ]}
+                    >
+                      {item.title}
+                    </Text>
+
+                    <Text
+                      style={[
+                        styles.duration,
+                        {
+                          color: secondaryColor,
+                        },
+                      ]}
+                    >
+                      {item.start} — {item.end}
+                    </Text>
+                  </View>
+                </View>
+              </Pressable>
+            );
+          })}
+        </View>
       )}
-    </Pressable>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: "white",
-
-    borderRadius: 22,
-
-    padding: 20,
-
-    marginBottom: 22,
-
-    borderWidth: 1,
-
-    borderColor: "#EEF2F7",
-
-    shadowColor: "#000",
-
-    shadowOpacity: 0.05,
-
-    shadowRadius: 10,
-
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-
-    elevation: 3,
+  container: {
+    marginTop: 28,
+    marginBottom: 30,
+    paddingHorizontal: 4,
   },
 
   header: {
     flexDirection: "row",
-
-    justifyContent: "space-between",
-
     alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 24,
+  },
 
-    marginBottom: 18,
+  eyebrow: {
+    fontSize: 10,
+    fontWeight: "800",
+    letterSpacing: 2.5,
+    marginBottom: 4,
   },
 
   title: {
-    fontSize: 22,
-
+    fontSize: 24,
     fontWeight: "700",
-
-    color: Colors.text,
+    letterSpacing: -0.5,
   },
 
-  row: {
-    flexDirection: "row",
+  arrowButton: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
 
+    backgroundColor: "rgba(255,255,255,0.45)",
+
+    justifyContent: "center",
     alignItems: "center",
+  },
 
-    marginBottom: 14,
+  arrowButtonDark: {
+    backgroundColor: "rgba(255,255,255,0.10)",
+  },
+
+  timeline: {
+    paddingTop: 2,
+  },
+
+  item: {
+    minHeight: 78,
+    flexDirection: "row",
+  },
+
+  timeColumn: {
+    width: 58,
+    alignItems: "flex-start",
+    paddingTop: 2,
   },
 
   time: {
-    width: 60,
-
     fontSize: 15,
-
     fontWeight: "700",
+  },
 
-    color: Colors.primary,
+  endTime: {
+    fontSize: 11,
+    fontWeight: "500",
+    marginTop: 4,
+  },
+
+  lineColumn: {
+    width: 26,
+    alignItems: "center",
+    position: "relative",
+  },
+
+  line: {
+    position: "absolute",
+    top: 13,
+    bottom: -2,
+    width: 1,
+  },
+
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginTop: 5,
+    zIndex: 2,
+  },
+
+  activeDot: {
+    width: 11,
+    height: 11,
+    borderRadius: 5.5,
+    marginTop: 3.5,
+
+    shadowColor: Colors.primary,
+    shadowOpacity: 0.45,
+    shadowRadius: 7,
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+
+    elevation: 4,
   },
 
   activity: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    marginLeft: 8,
+    marginBottom: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 8,
+    borderRadius: 18,
+  },
+
+  activeActivity: {
+    backgroundColor: "rgba(255,255,255,0.16)",
+  },
+
+  icon: {
+    width: 42,
+    height: 42,
+    borderRadius: 14,
+
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  activityText: {
+    flex: 1,
+    marginLeft: 12,
+  },
+
+  activityTitle: {
     fontSize: 16,
+    fontWeight: "700",
+  },
 
-    color: Colors.text,
-
-    fontWeight: "600",
+  duration: {
+    fontSize: 12,
+    fontWeight: "500",
+    marginTop: 4,
   },
 
   empty: {
-    color: Colors.subtitle,
-
-    fontSize: 16,
-
-    textAlign: "center",
-
     paddingVertical: 20,
+  },
+
+  emptyTitle: {
+    fontSize: 17,
+    fontWeight: "700",
+  },
+
+  emptySubtitle: {
+    fontSize: 14,
+    marginTop: 5,
   },
 });

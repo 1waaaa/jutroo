@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { AppState, AppStateStatus } from "react-native";
 
 import { useNavigation } from "@react-navigation/native";
+
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import { RootStackParamList } from "../../navigation/types";
@@ -13,6 +14,9 @@ import TodayScheduleCard from "../../components/home/TodayScheduleCard";
 import OutfitAdvisorCard from "../../components/home/OutfitAdvisorCard";
 import TodayOutfitCard from "../../components/home/TodayOutfitCard";
 import CTAActionCard from "../../components/CTAActionCard/CTAActionCard";
+import DayBackground from "../../components/DayBackground/DayBackground";
+
+import { DayThemeProvider } from "../../context/DayThemeContext";
 
 import { usePlanner } from "../../context/PlannerContext";
 import { useUser } from "../../context/UserContext";
@@ -25,7 +29,6 @@ import { HydrationResponse, getWaterGoal } from "../../api/hydrationApi";
 import { mockWeather } from "../../mock/weather";
 import { mockHydration } from "../../mock/hydration";
 import { mockSchedule } from "../../mock/schedule";
-import DayBackground from "../../components/DayBackground/DayBackground";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Home">;
 
@@ -58,10 +61,9 @@ export default function HomeScreen() {
   /*
    * Fetch current weather.
    *
-   * This function is intentionally separate
-   * from the initial Home loading because
-   * weather can refresh without reloading
-   * the whole screen.
+   * This is separate from the initial
+   * Home loading because weather can refresh
+   * without reloading the whole screen.
    */
   const refreshWeather = useCallback(async () => {
     if (weatherLoading.current) {
@@ -88,9 +90,8 @@ export default function HomeScreen() {
       console.log("Weather refresh failed.", error);
 
       /*
-       * If we already have weather,
-       * keep showing it instead of
-       * replacing it with mock data.
+       * If weather already exists,
+       * keep showing it.
        */
       if (!weather) {
         setWeather(mockWeather);
@@ -102,16 +103,12 @@ export default function HomeScreen() {
 
   /*
    * Initial Home loading.
-   *
-   * Weather + hydration are loaded here.
-   * Schedule comes from PlannerContext.
    */
   useEffect(() => {
     async function loadHome() {
       try {
         if (USE_MOCK_DATA) {
           setWeather(mockWeather);
-
           setHydration(mockHydration);
 
           if (!hasSchedule) {
@@ -135,7 +132,6 @@ export default function HomeScreen() {
         const hydrationData = await getWaterGoal(userId);
 
         setWeather(weatherData);
-
         setHydration(hydrationData);
 
         /*
@@ -148,7 +144,6 @@ export default function HomeScreen() {
         console.log("Home loading failed.", error);
 
         setWeather(mockWeather);
-
         setHydration(mockHydration);
 
         if (!hasSchedule) {
@@ -162,6 +157,9 @@ export default function HomeScreen() {
     loadHome();
   }, [userId, hasSchedule, setSchedule]);
 
+  /*
+   * Refresh weather every hour.
+   */
   useEffect(() => {
     const interval = setInterval(() => {
       refreshWeather();
@@ -172,6 +170,10 @@ export default function HomeScreen() {
     };
   }, [refreshWeather]);
 
+  /*
+   * Refresh weather whenever the app
+   * becomes active again.
+   */
   useEffect(() => {
     const handleAppStateChange = (nextState: AppStateStatus) => {
       if (nextState === "active") {
@@ -194,50 +196,52 @@ export default function HomeScreen() {
   }
 
   return (
-    <DayBackground>
-      <ScrollScreenContainer>
-        <WeatherCard
-          temperature={weather.temperature}
-          condition={weather.condition}
-          feelsLike={weather.feelsLike}
-          uv={weather.uv}
-        />
-
-        <TodayScheduleCard
-          schedule={schedule}
-          onPress={() => navigation.navigate("GeneratedSchedule")}
-        />
-
-        <HydrationCard waterGoal={hydration.goal} />
-
-        <CTAActionCard
-          title={
-            hasSchedule
-              ? "Want to update your schedule?"
-              : "Start planning your day"
-          }
-          subtitle={
-            hasSchedule
-              ? "Generate a brand new optimized schedule."
-              : "Tell us what you need to accomplish today."
-          }
-          buttonTitle={
-            hasSchedule ? "Regenerate Schedule" : "Create Today's Plan"
-          }
-          onPress={() => navigation.navigate("Activities")}
-        />
-
-        {outfit ? (
-          <TodayOutfitCard
-            outfit={outfit}
-            onPress={() => navigation.navigate("OutfitResult")}
+    <DayThemeProvider>
+      <DayBackground>
+        <ScrollScreenContainer>
+          <WeatherCard
+            temperature={weather.temperature}
+            condition={weather.condition}
+            feelsLike={weather.feelsLike}
+            uv={weather.uv}
           />
-        ) : (
-          <OutfitAdvisorCard
-            onPress={() => navigation.navigate("OutfitActivity")}
+
+          <TodayScheduleCard
+            schedule={schedule}
+            onPress={() => navigation.navigate("GeneratedSchedule")}
           />
-        )}
-      </ScrollScreenContainer>
-    </DayBackground>
+
+          <HydrationCard waterGoal={hydration.goal} />
+
+          <CTAActionCard
+            title={
+              hasSchedule
+                ? "Want to update your schedule?"
+                : "Start planning your day"
+            }
+            subtitle={
+              hasSchedule
+                ? "Generate a brand new optimized schedule."
+                : "Tell us what you need to accomplish today."
+            }
+            buttonTitle={
+              hasSchedule ? "Regenerate Schedule" : "Create Today's Plan"
+            }
+            onPress={() => navigation.navigate("Activities")}
+          />
+
+          {outfit ? (
+            <TodayOutfitCard
+              outfit={outfit}
+              onPress={() => navigation.navigate("OutfitResult")}
+            />
+          ) : (
+            <OutfitAdvisorCard
+              onPress={() => navigation.navigate("OutfitActivity")}
+            />
+          )}
+        </ScrollScreenContainer>
+      </DayBackground>
+    </DayThemeProvider>
   );
 }

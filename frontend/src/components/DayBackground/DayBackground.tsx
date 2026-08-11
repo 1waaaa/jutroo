@@ -1,55 +1,28 @@
-import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 
 import { Animated, StyleSheet, View } from "react-native";
 
 import { LinearGradient } from "expo-linear-gradient";
 
-import { DAY_PALETTES, getDayPhase } from "../../theme/dayTheme";
-
-import { DayThemeProvider } from "../../context/DayThemeContext";
+import { useDayTheme } from "../../context/DayThemeContext";
 
 interface Props {
   children: ReactNode;
 }
 
 export default function DayBackground({ children }: Props) {
-  function getCurrentMinutes() {
-    const now = new Date();
+  const { palette, phase } = useDayTheme();
 
-    return now.getHours() * 60 + now.getMinutes();
-  }
-
-  const [minutes, setMinutes] = useState(getCurrentMinutes());
-
-  const currentPhase = useMemo(() => getDayPhase(minutes), [minutes]);
-
-  const [palette, setPalette] = useState(DAY_PALETTES[currentPhase.name]);
+  const [displayedPalette, setDisplayedPalette] = useState(palette);
 
   const fade = useRef(new Animated.Value(1)).current;
 
-  /*
-   * Update once every minute.
-   */
+  const { isDark } = useDayTheme();
+
   useEffect(() => {
-    const interval = setInterval(() => {
-      setMinutes(getCurrentMinutes());
-    }, 60 * 1000);
-
-    return () => {
-      clearInterval(interval);
-    };
-  }, []);
-
-  /*
-   * Smooth transition when
-   * the day phase changes.
-   */
-  useEffect(() => {
-    const nextPalette = DAY_PALETTES[currentPhase.name];
-
     if (
-      nextPalette.top === palette.top &&
-      nextPalette.bottom === palette.bottom
+      displayedPalette.top === palette.top &&
+      displayedPalette.bottom === palette.bottom
     ) {
       return;
     }
@@ -68,61 +41,49 @@ export default function DayBackground({ children }: Props) {
       }),
     ]).start();
 
-    setPalette(nextPalette);
-  }, [currentPhase.name]);
-
-  /*
-   * Night starts at 23:00 and lasts
-   * until 05:30.
-   */
-  const isDark = currentPhase.name === "night";
+    setDisplayedPalette(palette);
+  }, [phase.name, palette.top, palette.bottom]);
 
   return (
-    <DayThemeProvider isDark={isDark}>
-      <View style={styles.container}>
-        {/* Main atmospheric gradient */}
+    <View style={styles.container}>
+      <LinearGradient
+        colors={[displayedPalette.top, displayedPalette.bottom]}
+        start={{
+          x: 0.15,
+          y: 0,
+        }}
+        end={{
+          x: 0.85,
+          y: 1,
+        }}
+        style={StyleSheet.absoluteFill}
+      />
 
+      <Animated.View
+        pointerEvents="none"
+        style={[
+          styles.glow,
+          {
+            opacity: isDark ? 0 : fade,
+          },
+        ]}
+      >
         <LinearGradient
-          colors={[palette.top, palette.bottom]}
+          colors={[palette.top, "rgba(255,255,255,0)"]}
           start={{
-            x: 0.15,
+            x: 0.5,
             y: 0,
           }}
           end={{
-            x: 0.85,
+            x: 0.5,
             y: 1,
           }}
           style={StyleSheet.absoluteFill}
         />
+      </Animated.View>
 
-        {/* Soft atmospheric glow */}
-
-        <Animated.View
-          pointerEvents="none"
-          style={[
-            styles.glow,
-            {
-              opacity: fade,
-            },
-          ]}
-        >
-          <LinearGradient
-            colors={[palette.top, "rgba(255,255,255,0)"]}
-            start={{
-              x: 0.5,
-              y: 0,
-            }}
-            end={{
-              x: 0.5,
-              y: 1,
-            }}
-            style={StyleSheet.absoluteFill}
-          />
-        </Animated.View>
-
-        <View style={styles.content}>{children}</View>
-      </View>
-    </DayThemeProvider>
+      <View style={styles.content}>{children}</View>
+    </View>
   );
 }
 
