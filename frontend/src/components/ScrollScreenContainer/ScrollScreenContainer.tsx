@@ -20,7 +20,7 @@ export default function ScrollScreenContainer({ children }: Props) {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: "#F8FBFF",
+    backgroundColor: "transparent",
   },
 
   content: {

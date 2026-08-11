@@ -25,6 +25,7 @@ import { HydrationResponse, getWaterGoal } from "../../api/hydrationApi";
 import { mockWeather } from "../../mock/weather";
 import { mockHydration } from "../../mock/hydration";
 import { mockSchedule } from "../../mock/schedule";
+import DayBackground from "../../components/DayBackground/DayBackground";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Home">;
 
@@ -171,22 +172,6 @@ export default function HomeScreen() {
     };
   }, [refreshWeather]);
 
-  /*
-   * Refresh weather immediately when
-   * the user comes back to the app.
-   *
-   * Example:
-   *
-   * Home
-   *   ↓
-   * Instagram
-   *   ↓
-   * 2 hours later
-   *   ↓
-   * Jutroo
-   *   ↓
-   * GET /weather/current
-   */
   useEffect(() => {
     const handleAppStateChange = (nextState: AppStateStatus) => {
       if (nextState === "active") {
@@ -209,48 +194,50 @@ export default function HomeScreen() {
   }
 
   return (
-    <ScrollScreenContainer>
-      <WeatherCard
-        temperature={weather.temperature}
-        condition={weather.condition}
-        feelsLike={weather.feelsLike}
-        uv={weather.uv}
-      />
-
-      <HydrationCard waterGoal={hydration.goal} />
-
-      <TodayScheduleCard
-        schedule={schedule}
-        onPress={() => navigation.navigate("GeneratedSchedule")}
-      />
-
-      <CTAActionCard
-        title={
-          hasSchedule
-            ? "Want to update your schedule?"
-            : "Start planning your day"
-        }
-        subtitle={
-          hasSchedule
-            ? "Generate a brand new optimized schedule."
-            : "Tell us what you need to accomplish today."
-        }
-        buttonTitle={
-          hasSchedule ? "Regenerate Schedule" : "Create Today's Plan"
-        }
-        onPress={() => navigation.navigate("Activities")}
-      />
-
-      {outfit ? (
-        <TodayOutfitCard
-          outfit={outfit}
-          onPress={() => navigation.navigate("OutfitResult")}
+    <DayBackground>
+      <ScrollScreenContainer>
+        <WeatherCard
+          temperature={weather.temperature}
+          condition={weather.condition}
+          feelsLike={weather.feelsLike}
+          uv={weather.uv}
         />
-      ) : (
-        <OutfitAdvisorCard
-          onPress={() => navigation.navigate("OutfitActivity")}
+
+        <HydrationCard waterGoal={hydration.goal} />
+
+        <TodayScheduleCard
+          schedule={schedule}
+          onPress={() => navigation.navigate("GeneratedSchedule")}
         />
-      )}
-    </ScrollScreenContainer>
+
+        <CTAActionCard
+          title={
+            hasSchedule
+              ? "Want to update your schedule?"
+              : "Start planning your day"
+          }
+          subtitle={
+            hasSchedule
+              ? "Generate a brand new optimized schedule."
+              : "Tell us what you need to accomplish today."
+          }
+          buttonTitle={
+            hasSchedule ? "Regenerate Schedule" : "Create Today's Plan"
+          }
+          onPress={() => navigation.navigate("Activities")}
+        />
+
+        {outfit ? (
+          <TodayOutfitCard
+            outfit={outfit}
+            onPress={() => navigation.navigate("OutfitResult")}
+          />
+        ) : (
+          <OutfitAdvisorCard
+            onPress={() => navigation.navigate("OutfitActivity")}
+          />
+        )}
+      </ScrollScreenContainer>
+    </DayBackground>
   );
 }
