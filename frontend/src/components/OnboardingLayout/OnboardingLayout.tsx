@@ -38,12 +38,17 @@ const styles = StyleSheet.create({
 
   content: {
     flex: 1,
+
     justifyContent: "center",
+
     alignItems: "center",
-    gap: 28,
+
+    width: "100%",
   },
 
   button: {
     paddingBottom: 24,
+
+    width: "100%",
   },
 });

@@ -8,11 +8,16 @@ interface Props {
   disabled: boolean;
 }
 
-export default function PrimaryButton({ title, onPress }: Props) {
+export default function PrimaryButton({ title, onPress, disabled }: Props) {
   return (
     <Pressable
-      style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+      style={({ pressed }) => [
+        styles.button,
+        disabled && styles.disabled,
+        pressed && styles.pressed,
+      ]}
       onPress={onPress}
+      disabled={disabled}
     >
       <Text style={styles.text}>{title}</Text>
     </Pressable>
@@ -25,15 +30,17 @@ const styles = StyleSheet.create({
 
     borderRadius: 18,
 
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.coral,
+
+    marginHorizontal: 10,
 
     justifyContent: "center",
 
     alignItems: "center",
 
-    shadowColor: "#5DADE2",
+    shadowColor: Colors.coral,
 
-    shadowOpacity: 0.22,
+    shadowOpacity: 0.2,
 
     shadowRadius: 18,
 
@@ -46,11 +53,21 @@ const styles = StyleSheet.create({
   },
 
   pressed: {
-    opacity: 0.8,
+    opacity: 0.82,
+
+    transform: [
+      {
+        scale: 0.985,
+      },
+    ],
+  },
+
+  disabled: {
+    opacity: 0.45,
   },
 
   text: {
-    color: "#FFF",
+    color: Colors.ivory,
 
     fontSize: 17,
 

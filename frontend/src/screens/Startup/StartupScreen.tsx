@@ -29,7 +29,7 @@ export default function StartupScreen() {
       }
 
       const completed = await hasCompletedOnboarding();
-      //posle ispraviti
+      //posle ispraviti u Splash
       if (!completed) {
         navigation.replace("Home");
         return;

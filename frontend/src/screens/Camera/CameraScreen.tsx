@@ -1,5 +1,7 @@
 import { useState } from "react";
+
 import { Camera } from "lucide-react-native";
+
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "@react-navigation/native";
 
@@ -40,7 +42,7 @@ export default function CameraScreen() {
 
       {!enabled ? (
         <PermissionCard
-          icon={<Camera size={90} color={Colors.primary} />}
+          icon={<Camera size={82} color={Colors.coral} strokeWidth={1.7} />}
           title="Need outfit advice later?"
           subtitle="We'll only use your camera when you ask for outfit recommendations."
           buttonTitle="Allow Camera"
@@ -49,7 +51,7 @@ export default function CameraScreen() {
         />
       ) : (
         <SuccessCard
-          icon={<Camera size={70} color={Colors.primary} />}
+          icon={<Camera size={60} color={Colors.coral} strokeWidth={1.7} />}
           title="Awesome!"
           subtitle="Camera is ready."
           buttonTitle="Continue"

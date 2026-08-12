@@ -1,7 +1,10 @@
 import { View, Text, StyleSheet } from "react-native";
-import { ReactNode } from "react";
+
+import type { ReactNode } from "react";
 
 import PrimaryButton from "../PrimaryButton/PrimaryButton";
+
+import { Colors } from "../../theme/colors";
 
 interface SuccessCardProps {
   icon: ReactNode;
@@ -20,60 +23,112 @@ export default function SuccessCard({
 }: SuccessCardProps) {
   return (
     <View style={styles.container}>
-      {icon}
+      <View style={styles.iconWrapper}>{icon}</View>
+
+      <Text style={styles.eyebrow}>ALL SET</Text>
 
       <Text style={styles.title}>{title}</Text>
 
       <Text style={styles.subtitle}>{subtitle}</Text>
 
-      <PrimaryButton title={buttonTitle} onPress={onPress} />
+      <View style={styles.button}>
+        <PrimaryButton title={buttonTitle} onPress={onPress} disabled={false} />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "white",
+    width: "100%",
 
-    borderRadius: 24,
+    backgroundColor: "rgba(255,255,255,0.72)",
 
-    padding: 24,
+    borderRadius: 28,
+
+    paddingHorizontal: 24,
+
+    marginTop: 10,
+
+    paddingTop: 28,
+
+    paddingBottom: 24,
 
     alignItems: "center",
 
-    shadowColor: "#000",
+    borderWidth: 1,
 
-    shadowOpacity: 0.08,
+    borderColor: "rgba(217,130,114,0.14)",
 
-    shadowRadius: 20,
+    shadowColor: Colors.ink,
+
+    shadowOpacity: 0.06,
+
+    shadowRadius: 24,
 
     shadowOffset: {
       width: 0,
-      height: 10,
+      height: 12,
     },
 
-    elevation: 8,
+    elevation: 4,
+  },
+
+  iconWrapper: {
+    width: 72,
+
+    height: 72,
+
+    borderRadius: 36,
+
+    backgroundColor: Colors.softCoral,
+
+    justifyContent: "center",
+
+    alignItems: "center",
+
+    marginBottom: 18,
+  },
+
+  eyebrow: {
+    fontSize: 10,
+
+    fontWeight: "800",
+
+    letterSpacing: 2,
+
+    color: Colors.coral,
+
+    marginBottom: 7,
   },
 
   title: {
-    marginTop: 14,
+    fontSize: 28,
 
-    fontSize: 24,
+    fontWeight: "800",
 
-    fontWeight: "700",
+    letterSpacing: -0.5,
 
-    color: "#1F2937",
+    color: Colors.ink,
   },
 
   subtitle: {
     marginTop: 8,
 
+    marginBottom: 22,
+
+    maxWidth: 280,
+
     textAlign: "center",
 
-    color: "#6B7280",
+    color: Colors.subtitle,
 
-    fontSize: 16,
+    fontSize: 15,
 
-    marginBottom: 10,
+    lineHeight: 22,
+  },
+
+  button: {
+    width: "100%",
   },
 });

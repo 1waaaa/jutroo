@@ -1,5 +1,13 @@
 import { useState } from "react";
-import { View, StyleSheet, Alert, Keyboard } from "react-native";
+import {
+  Alert,
+  Keyboard,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 import { UserRound, Droplets } from "lucide-react-native";
 
@@ -7,7 +15,6 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import { RootStackParamList } from "../../navigation/types";
-
 import { useOnboarding } from "../../context/OnboardingContext";
 
 import ScreenContainer from "../../components/ScreenContainer/ScreenContainer";
@@ -45,13 +52,19 @@ export default function AboutYouScreen() {
     const heightNumber = Number(height);
     const weightNumber = Number(weight);
 
-    if (isNaN(heightNumber) || heightNumber < 80 || heightNumber > 250) {
-      Alert.alert("Invalid Height", "Please enter a valid height.");
+    if (Number.isNaN(heightNumber) || heightNumber < 80 || heightNumber > 250) {
+      Alert.alert(
+        "Invalid Height",
+        "Please enter a height between 80 and 250 cm.",
+      );
       return;
     }
 
-    if (isNaN(weightNumber) || weightNumber < 20 || weightNumber > 300) {
-      Alert.alert("Invalid Weight", "Please enter a valid weight.");
+    if (Number.isNaN(weightNumber) || weightNumber < 20 || weightNumber > 300) {
+      Alert.alert(
+        "Invalid Weight",
+        "Please enter a weight between 20 and 300 kg.",
+      );
       return;
     }
 
@@ -66,77 +79,192 @@ export default function AboutYouScreen() {
 
   return (
     <ScreenContainer>
-      <ProgressBar step={5} total={5} />
+      <View style={styles.screen}>
+        <ProgressBar step={5} total={5} />
 
-      <View style={styles.content}>
-        <UserRound size={70} color={Colors.primary} />
+        <ScrollView
+          style={styles.scroll}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="always"
+          keyboardDismissMode={
+            Platform.OS === "ios" ? "interactive" : "on-drag"
+          }
+        >
+          <View style={styles.content}>
+            <View style={styles.iconWrapper}>
+              <UserRound size={38} color={Colors.coral} strokeWidth={1.7} />
+            </View>
 
-        <AppTitle>
-          Tell us{"\n"}
-          about yourself.
-        </AppTitle>
+            <View style={styles.heading}>
+              <AppTitle>
+                Tell us{"\n"}
+                about yourself.
+              </AppTitle>
 
-        <AppSubtitle>
-          We'll personalize your hydration goal{"\n"}
-          and build smarter daily plans.
-        </AppSubtitle>
+              <AppSubtitle>
+                We'll personalize your hydration goal{"\n"}
+                and build smarter daily plans.
+              </AppSubtitle>
+            </View>
 
-        <AppInput
-          placeholder="Choose a username"
-          value={username}
-          onChangeText={setUsername}
-          returnKeyType="next"
-        />
+            <View style={styles.form}>
+              <AppInput
+                placeholder="Choose a username"
+                value={username}
+                onChangeText={setUsername}
+                returnKeyType="next"
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
 
-        <AppInput
-          placeholder="Height (cm)"
-          value={height}
-          onChangeText={setHeight}
-          keyboardType="numeric"
-          returnKeyType="next"
-        />
+              <AppInput
+                placeholder="Height (cm)"
+                value={height}
+                onChangeText={setHeight}
+                keyboardType="number-pad"
+                returnKeyType="next"
+              />
 
-        <AppInput
-          placeholder="Weight (kg)"
-          value={weight}
-          onChangeText={setWeight}
-          keyboardType="numeric"
-          returnKeyType="done"
-          onSubmitEditing={() => Keyboard.dismiss()}
-        />
+              <AppInput
+                placeholder="Weight (kg)"
+                value={weight}
+                onChangeText={setWeight}
+                keyboardType="number-pad"
+                returnKeyType="done"
+                onSubmitEditing={handleFinish}
+              />
+            </View>
 
-        <View style={styles.infoCard}>
-          <Droplets size={34} color="#38BDF8" />
+            <View style={styles.info}>
+              <View style={styles.infoIcon}>
+                <Droplets size={22} color={Colors.water} strokeWidth={1.8} />
+              </View>
 
-          <AppSubtitle>
-            Your hydration goal will be{"\n"}
-            calculated using your{"\n"}
-            height and weight.
-          </AppSubtitle>
-        </View>
+              <View style={styles.infoText}>
+                <Text style={styles.infoTitle}>Personalized hydration</Text>
+
+                <Text style={styles.infoSubtitle}>
+                  Your daily water goal will be calculated from your height and
+                  weight.
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.bottom}>
+              <PrimaryButton
+                title="Finish Setup"
+                onPress={handleFinish}
+                disabled={false}
+              />
+            </View>
+          </View>
+        </ScrollView>
       </View>
-
-      <PrimaryButton
-        title="✨ Finish Setup"
-        onPress={handleFinish}
-        disabled={false}
-      />
     </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  content: {
+  screen: {
     flex: 1,
-    justifyContent: "center",
-    gap: 18,
   },
 
-  infoCard: {
-    backgroundColor: "#F4FBFD",
-    borderRadius: 22,
-    padding: 20,
+  scroll: {
+    flex: 1,
+  },
+
+  scrollContent: {
+    paddingTop: 30,
+    paddingBottom: 40,
+  },
+
+  content: {
+    width: "100%",
     alignItems: "center",
-    marginTop: 10,
+  },
+
+  iconWrapper: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+
+    backgroundColor: Colors.softCoral,
+
+    justifyContent: "center",
+    alignItems: "center",
+
+    marginBottom: 20,
+  },
+
+  heading: {
+    width: "100%",
+    alignItems: "center",
+
+    marginBottom: 28,
+  },
+
+  form: {
+    width: "100%",
+    gap: 12,
+
+    marginBottom: 20,
+  },
+
+  info: {
+    width: "100%",
+
+    flexDirection: "row",
+    alignItems: "center",
+
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+
+    borderRadius: 20,
+
+    backgroundColor: Colors.waterLight,
+
+    borderWidth: 1,
+    borderColor: "rgba(124,184,232,0.18)",
+  },
+
+  infoIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+
+    backgroundColor: "rgba(255,255,255,0.65)",
+
+    justifyContent: "center",
+    alignItems: "center",
+
+    marginRight: 12,
+  },
+
+  infoText: {
+    flex: 1,
+    paddingRight: 4,
+  },
+
+  infoTitle: {
+    fontSize: 14,
+    fontWeight: "700",
+
+    color: Colors.text,
+
+    marginBottom: 3,
+  },
+
+  infoSubtitle: {
+    fontSize: 13,
+    lineHeight: 18,
+
+    color: Colors.subtitle,
+  },
+
+  bottom: {
+    width: "100%",
+
+    marginTop: 20,
   },
 });

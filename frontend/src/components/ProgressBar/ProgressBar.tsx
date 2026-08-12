@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet } from "react-native";
+
 import { Colors } from "../../theme/colors";
 
 interface ProgressBarProps {
@@ -37,22 +38,29 @@ const styles = StyleSheet.create({
 
   track: {
     width: "100%",
-    height: 5,
-    backgroundColor: "#E8EEF5",
+    height: 4,
+    backgroundColor: Colors.mist,
     borderRadius: 999,
     overflow: "hidden",
   },
 
   fill: {
     height: "100%",
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.coral,
     borderRadius: 999,
   },
 
   text: {
     marginTop: 10,
+
     textAlign: "center",
+
     color: Colors.subtitle,
-    fontSize: 13,
+
+    fontSize: 12,
+
+    fontWeight: "600",
+
+    letterSpacing: 0.2,
   },
 });

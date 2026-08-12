@@ -1,10 +1,10 @@
 import { useState } from "react";
 import {
-  TextInput,
-  StyleSheet,
-  View,
   KeyboardTypeOptions,
   ReturnKeyTypeOptions,
+  StyleSheet,
+  TextInput,
+  View,
 } from "react-native";
 
 import { Colors } from "../../theme/colors";
@@ -16,6 +16,8 @@ interface AppInputProps {
   keyboardType?: KeyboardTypeOptions;
   returnKeyType?: ReturnKeyTypeOptions;
   onSubmitEditing?: () => void;
+  autoCapitalize?: "none" | "sentences" | "words" | "characters";
+  autoCorrect?: boolean;
 }
 
 export default function AppInput({
@@ -25,6 +27,8 @@ export default function AppInput({
   keyboardType = "default",
   returnKeyType = "done",
   onSubmitEditing,
+  autoCapitalize = "sentences",
+  autoCorrect = true,
 }: AppInputProps) {
   const [focused, setFocused] = useState(false);
 
@@ -33,7 +37,7 @@ export default function AppInput({
       <TextInput
         style={styles.input}
         placeholder={placeholder}
-        placeholderTextColor="#9CA3AF"
+        placeholderTextColor={Colors.subtitle}
         value={value}
         onChangeText={onChangeText}
         keyboardType={keyboardType}
@@ -41,6 +45,10 @@ export default function AppInput({
         onSubmitEditing={onSubmitEditing}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
+        autoCapitalize={autoCapitalize}
+        autoCorrect={autoCorrect}
+        selectionColor={Colors.coral}
+        cursorColor={Colors.coral}
       />
     </View>
   );
@@ -48,22 +56,35 @@ export default function AppInput({
 
 const styles = StyleSheet.create({
   container: {
-    width: "100%",
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
+    width: "auto",
+
+    height: 58,
+
+    marginHorizontal: 10,
+
     borderRadius: 18,
-    backgroundColor: "#FFFFFF",
+
+    backgroundColor: "rgba(255,255,255,0.82)",
+
+    borderWidth: 1,
+    borderColor: Colors.border,
+
+    justifyContent: "center",
   },
 
   focusedContainer: {
-    borderColor: Colors.primary,
-    borderWidth: 2,
+    borderColor: Colors.coral,
   },
 
   input: {
+    width: "100%",
     height: 58,
+
     paddingHorizontal: 18,
-    fontSize: 17,
-    color: "#1F2937",
+
+    fontSize: 16,
+    fontWeight: "500",
+
+    color: Colors.text,
   },
 });

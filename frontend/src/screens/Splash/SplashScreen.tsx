@@ -1,30 +1,93 @@
-import { useEffect } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { useEffect, useRef } from "react";
+import { Animated, Image, StyleSheet, Text, View } from "react-native";
+
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import { RootStackParamList } from "../../navigation/types";
+import { Colors } from "../../theme/colors";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Splash">;
 
 export default function SplashScreen() {
   const navigation = useNavigation<NavigationProp>();
 
+  const opacity = useRef(new Animated.Value(0)).current;
+  const scale = useRef(new Animated.Value(0.94)).current;
+  const subtitleOpacity = useRef(new Animated.Value(0)).current;
+
   useEffect(() => {
+    Animated.sequence([
+      Animated.parallel([
+        Animated.timing(opacity, {
+          toValue: 1,
+          duration: 700,
+          useNativeDriver: true,
+        }),
+
+        Animated.spring(scale, {
+          toValue: 1,
+          damping: 16,
+          stiffness: 100,
+          mass: 0.8,
+          useNativeDriver: true,
+        }),
+      ]),
+
+      Animated.timing(subtitleOpacity, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
     const timer = setTimeout(() => {
       navigation.replace("Welcome");
-    }, 2000);
+    }, 4777);
 
-    return () => clearTimeout(timer);
-  }, []);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [navigation, opacity, scale, subtitleOpacity]);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.logo}>☀️</Text>
+      <View style={styles.center}>
+        <Animated.View
+          style={[
+            styles.logoWrapper,
+            {
+              opacity,
+              transform: [{ scale }],
+            },
+          ]}
+        >
+          <Image
+            source={require("../../../assets/logo/jutro-logo-dark.png")}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+        </Animated.View>
 
-      <Text style={styles.title}>Jutro</Text>
+        <Animated.View
+          style={{
+            opacity: subtitleOpacity,
+          }}
+        >
+          <Text style={styles.subtitle}>Plan your day around the weather.</Text>
+        </Animated.View>
+      </View>
 
-      <Text style={styles.subtitle}>Plan your day around the weather.</Text>
+      <Animated.View
+        style={[
+          styles.bottomMark,
+          {
+            opacity: subtitleOpacity,
+          },
+        ]}
+      >
+        <View style={styles.dot} />
+      </Animated.View>
     </View>
   );
 }
@@ -33,7 +96,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
 
-    backgroundColor: "#FCFBF8",
+    backgroundColor: Colors.ink,
 
     justifyContent: "center",
 
@@ -42,27 +105,61 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
   },
 
-  logo: {
-    fontSize: 70,
+  center: {
+    alignItems: "center",
 
-    marginBottom: 20,
+    justifyContent: "center",
+
+    width: "100%",
   },
 
-  title: {
-    fontSize: 42,
+  logoWrapper: {
+    width: 280,
 
-    fontWeight: "700",
+    height: 120,
 
-    color: "#243447",
+    justifyContent: "center",
+
+    alignItems: "center",
+  },
+
+  logo: {
+    width: "100%",
+
+    height: "100%",
   },
 
   subtitle: {
-    marginTop: 12,
+    marginTop: 18,
 
-    fontSize: 18,
+    fontSize: 15,
 
-    color: "#6E7C8A",
+    fontWeight: "500",
+
+    letterSpacing: 0.3,
+
+    color: "rgba(252,250,246,0.68)",
 
     textAlign: "center",
+  },
+
+  bottomMark: {
+    position: "absolute",
+
+    bottom: 55,
+
+    alignItems: "center",
+
+    justifyContent: "center",
+  },
+
+  dot: {
+    width: 5,
+
+    height: 5,
+
+    borderRadius: 3,
+
+    backgroundColor: Colors.champagne,
   },
 });

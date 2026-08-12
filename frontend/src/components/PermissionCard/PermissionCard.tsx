@@ -27,7 +27,7 @@ export default function PermissionCard({
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        {icon}
+        <View style={styles.iconWrapper}>{icon}</View>
 
         <View style={styles.spacing} />
 
@@ -36,8 +36,8 @@ export default function PermissionCard({
         <AppSubtitle>{subtitle}</AppSubtitle>
       </View>
 
-      <View>
-        <PrimaryButton title={buttonTitle} onPress={onPress} />
+      <View style={styles.bottom}>
+        <PrimaryButton title={buttonTitle} onPress={onPress} disabled={false} />
 
         <Text style={styles.footer}>{footer}</Text>
       </View>
@@ -60,19 +60,45 @@ const styles = StyleSheet.create({
     justifyContent: "center",
 
     alignItems: "center",
+
+    width: "100%",
+  },
+
+  iconWrapper: {
+    width: 112,
+
+    height: 112,
+
+    borderRadius: 56,
+
+    backgroundColor: Colors.softCoral,
+
+    justifyContent: "center",
+
+    alignItems: "center",
+
+    marginBottom: 4,
   },
 
   spacing: {
-    height: 30,
+    height: 24,
+  },
+
+  bottom: {
+    width: "100%",
   },
 
   footer: {
-    marginTop: 18,
+    marginTop: 16,
 
     textAlign: "center",
 
     color: Colors.subtitle,
 
     fontSize: 13,
+
+    lineHeight: 19,
+
+    paddingHorizontal: 20,
   },
 });

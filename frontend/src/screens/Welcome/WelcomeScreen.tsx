@@ -1,6 +1,6 @@
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "@react-navigation/native";
-import { Sun } from "lucide-react-native";
+import { Image } from "react-native";
 
 import { RootStackParamList } from "../../navigation/types";
 
@@ -9,8 +9,6 @@ import AppSubtitle from "../../components/AppSubtitle/AppSubtitle";
 import OnboardingLayout from "../../components/OnboardingLayout/OnboardingLayout";
 import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
 import ProgressBar from "../../components/ProgressBar/ProgressBar";
-
-import { Colors } from "../../theme/colors";
 
 type WelcomeNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -31,7 +29,15 @@ export default function WelcomeScreen() {
         />
       }
     >
-      <Sun size={90} color={Colors.accent} strokeWidth={2} />
+      <Image
+        source={require("../../../assets/logo/jutro-mark-dark.png")}
+        style={{
+          width: 72,
+          height: 72,
+          marginBottom: 22,
+        }}
+        resizeMode="contain"
+      />
 
       <AppTitle>
         Good morning.{"\n"}

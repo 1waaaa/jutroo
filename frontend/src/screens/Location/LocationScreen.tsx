@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Alert } from "react-native";
 import { MapPin } from "lucide-react-native";
 import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import PermissionCard from "../../components/PermissionCard/PermissionCard";
 import ProgressBar from "../../components/ProgressBar/ProgressBar";
@@ -12,9 +13,9 @@ import { Colors } from "../../theme/colors";
 
 import { getUserLocation } from "../../services/locationService";
 import { useOnboarding } from "../../context/OnboardingContext";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import { RootStackParamList } from "../../navigation/types";
+
 type LocationNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
   "Location"
@@ -26,11 +27,9 @@ export default function LocationScreen() {
   const { updateData } = useOnboarding();
 
   const [loading, setLoading] = useState(false);
-
   const [locationFound, setLocationFound] = useState(false);
 
   const [city, setCity] = useState("");
-
   const [country, setCountry] = useState("");
 
   async function handleLocation() {
@@ -40,7 +39,6 @@ export default function LocationScreen() {
       const location = await getUserLocation();
 
       setCity(location.city);
-
       setCountry(location.country);
 
       updateData({
@@ -55,6 +53,12 @@ export default function LocationScreen() {
       Alert.alert(
         "Location Permission",
         "Please allow location access so we can personalize your daily plan.",
+        [
+          {
+            text: "Got it",
+            style: "default",
+          },
+        ],
       );
     } finally {
       setLoading(false);
@@ -68,7 +72,7 @@ export default function LocationScreen() {
           <ProgressBar step={2} total={5} />
 
           <PermissionCard
-            icon={<MapPin size={90} color={Colors.primary} />}
+            icon={<MapPin size={82} color={Colors.coral} strokeWidth={1.7} />}
             title="Where does your day begin?"
             subtitle="We'll use your location to create weather-aware daily plans."
             buttonTitle={

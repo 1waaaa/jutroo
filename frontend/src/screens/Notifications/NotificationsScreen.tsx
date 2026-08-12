@@ -15,6 +15,7 @@ import { useOnboarding } from "../../context/OnboardingContext";
 
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/types";
+
 type NotificationsNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
   "Notifications"
@@ -43,7 +44,7 @@ export default function NotificationsScreen() {
 
       {!enabled ? (
         <PermissionCard
-          icon={<Bell size={90} color={Colors.primary} />}
+          icon={<Bell size={82} color={Colors.coral} strokeWidth={1.7} />}
           title="Stay one step ahead."
           subtitle="Receive reminders for water, UV and your daily schedule."
           buttonTitle="Allow Notifications"
@@ -52,7 +53,7 @@ export default function NotificationsScreen() {
         />
       ) : (
         <SuccessCard
-          icon={<Bell size={70} color={Colors.primary} />}
+          icon={<Bell size={60} color={Colors.coral} strokeWidth={1.7} />}
           title="Great!"
           subtitle="Notifications are ready."
           buttonTitle="Continue"
