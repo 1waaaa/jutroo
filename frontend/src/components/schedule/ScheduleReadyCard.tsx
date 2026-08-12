@@ -1,90 +1,163 @@
 import { StyleSheet, Text, View } from "react-native";
+
 import { Sparkles } from "lucide-react-native";
 
 import { Colors } from "../../theme/colors";
 
-export default function ScheduleReadyCard() {
+interface Props {
+  activityCount: number;
+}
+
+export default function ScheduleReadyCard({ activityCount }: Props) {
   return (
-    <View style={styles.card}>
-      <View style={styles.icon}>
-        <Sparkles size={34} color="white" />
+    <View style={styles.container}>
+      <View style={styles.topRow}>
+        <View style={styles.icon}>
+          <Sparkles size={21} color={Colors.coral} strokeWidth={1.9} />
+        </View>
+
+        <View style={styles.textContainer}>
+          <Text style={styles.title}>A plan made for you.</Text>
+
+          <Text style={styles.subtitle}>
+            Your activities are arranged into a smooth, efficient day.
+          </Text>
+        </View>
       </View>
 
-      <Text style={styles.title}>Your schedule is ready!</Text>
+      <View style={styles.divider} />
 
-      <Text style={styles.subtitle}>
-        We've organized today's activities into the most efficient order based
-        on your plan.
-      </Text>
+      <View style={styles.bottomRow}>
+        <View style={styles.stat}>
+          <Text style={styles.statText}>
+            {activityCount} {activityCount === 1 ? "activity" : "activities"}
+          </Text>
+        </View>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: "white",
+  container: {
+    marginTop: 26,
 
-    borderRadius: 26,
+    marginBottom: 26,
 
-    padding: 24,
+    paddingHorizontal: 18,
 
-    alignItems: "center",
+    paddingVertical: 18,
 
-    marginBottom: 28,
+    borderRadius: 20,
+
+    backgroundColor: "rgba(255,255,255,0.58)",
 
     borderWidth: 1,
 
-    borderColor: "#EEF2F7",
+    borderColor: Colors.border,
+  },
 
-    shadowColor: "#000",
+  topRow: {
+    flexDirection: "row",
 
-    shadowOpacity: 0.06,
-
-    shadowRadius: 12,
-
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-
-    elevation: 3,
+    alignItems: "center",
   },
 
   icon: {
-    width: 66,
+    width: 46,
 
-    height: 66,
+    height: 46,
 
-    borderRadius: 33,
+    borderRadius: 15,
 
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.softCoral,
 
     justifyContent: "center",
 
     alignItems: "center",
 
-    marginBottom: 18,
+    marginRight: 13,
+  },
+
+  textContainer: {
+    flex: 1,
   },
 
   title: {
-    fontSize: 26,
+    fontSize: 17,
 
     fontWeight: "700",
 
-    color: Colors.text,
+    letterSpacing: -0.25,
 
-    textAlign: "center",
+    color: Colors.text,
   },
 
   subtitle: {
-    marginTop: 12,
+    marginTop: 4,
 
-    textAlign: "center",
+    fontSize: 13,
+
+    lineHeight: 18,
 
     color: Colors.subtitle,
+  },
 
-    fontSize: 16,
+  divider: {
+    height: 1,
 
-    lineHeight: 24,
+    backgroundColor: Colors.border,
+
+    marginVertical: 15,
+  },
+
+  bottomRow: {
+    flexDirection: "row",
+
+    alignItems: "center",
+
+    justifyContent: "space-between",
+  },
+
+  stat: {
+    flexDirection: "row",
+
+    alignItems: "center",
+
+    gap: 6,
+  },
+
+  statText: {
+    fontSize: 12,
+
+    fontWeight: "600",
+
+    color: Colors.subtitle,
+  },
+
+  optimized: {
+    flexDirection: "row",
+
+    alignItems: "center",
+
+    gap: 6,
+  },
+
+  dot: {
+    width: 6,
+
+    height: 6,
+
+    borderRadius: 3,
+
+    backgroundColor: Colors.success,
+  },
+
+  optimizedText: {
+    fontSize: 12,
+
+    fontWeight: "600",
+
+    color: Colors.subtitle,
   },
 });

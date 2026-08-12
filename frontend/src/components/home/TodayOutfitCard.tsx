@@ -1,6 +1,5 @@
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
-
-import { ChevronRight, Check } from "lucide-react-native";
+import { ArrowUpRight, Check } from "lucide-react-native";
 
 import { SelectedOutfit } from "../../context/OutfitContext";
 import { OUTFIT_ACTIVITIES } from "../../constants/outfits";
@@ -25,147 +24,273 @@ export default function TodayOutfitCard({ outfit, onPress }: Props) {
 
   return (
     <Pressable
-      style={({ pressed }) => [styles.card, pressed && styles.pressed]}
+      style={({ pressed }) => [styles.container, pressed && styles.pressed]}
       onPress={onPress}
     >
       <View style={styles.header}>
         <View>
           <View style={styles.labelRow}>
-            <Text style={styles.label}>TODAY'S OUTFIT</Text>
+            <Text style={styles.eyebrow}>STYLE FOR TODAY</Text>
 
             <View style={styles.check}>
-              <Check size={12} color="white" />
+              <Check size={11} color={Colors.ivory} strokeWidth={3} />
             </View>
           </View>
 
-          <Text style={styles.title}>Your {activity?.title ?? "Outfit"}</Text>
+          <Text style={styles.title}>{activity?.title ?? "Your outfit"}</Text>
         </View>
 
-        <ChevronRight size={22} color={Colors.subtitle} />
+        <View style={styles.arrow}>
+          <ArrowUpRight size={19} color={Colors.text} strokeWidth={2} />
+        </View>
       </View>
 
-      <View style={styles.images}>
+      <View style={styles.look}>
         {items.map((item, index) => {
           if (!item) return null;
 
           return (
-            <Image
+            <View
               key={`${item.id}-${index}`}
-              source={{
-                uri: item.uri,
-              }}
-              style={[styles.image, index > 0 && styles.imageOverlap]}
-            />
+              style={[
+                styles.imageWrapper,
+                index > 0 && styles.overlap,
+                {
+                  zIndex: items.length - index,
+                },
+              ]}
+            >
+              <Image source={{ uri: item.uri }} style={styles.image} />
+            </View>
           );
         })}
       </View>
 
-      <View style={styles.footer}>
-        <Text style={styles.reason} numberOfLines={2}>
-          {outfit.reason}
-        </Text>
+      <View style={styles.bottom}>
+        <View style={styles.reasonContainer}>
+          <Text style={styles.reasonLabel}>WHY THIS LOOK</Text>
 
-        <Text style={styles.viewText}>View outfit</Text>
+          <Text style={styles.reason} numberOfLines={2}>
+            {outfit.reason}
+          </Text>
+        </View>
+
+        <View style={styles.view}>
+          <Text style={styles.viewText}>View</Text>
+
+          <ArrowUpRight size={15} color={Colors.coral} strokeWidth={2.4} />
+        </View>
       </View>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 26,
+  container: {
+    marginBottom: 28,
+
     padding: 20,
-    marginBottom: 22,
+
+    borderRadius: 30,
+
+    backgroundColor: Colors.surface,
 
     borderWidth: 1,
-    borderColor: "#EEF2F7",
+
+    borderColor: Colors.border,
+
+    overflow: "hidden",
   },
 
   pressed: {
-    opacity: 0.85,
+    transform: [{ scale: 0.985 }],
+    opacity: 0.94,
   },
 
   header: {
     flexDirection: "row",
-    justifyContent: "space-between",
+
     alignItems: "center",
+
+    justifyContent: "space-between",
   },
 
   labelRow: {
     flexDirection: "row",
+
     alignItems: "center",
-    gap: 7,
-    marginBottom: 4,
+
+    gap: 8,
+
+    marginBottom: 5,
   },
 
-  label: {
-    fontSize: 11,
+  eyebrow: {
+    fontSize: 10,
+
     fontWeight: "800",
-    letterSpacing: 1.1,
+
+    letterSpacing: 2.2,
+
     color: Colors.subtitle,
   },
 
   check: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
+    width: 17,
 
-    backgroundColor: Colors.primary,
+    height: 17,
+
+    borderRadius: 8.5,
+
+    backgroundColor: Colors.success,
 
     justifyContent: "center",
+
     alignItems: "center",
   },
 
   title: {
-    fontSize: 23,
+    fontSize: 25,
+
     fontWeight: "800",
+
+    letterSpacing: -0.7,
+
     color: Colors.text,
   },
 
-  images: {
-    flexDirection: "row",
+  arrow: {
+    width: 42,
+
+    height: 42,
+
+    borderRadius: 21,
+
+    backgroundColor: Colors.ivory,
+
+    justifyContent: "center",
+
     alignItems: "center",
 
-    marginTop: 18,
+    borderWidth: 1,
+
+    borderColor: Colors.border,
+  },
+
+  look: {
+    flexDirection: "row",
+
+    alignItems: "center",
+
+    marginTop: 22,
+
     paddingLeft: 4,
+
+    minHeight: 112,
+  },
+
+  imageWrapper: {
+    width: 104,
+
+    height: 112,
+
+    borderRadius: 24,
+
+    backgroundColor: Colors.ivory,
+
+    padding: 3,
+
+    borderWidth: 1,
+
+    borderColor: Colors.border,
+
+    shadowColor: Colors.ink,
+
+    shadowOpacity: 0.08,
+
+    shadowRadius: 12,
+
+    shadowOffset: {
+      width: 0,
+      height: 6,
+    },
+
+    elevation: 3,
+  },
+
+  overlap: {
+    marginLeft: -34,
   },
 
   image: {
-    width: 78,
-    height: 78,
+    width: "100%",
 
-    borderRadius: 20,
+    height: "100%",
 
-    borderWidth: 3,
-    borderColor: "#FFFFFF",
+    borderRadius: 21,
 
-    backgroundColor: Colors.surface,
+    backgroundColor: Colors.mist,
   },
 
-  imageOverlap: {
-    marginLeft: -16,
-  },
+  bottom: {
+    flexDirection: "row",
 
-  footer: {
-    marginTop: 17,
-    paddingTop: 14,
+    alignItems: "flex-end",
+
+    justifyContent: "space-between",
+
+    marginTop: 22,
+
+    paddingTop: 17,
 
     borderTopWidth: 1,
-    borderTopColor: "#EEF2F7",
+
+    borderTopColor: Colors.border,
+  },
+
+  reasonContainer: {
+    flex: 1,
+
+    paddingRight: 18,
+  },
+
+  reasonLabel: {
+    fontSize: 9,
+
+    fontWeight: "800",
+
+    letterSpacing: 1.8,
+
+    color: Colors.subtitle,
+
+    marginBottom: 5,
   },
 
   reason: {
     fontSize: 13,
+
     lineHeight: 18,
-    color: Colors.subtitle,
+
+    color: Colors.text,
+
+    fontWeight: "500",
+  },
+
+  view: {
+    flexDirection: "row",
+
+    alignItems: "center",
+
+    gap: 3,
+
+    paddingBottom: 1,
   },
 
   viewText: {
     fontSize: 14,
-    fontWeight: "800",
-    color: Colors.primary,
 
-    marginTop: 8,
+    fontWeight: "800",
+
+    color: Colors.coral,
   },
 });

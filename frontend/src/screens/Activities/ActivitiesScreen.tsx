@@ -1,6 +1,5 @@
-import { Alert } from "react-native";
+import { Alert, StyleSheet, Text, View } from "react-native";
 import { useState } from "react";
-import { StyleSheet, Text } from "react-native";
 
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -8,7 +7,6 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import ScrollScreenContainer from "../../components/ScrollScreenContainer/ScrollScreenContainer";
 import BackButton from "../../components/BackButton/BackButton";
 import AppTitle from "../../components/AppTitle/AppTitle";
-import AppSubtitle from "../../components/AppSubtitle/AppSubtitle";
 import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
 
 import ActivityCard from "../../components/planner/ActivityCard/ActivityCard";
@@ -44,9 +42,9 @@ export default function ActivitiesScreen() {
   }
 
   function toMinutes(time: string) {
-    const [h, m] = time.split(":").map(Number);
+    const [hours, minutes] = time.split(":").map(Number);
 
-    return h * 60 + m;
+    return hours * 60 + minutes;
   }
 
   function overlaps(
@@ -55,23 +53,21 @@ export default function ActivitiesScreen() {
     start2: string,
     end2: string,
   ) {
-    const s1 = toMinutes(start1);
-    const e1 = toMinutes(end1);
+    const firstStart = toMinutes(start1);
+    const firstEnd = toMinutes(end1);
 
-    const s2 = toMinutes(start2);
-    const e2 = toMinutes(end2);
+    const secondStart = toMinutes(start2);
+    const secondEnd = toMinutes(end2);
 
-    return s1 < e2 && s2 < e1;
+    return firstStart < secondEnd && secondStart < firstEnd;
   }
 
   function handleSave(configuration: ConfiguredActivity) {
     const conflict = configuredActivities.find((activity) => {
-      // Zanima nas samo Fixed vs Fixed
       if (!activity.fixed || !configuration.fixed) {
         return false;
       }
 
-      // Ako korisnik samo menja istu aktivnost
       if (activity.type === configuration.type) {
         return false;
       }
@@ -85,11 +81,13 @@ export default function ActivitiesScreen() {
     });
 
     if (conflict) {
-      const activityInfo = ACTIVITIES.find((a) => a.id === conflict.type);
+      const activityInfo = ACTIVITIES.find(
+        (activity) => activity.id === conflict.type,
+      );
 
       Alert.alert(
         "Time Conflict",
-        `This overlaps with ${activityInfo?.emoji ?? ""} ${activityInfo?.title ?? conflict.type} (${conflict.earliest} - ${conflict.latest}).\n\nPlease choose another time.`,
+        `This overlaps with ${activityInfo?.title ?? conflict.type} (${conflict.earliest} - ${conflict.latest}).\n\nPlease choose another time.`,
       );
 
       return;
@@ -112,41 +110,76 @@ export default function ActivitiesScreen() {
     setSelectedActivity(null);
   }
 
+  const activityCount = configuredActivities.length;
+
   return (
     <>
       <ScrollScreenContainer>
-        <BackButton onPress={() => navigation.goBack()} />
+        <View style={styles.container}>
+          <BackButton onPress={() => navigation.goBack()} />
 
-        <AppTitle>What are you{"\n"}doing today?</AppTitle>
+          <View style={styles.header}>
+            <Text style={styles.eyebrow}>YOUR DAY</Text>
 
-        <AppSubtitle>
-          Build your perfect day by configuring today's activities.
-        </AppSubtitle>
+            <AppTitle>
+              What are you{"\n"}
+              doing today?
+            </AppTitle>
 
-        <Text style={styles.counter}>
-          {configuredActivities.length} activit
-          {configuredActivities.length !== 1 ? "ies" : "y"} configured
-        </Text>
+            <Text style={styles.subtitle}>
+              Choose what matters today and we'll organize everything around it.
+            </Text>
+          </View>
 
-        {ACTIVITIES.map((activity) => (
-          <ActivityCard
-            key={activity.id}
-            emoji={activity.emoji}
-            title={activity.title}
-            configuration={getConfiguration(activity.id)}
-            onPress={() => setSelectedActivity(activity)}
-          />
-        ))}
+          <View style={styles.progressRow}>
+            <View>
+              <Text style={styles.progressLabel}>TODAY'S ACTIVITIES</Text>
 
-        <PrimaryButton
-          title="Continue"
-          disabled={configuredActivities.length === 0}
-          onPress={() =>
-            navigation.navigate("ReviewPlan", {
-              activities: configuredActivities,
-            })
-          }
-        />
+              <Text style={styles.progressCount}>{activityCount} selected</Text>
+            </View>
+
+            <View style={styles.progressTrack}>
+              <View
+                style={[
+                  styles.progressFill,
+                  {
+                    width:
+                      activityCount === 0
+                        ? "0%"
+                        : `${Math.min(
+                            (activityCount / ACTIVITIES.length) * 100,
+                            100,
+                          )}%`,
+                  },
+                ]}
+              />
+            </View>
+          </View>
+
+          <View style={styles.activities}>
+            {ACTIVITIES.map((activity) => (
+              <ActivityCard
+                key={activity.id}
+                emoji={activity.emoji}
+                title={activity.title}
+                configuration={getConfiguration(activity.id)}
+                onPress={() => setSelectedActivity(activity)}
+              />
+            ))}
+          </View>
+
+          <View style={styles.buttonContainer}>
+            <PrimaryButton
+              title={activityCount > 0 ? "Continue" : "Choose an Activity"}
+              disabled={activityCount === 0}
+              onPress={() =>
+                navigation.navigate("ReviewPlan", {
+                  activities: configuredActivities,
+                })
+              }
+            />
+          </View>
+        </View>
       </ScrollScreenContainer>
 
       <ActivityBottomSheet
@@ -163,14 +196,102 @@ export default function ActivitiesScreen() {
 }
 
 const styles = StyleSheet.create({
-  counter: {
-    marginTop: 18,
-    marginBottom: 18,
+  container: {
+    flex: 1,
+    marginTop: 72,
+  },
+
+  header: {
+    alignItems: "center",
+
+    paddingHorizontal: 14,
+
+    marginBottom: 28,
+  },
+
+  eyebrow: {
+    fontSize: 10,
+
+    fontWeight: "800",
+
+    letterSpacing: 3,
 
     color: Colors.subtitle,
 
+    marginBottom: 10,
+  },
+
+  subtitle: {
+    maxWidth: 320,
+
+    marginTop: 14,
+
+    textAlign: "center",
+
     fontSize: 15,
 
+    lineHeight: 22,
+
+    color: Colors.subtitle,
+  },
+
+  progressRow: {
+    marginBottom: 20,
+
+    paddingHorizontal: 4,
+
+    color: Colors.coral,
+  },
+
+  progressLabel: {
+    fontSize: 10,
+
+    fontWeight: "800",
+
+    letterSpacing: 2,
+
+    color: Colors.subtitle,
+  },
+
+  progressCount: {
+    marginTop: 5,
+
+    fontSize: 14,
+
     fontWeight: "600",
+
+    color: Colors.text,
+  },
+
+  progressTrack: {
+    height: 4,
+
+    width: "100%",
+
+    marginTop: 11,
+
+    borderRadius: 999,
+
+    overflow: "hidden",
+
+    backgroundColor: Colors.mist,
+  },
+
+  progressFill: {
+    height: "100%",
+
+    borderRadius: 999,
+
+    backgroundColor: Colors.coral,
+  },
+
+  activities: {
+    gap: 12,
+  },
+
+  buttonContainer: {
+    marginTop: 24,
+
+    marginBottom: 24,
   },
 });

@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -9,7 +8,6 @@ import Svg, { Circle, Defs, LinearGradient, Stop } from "react-native-svg";
 import { Droplets, Plus } from "lucide-react-native";
 
 import { Colors } from "../../theme/colors";
-
 import { useDayTheme } from "../../context/DayThemeContext";
 
 interface Props {
@@ -27,12 +25,6 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 const WATER_AMOUNTS = [250, 500, 750, 1000];
 
-/*
- * Local date instead of UTC date.
- *
- * This means hydration resets exactly
- * at the user's local midnight.
- */
 function getLocalDateKey() {
   const now = new Date();
 
@@ -91,6 +83,7 @@ export default function HydrationCard({ waterGoal }: Props) {
         await AsyncStorage.removeItem(STORAGE_KEY);
 
         setConsumed(0);
+
         return;
       }
 
@@ -154,8 +147,6 @@ export default function HydrationCard({ waterGoal }: Props) {
 
   return (
     <View style={styles.container}>
-      {/* HEADER */}
-
       <View style={styles.header}>
         <View>
           <Text
@@ -182,14 +173,19 @@ export default function HydrationCard({ waterGoal }: Props) {
         </View>
 
         <Pressable
-          style={[styles.headerButton, isDark && styles.headerButtonDark]}
+          style={[
+            styles.headerButton,
+            {
+              backgroundColor: isDark
+                ? "rgba(255,255,255,0.14)"
+                : "rgba(255,255,255,0.55)",
+            },
+          ]}
           onPress={() => setShowOptions((previous) => !previous)}
         >
-          <Plus size={20} color={textColor} />
+          <Plus size={20} color={textColor} strokeWidth={2.2} />
         </Pressable>
       </View>
-
-      {/* MAIN */}
 
       <View style={styles.main}>
         <View style={styles.circleContainer}>
@@ -206,24 +202,20 @@ export default function HydrationCard({ waterGoal }: Props) {
                 x2="100%"
                 y2="100%"
               >
-                <Stop offset="0%" stopColor={Colors.primary} />
+                <Stop offset="0%" stopColor={Colors.water} />
 
                 <Stop offset="100%" stopColor={Colors.success} />
               </LinearGradient>
             </Defs>
 
-            {/* Background ring */}
-
             <Circle
               cx={CIRCLE_SIZE / 2}
               cy={CIRCLE_SIZE / 2}
               r={RADIUS}
-              stroke={isDark ? "rgba(255,255,255,0.15)" : Colors.primaryLight}
+              stroke={isDark ? "rgba(255,255,255,0.15)" : Colors.waterLight}
               strokeWidth={STROKE_WIDTH}
               fill="none"
             />
-
-            {/* Progress ring */}
 
             <Circle
               cx={CIRCLE_SIZE / 2}
@@ -241,7 +233,7 @@ export default function HydrationCard({ waterGoal }: Props) {
           </Svg>
 
           <View style={styles.circleContent}>
-            <Droplets size={24} color={Colors.primary} />
+            <Droplets size={24} color={Colors.water} strokeWidth={2} />
 
             <Text
               style={[
@@ -292,20 +284,27 @@ export default function HydrationCard({ waterGoal }: Props) {
         </View>
       </View>
 
-      {/* WATER OPTIONS */}
-
       {showOptions ? (
         <View style={styles.options}>
           {WATER_AMOUNTS.map((amount) => (
             <Pressable
               key={amount}
-              style={[styles.waterOption, isDark && styles.waterOptionDark]}
+              style={[
+                styles.waterOption,
+                {
+                  backgroundColor: isDark
+                    ? "rgba(124,184,232,0.15)"
+                    : Colors.waterLight,
+                },
+              ]}
               onPress={() => addWater(amount)}
             >
               <Text
                 style={[
                   styles.waterOptionText,
-                  isDark && styles.waterOptionTextDark,
+                  {
+                    color: isDark ? "#FFFFFF" : Colors.water,
+                  },
                 ]}
               >
                 +{amount >= 1000 ? "1 L" : `${amount} ml`}
@@ -315,10 +314,30 @@ export default function HydrationCard({ waterGoal }: Props) {
         </View>
       ) : (
         <Pressable
-          style={[styles.logButton, isDark && styles.logButtonDark]}
+          style={[
+            styles.logButton,
+            {
+              backgroundColor: isDark
+                ? "rgba(255,255,255,0.10)"
+                : "rgba(255,255,255,0.45)",
+
+              borderColor: isDark
+                ? "rgba(124,184,232,0.55)"
+                : "rgba(124,184,232,0.45)",
+            },
+          ]}
           onPress={() => setShowOptions(true)}
         >
-          <Text style={styles.logButtonText}>Log Water</Text>
+          <Text
+            style={[
+              styles.logButtonText,
+              {
+                color: Colors.water,
+              },
+            ]}
+          >
+            Log Water
+          </Text>
         </Pressable>
       )}
     </View>
@@ -328,55 +347,65 @@ export default function HydrationCard({ waterGoal }: Props) {
 const styles = StyleSheet.create({
   container: {
     marginBottom: 28,
+
     paddingHorizontal: 4,
   },
 
   header: {
     flexDirection: "row",
+
     alignItems: "center",
+
     justifyContent: "space-between",
+
     marginBottom: 14,
   },
 
   eyebrow: {
     fontSize: 10,
+
     fontWeight: "800",
+
     letterSpacing: 2.5,
+
     marginBottom: 3,
   },
 
   title: {
     fontSize: 23,
+
     fontWeight: "700",
   },
 
   headerButton: {
     width: 40,
+
     height: 40,
+
     borderRadius: 20,
 
-    backgroundColor: "rgba(255,255,255,0.55)",
-
     justifyContent: "center",
-    alignItems: "center",
-  },
 
-  headerButtonDark: {
-    backgroundColor: "rgba(255,255,255,0.14)",
+    alignItems: "center",
   },
 
   main: {
     flexDirection: "row",
+
     alignItems: "center",
+
     justifyContent: "space-between",
+
     paddingVertical: 4,
   },
 
   circleContainer: {
     width: CIRCLE_SIZE,
+
     height: CIRCLE_SIZE,
 
     justifyContent: "center",
+
     alignItems: "center",
   },
 
@@ -384,96 +413,95 @@ const styles = StyleSheet.create({
     position: "absolute",
 
     justifyContent: "center",
+
     alignItems: "center",
   },
 
   amount: {
     marginTop: 4,
+
     fontSize: 24,
+
     fontWeight: "800",
   },
 
   ofText: {
     marginTop: 1,
+
     fontSize: 13,
+
     fontWeight: "500",
   },
 
   message: {
     flex: 1,
+
     paddingLeft: 18,
+
     paddingRight: 8,
   },
 
   messageTitle: {
     fontSize: 20,
+
     fontWeight: "700",
+
     marginBottom: 6,
   },
 
   messageSubtitle: {
     fontSize: 15,
+
     lineHeight: 21,
   },
 
   logButton: {
     marginTop: 16,
-    height: 48,
-    borderRadius: 16,
 
-    backgroundColor: "rgba(255,255,255,0.45)",
+    height: 48,
+
+    borderRadius: 16,
 
     borderWidth: 1,
 
-    borderColor: "rgba(124,184,232,0.45)",
-
     flexDirection: "row",
+
     justifyContent: "center",
+
     alignItems: "center",
 
     gap: 8,
   },
 
-  logButtonDark: {
-    backgroundColor: "rgba(255,255,255,0.10)",
-
-    borderColor: "rgba(124,184,232,0.55)",
-  },
-
   logButtonText: {
     fontSize: 15,
+
     fontWeight: "700",
-    color: Colors.primary,
   },
 
   options: {
     flexDirection: "row",
+
     gap: 8,
+
     marginTop: 16,
   },
 
   waterOption: {
     flex: 1,
+
     height: 46,
+
     borderRadius: 15,
 
-    backgroundColor: Colors.primaryLight,
-
     justifyContent: "center",
-    alignItems: "center",
-  },
 
-  waterOptionDark: {
-    backgroundColor: "rgba(124,184,232,0.15)",
+    alignItems: "center",
   },
 
   waterOptionText: {
     fontSize: 13,
-    fontWeight: "700",
-    color: Colors.primary,
-  },
 
-  waterOptionTextDark: {
-    color: "#FFFFFF",
+    fontWeight: "700",
   },
 });

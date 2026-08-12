@@ -1,6 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
-
-import { Shirt, ChevronRight } from "lucide-react-native";
+import { ArrowUpRight } from "lucide-react-native";
 
 import { Colors } from "../../theme/colors";
 
@@ -10,88 +9,197 @@ interface Props {
 
 export default function OutfitAdvisorCard({ onPress }: Props) {
   return (
-    <Pressable style={styles.card} onPress={onPress}>
-      <View style={styles.iconContainer}>
-        <Shirt size={28} color={Colors.primary} />
-      </View>
-
+    <Pressable
+      style={({ pressed }) => [styles.card, pressed && styles.pressed]}
+      onPress={onPress}
+    >
       <View style={styles.content}>
-        <Text style={styles.label}>Need outfit advice?</Text>
+        <View style={styles.topRow}>
+          <Text style={styles.eyebrow}>STYLE FOR TODAY</Text>
 
-        <Text style={styles.title}>OUTFIT ADVISOR</Text>
+          <View style={styles.arrow}>
+            <ArrowUpRight size={19} color={Colors.text} strokeWidth={2.2} />
+          </View>
+        </View>
+
+        <Text style={styles.title}>What are you{"\n"}wearing today?</Text>
 
         <Text style={styles.subtitle}>
-          Let AI choose what to wear based on your plans and today's weather.
+          Let AI create a look around your plans,
+          {"\n"}
+          the weather and your personal style.
         </Text>
+
+        <View style={styles.action}>
+          <Text style={styles.actionText}>Create my outfit</Text>
+        </View>
       </View>
 
-      <ChevronRight size={22} color={Colors.subtitle} />
+      <View style={styles.glow} />
+      <View style={styles.accent} />
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
+    position: "relative",
+
+    overflow: "hidden",
+
+    marginBottom: 28,
+
+    borderRadius: 30,
+
+    backgroundColor: Colors.ink,
+
+    borderWidth: 1,
+
+    borderColor: "rgba(255,255,255,0.10)",
+
+    shadowColor: Colors.ink,
+
+    shadowOpacity: 0.16,
+
+    shadowRadius: 24,
+
+    shadowOffset: {
+      width: 0,
+      height: 12,
+    },
+
+    elevation: 6,
+  },
+
+  pressed: {
+    transform: [{ scale: 0.985 }],
+
+    opacity: 0.94,
+  },
+
+  content: {
+    padding: 22,
+
+    zIndex: 2,
+  },
+
+  topRow: {
     flexDirection: "row",
 
     alignItems: "center",
 
-    backgroundColor: "#FFFFFF",
+    justifyContent: "space-between",
+  },
 
-    borderRadius: 24,
+  eyebrow: {
+    fontSize: 10,
 
-    padding: 20,
+    fontWeight: "800",
 
-    marginBottom: 22,
+    letterSpacing: 2.2,
+
+    color: "rgba(252,250,246,0.62)",
+  },
+
+  arrow: {
+    width: 40,
+
+    height: 40,
+
+    borderRadius: 20,
+
+    backgroundColor: "rgba(255,255,255,0.10)",
 
     borderWidth: 1,
 
-    borderColor: "#EEF2F7",
-
-    gap: 14,
-  },
-
-  iconContainer: {
-    width: 54,
-
-    height: 54,
-
-    borderRadius: 18,
-
-    backgroundColor: "#F1F7FF",
+    borderColor: "rgba(255,255,255,0.12)",
 
     justifyContent: "center",
 
     alignItems: "center",
   },
 
-  content: {
-    flex: 1,
-  },
-
-  label: {
-    fontSize: 13,
-
-    color: Colors.subtitle,
-
-    marginBottom: 4,
-  },
-
   title: {
-    fontSize: 18,
+    marginTop: 30,
+
+    fontSize: 30,
+
+    lineHeight: 34,
 
     fontWeight: "800",
 
-    color: Colors.text,
+    letterSpacing: -0.9,
+
+    color: Colors.ivory,
   },
 
   subtitle: {
-    fontSize: 13,
+    marginTop: 12,
 
-    lineHeight: 18,
+    fontSize: 14,
 
-    color: Colors.subtitle,
+    lineHeight: 21,
 
-    marginTop: 4,
+    color: "rgba(252,250,246,0.68)",
+  },
+
+  action: {
+    alignSelf: "flex-start",
+
+    flexDirection: "row",
+
+    alignItems: "center",
+
+    gap: 7,
+
+    marginTop: 22,
+
+    paddingHorizontal: 16,
+
+    height: 44,
+
+    borderRadius: 22,
+
+    backgroundColor: Colors.coral,
+  },
+
+  actionText: {
+    fontSize: 14,
+
+    fontWeight: "800",
+
+    color: Colors.ivory,
+  },
+
+  glow: {
+    position: "absolute",
+
+    width: 210,
+
+    height: 210,
+
+    borderRadius: 105,
+
+    right: -70,
+
+    bottom: -110,
+
+    backgroundColor: "rgba(232,196,119,0.16)",
+  },
+
+  accent: {
+    position: "absolute",
+
+    width: 120,
+
+    height: 120,
+
+    borderRadius: 60,
+
+    right: -45,
+
+    top: -45,
+
+    backgroundColor: "rgba(217,130,114,0.12)",
   },
 });

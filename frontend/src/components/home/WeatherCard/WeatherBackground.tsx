@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Animated, StyleSheet, View } from "react-native";
 
-import { Colors } from "../../theme/colors";
+import { Colors } from "../../../theme/colors";
 
 interface Props {
   condition: string;

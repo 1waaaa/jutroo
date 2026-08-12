@@ -11,18 +11,18 @@ function getVideo(condition: string) {
   const normalized = condition.toLowerCase();
 
   if (normalized.includes("rain") || normalized.includes("drizzle")) {
-    return require("../../../assets/weather/rain.mp4");
+    return require("../../../../assets/weather/rain.mp4");
   }
 
   if (normalized.includes("cloud") || normalized.includes("overcast")) {
-    return require("../../../assets/weather/cloudy.mp4");
+    return require("../../../../assets/weather/cloudy.mp4");
   }
 
   if (normalized.includes("night") || normalized.includes("moon")) {
-    return require("../../../assets/weather/night.mp4");
+    return require("../../../../assets/weather/night.mp4");
   }
 
-  return require("../../../assets/weather/sunny.mp4");
+  return require("../../../../assets/weather/sunny.mp4");
 }
 
 export default function WeatherVideoBackground({ condition }: Props) {

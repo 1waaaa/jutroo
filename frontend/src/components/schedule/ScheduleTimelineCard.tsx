@@ -1,40 +1,108 @@
 import { StyleSheet, Text, View } from "react-native";
 
+import {
+  BriefcaseBusiness,
+  Coffee,
+  Dumbbell,
+  GraduationCap,
+  Utensils,
+  Clock3,
+} from "lucide-react-native";
+
 import { Colors } from "../../theme/colors";
 
 interface Props {
-  emoji: string;
   title: string;
   start: string;
   end: string;
   isLast?: boolean;
 }
 
+function getActivityIcon(title: string) {
+  const normalized = title.toLowerCase();
+
+  if (
+    normalized.includes("university") ||
+    normalized.includes("school") ||
+    normalized.includes("study") ||
+    normalized.includes("class") ||
+    normalized.includes("lecture")
+  ) {
+    return GraduationCap;
+  }
+
+  if (
+    normalized.includes("gym") ||
+    normalized.includes("workout") ||
+    normalized.includes("training") ||
+    normalized.includes("exercise")
+  ) {
+    return Dumbbell;
+  }
+
+  if (
+    normalized.includes("lunch") ||
+    normalized.includes("dinner") ||
+    normalized.includes("breakfast") ||
+    normalized.includes("meal") ||
+    normalized.includes("food")
+  ) {
+    return Utensils;
+  }
+
+  if (
+    normalized.includes("cafe") ||
+    normalized.includes("coffee") ||
+    normalized.includes("tea")
+  ) {
+    return Coffee;
+  }
+
+  if (
+    normalized.includes("work") ||
+    normalized.includes("job") ||
+    normalized.includes("office")
+  ) {
+    return BriefcaseBusiness;
+  }
+
+  return Clock3;
+}
+
 export default function ScheduleTimelineCard({
-  emoji,
   title,
   start,
   end,
   isLast = false,
 }: Props) {
+  const Icon = getActivityIcon(title);
+
   return (
     <View style={styles.container}>
-      <View style={styles.left}>
-        <Text style={styles.time}>{start}</Text>
+      <View style={styles.timeColumn}>
+        <Text style={styles.startTime}>{start}</Text>
 
-        <View style={styles.circle} />
+        <Text style={styles.endTime}>{end}</Text>
+      </View>
+
+      <View style={styles.timelineColumn}>
+        <View style={styles.dot} />
 
         {!isLast && <View style={styles.line} />}
       </View>
 
-      <View style={styles.card}>
-        <Text style={styles.emoji}>{emoji}</Text>
+      <View style={styles.activity}>
+        <View style={styles.iconContainer}>
+          <Icon size={22} color="#FFFFFF" strokeWidth={1.8} />
+        </View>
 
-        <View style={styles.content}>
-          <Text style={styles.title}>{title}</Text>
+        <View style={styles.activityContent}>
+          <Text style={styles.title} numberOfLines={1}>
+            {title}
+          </Text>
 
-          <Text style={styles.subtitle}>
-            {start} - {end}
+          <Text style={styles.duration}>
+            {start} — {end}
           </Text>
         </View>
       </View>
@@ -46,101 +114,138 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
 
-    minHeight: 120,
+    minHeight: 108,
   },
 
-  left: {
-    width: 70,
+  timeColumn: {
+    width: 64,
+
+    paddingTop: 2,
+
+    alignItems: "flex-start",
+  },
+
+  startTime: {
+    fontSize: 16,
+
+    fontWeight: "800",
+
+    letterSpacing: -0.3,
+
+    color: Colors.text,
+  },
+
+  endTime: {
+    marginTop: 5,
+
+    fontSize: 12,
+
+    fontWeight: "500",
+
+    color: Colors.subtitle,
+  },
+
+  timelineColumn: {
+    width: 30,
 
     alignItems: "center",
+
+    position: "relative",
   },
 
-  time: {
-    fontSize: 15,
+  dot: {
+    width: 8,
 
-    fontWeight: "700",
+    height: 8,
 
-    color: Colors.primary,
+    marginTop: 7,
 
-    marginBottom: 10,
-  },
+    borderRadius: 4,
 
-  circle: {
-    width: 16,
+    backgroundColor: Colors.handle,
 
-    height: 16,
-
-    borderRadius: 8,
-
-    backgroundColor: Colors.primary,
+    zIndex: 2,
   },
 
   line: {
-    flex: 1,
+    position: "absolute",
 
-    width: 2,
+    top: 15,
 
-    marginTop: 6,
+    bottom: -4,
 
-    backgroundColor: "#D8E8FA",
+    width: 1,
+
+    backgroundColor: Colors.handle,
   },
 
-  card: {
+  activity: {
     flex: 1,
-
-    marginBottom: 24,
-
-    backgroundColor: "white",
-
-    borderRadius: 22,
-
-    padding: 18,
 
     flexDirection: "row",
 
-    borderWidth: 1,
+    alignItems: "center",
 
-    borderColor: "#EEF2F7",
+    marginLeft: 10,
 
-    shadowColor: "#000",
+    marginBottom: 18,
 
-    shadowOpacity: 0.05,
+    paddingVertical: 6,
+  },
 
-    shadowRadius: 10,
+  iconContainer: {
+    width: 50,
+
+    height: 50,
+
+    borderRadius: 17,
+
+    justifyContent: "center",
+
+    alignItems: "center",
+
+    backgroundColor: Colors.ink,
+
+    shadowColor: Colors.ink,
+
+    shadowOpacity: 0.12,
+
+    shadowRadius: 12,
 
     shadowOffset: {
       width: 0,
-      height: 4,
+
+      height: 5,
     },
 
     elevation: 3,
   },
 
-  emoji: {
-    fontSize: 34,
-
-    marginRight: 16,
-  },
-
-  content: {
+  activityContent: {
     flex: 1,
 
-    justifyContent: "center",
+    marginLeft: 15,
   },
 
   title: {
-    fontSize: 20,
+    fontSize: 19,
 
     fontWeight: "700",
+
+    letterSpacing: -0.45,
 
     color: Colors.text,
   },
 
-  subtitle: {
-    marginTop: 6,
+  duration: {
+    marginTop: 5,
+
+    fontSize: 13,
+
+    fontWeight: "500",
+
+    letterSpacing: 0.05,
 
     color: Colors.subtitle,
-
-    fontSize: 15,
   },
 });

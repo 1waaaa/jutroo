@@ -1,9 +1,10 @@
-import { StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
 
-import { LinearGradient } from "expo-linear-gradient";
+import { MapPin } from "lucide-react-native";
 
-import { Colors } from "../../theme/colors";
-import { useDayTheme } from "../../context/DayThemeContext";
+import { Colors } from "../../../theme/colors";
+import { useDayTheme } from "../../../context/DayThemeContext";
+import { useOnboarding } from "../../../context/OnboardingContext";
 
 import WeatherVideoBackground from "./WeatherVideoBackground";
 
@@ -27,6 +28,32 @@ function isDarkWeather(condition: string) {
   );
 }
 
+function getGreeting() {
+  const hour = new Date().getHours();
+
+  if (hour >= 5 && hour < 12) {
+    return "Good morning";
+  }
+
+  if (hour >= 12 && hour < 18) {
+    return "Good afternoon";
+  }
+
+  if (hour >= 18 && hour < 23) {
+    return "Good evening";
+  }
+
+  return "Good night";
+}
+
+function formatName(name?: string | null) {
+  if (!name) {
+    return "";
+  }
+
+  return name.charAt(0).toUpperCase() + name.slice(1);
+}
+
 export default function WeatherCard({
   temperature,
   condition,
@@ -35,11 +62,17 @@ export default function WeatherCard({
 }: Props) {
   const { isDark } = useDayTheme();
 
+  const { data } = useOnboarding();
+
   const dark = isDark || isDarkWeather(condition);
 
   const textColor = dark ? "#FFFFFF" : Colors.text;
 
   const secondaryColor = dark ? "rgba(255,255,255,0.78)" : Colors.subtitle;
+
+  const greeting = getGreeting();
+
+  const name = formatName(data.username) || "Your Name";
 
   return (
     <View style={styles.hero}>
@@ -47,28 +80,43 @@ export default function WeatherCard({
 
       <View style={styles.content}>
         <View style={styles.topRow}>
-          <View>
+          <View style={styles.greetingBlock}>
             <Text
               style={[
-                styles.label,
+                styles.greetingEyebrow,
                 {
                   color: secondaryColor,
                 },
               ]}
             >
-              WEATHER NOW
+              {greeting.toUpperCase()}
             </Text>
 
             <Text
               style={[
-                styles.condition,
+                styles.greetingName,
                 {
                   color: textColor,
                 },
               ]}
             >
-              {condition}
+              {name}
             </Text>
+
+            <View style={styles.locationRow}>
+              <MapPin size={12} color="#E98B7C" strokeWidth={2.2} />
+
+              <Text
+                style={[
+                  styles.locationText,
+                  {
+                    color: secondaryColor,
+                  },
+                ]}
+              >
+                {data.city || "Your location"}
+              </Text>
+            </View>
           </View>
         </View>
 
@@ -142,7 +190,7 @@ const styles = StyleSheet.create({
 
     paddingHorizontal: 28,
 
-    paddingTop: 70,
+    paddingTop: 72,
 
     paddingBottom: 80,
 
@@ -152,11 +200,69 @@ const styles = StyleSheet.create({
   },
 
   topRow: {
+    width: "100%",
+
+    alignItems: "center",
+  },
+
+  greetingBlock: {
+    alignItems: "center",
+  },
+
+  greetingEyebrow: {
+    fontSize: 10,
+
+    fontWeight: "800",
+
+    letterSpacing: 3.2,
+
+    marginBottom: 3,
+  },
+
+  greetingName: {
+    fontSize: 25,
+
+    fontWeight: "700",
+
+    letterSpacing: -0.7,
+
+    marginBottom: 5,
+  },
+
+  locationRow: {
     flexDirection: "row",
 
-    justifyContent: "space-between",
+    alignItems: "center",
 
-    alignItems: "flex-start",
+    justifyContent: "center",
+  },
+
+  locationText: {
+    marginLeft: 5,
+
+    fontSize: 12,
+
+    fontWeight: "600",
+
+    letterSpacing: 0.15,
+  },
+
+  greeting: {
+    fontSize: 24,
+
+    fontWeight: "800",
+
+    letterSpacing: -0.7,
+
+    marginBottom: 5,
+  },
+
+  location: {
+    flexDirection: "row",
+
+    alignItems: "center",
+
+    marginBottom: 24,
   },
 
   label: {

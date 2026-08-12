@@ -8,7 +8,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/types";
 
 import ScrollScreenContainer from "../../components/ScrollScreenContainer/ScrollScreenContainer";
-import WeatherCard from "../../components/WeatherCard/WeatherCard";
+import WeatherCard from "../../components/home/WeatherCard/WeatherCard";
 import HydrationCard from "../../components/HydrationCard/HydrationCard";
 import TodayScheduleCard from "../../components/home/TodayScheduleCard";
 import OutfitAdvisorCard from "../../components/home/OutfitAdvisorCard";
@@ -30,6 +30,10 @@ import { mockWeather } from "../../mock/weather";
 import { mockHydration } from "../../mock/hydration";
 import { mockSchedule } from "../../mock/schedule";
 
+import { useOnboarding } from "../../context/OnboardingContext";
+
+import Footer from "../../components/home/Footer";
+
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Home">;
 
 // false kada backend bude spreman.
@@ -43,6 +47,8 @@ export default function HomeScreen() {
   const { outfit } = useOutfit();
 
   const { userId } = useUser();
+
+  const { data } = useOnboarding();
 
   const { schedule, setSchedule, hasSchedule } = usePlanner();
 
@@ -211,8 +217,6 @@ export default function HomeScreen() {
             onPress={() => navigation.navigate("GeneratedSchedule")}
           />
 
-          <HydrationCard waterGoal={hydration.goal} />
-
           <CTAActionCard
             title={
               hasSchedule
@@ -230,6 +234,8 @@ export default function HomeScreen() {
             onPress={() => navigation.navigate("Activities")}
           />
 
+          <HydrationCard waterGoal={hydration.goal} />
+
           {outfit ? (
             <TodayOutfitCard
               outfit={outfit}
@@ -240,6 +246,8 @@ export default function HomeScreen() {
               onPress={() => navigation.navigate("OutfitActivity")}
             />
           )}
+
+          <Footer />
         </ScrollScreenContainer>
       </DayBackground>
     </DayThemeProvider>

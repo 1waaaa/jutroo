@@ -84,10 +84,20 @@ export default function TodayScheduleCard({ schedule, onPress }: Props) {
 
   const lineColor = isDark ? "rgba(255,255,255,0.16)" : Colors.border;
 
+  const inactiveDotColor = isDark ? "rgba(255,255,255,0.38)" : Colors.mist;
+
+  const iconColor = isDark ? "#FFFFFF" : Colors.ink;
+
+  const iconBackground = isDark
+    ? "rgba(255,255,255,0.08)"
+    : "rgba(255,255,255,0.42)";
+
+  const activeIconBackground = isDark
+    ? "rgba(217,130,114,0.18)"
+    : Colors.softCoral;
+
   return (
     <View style={styles.container}>
-      {/* HEADER */}
-
       <Pressable style={styles.header} onPress={onPress}>
         <View>
           <Text
@@ -113,12 +123,19 @@ export default function TodayScheduleCard({ schedule, onPress }: Props) {
           </Text>
         </View>
 
-        <View style={[styles.arrowButton, isDark && styles.arrowButtonDark]}>
+        <View
+          style={[
+            styles.arrowButton,
+            {
+              backgroundColor: isDark
+                ? "rgba(255,255,255,0.10)"
+                : "rgba(255,255,255,0.45)",
+            },
+          ]}
+        >
           <ArrowRight size={18} color={textColor} strokeWidth={2.2} />
         </View>
       </Pressable>
-
-      {/* TIMELINE */}
 
       {schedule.length === 0 ? (
         <Pressable style={styles.empty} onPress={onPress}>
@@ -151,18 +168,18 @@ export default function TodayScheduleCard({ schedule, onPress }: Props) {
 
             const active = isCurrentActivity(item);
 
-            const isLast = index === Math.min(schedule.length, 4) - 1;
+            const visibleItems = Math.min(schedule.length, 4);
+
+            const isLast = index === visibleItems - 1;
 
             return (
               <Pressable key={item.id} style={styles.item} onPress={onPress}>
-                {/* TIME */}
-
                 <View style={styles.timeColumn}>
                   <Text
                     style={[
                       styles.time,
                       {
-                        color: active ? Colors.primary : textColor,
+                        color: active ? Colors.coral : textColor,
                       },
                     ]}
                   >
@@ -181,8 +198,6 @@ export default function TodayScheduleCard({ schedule, onPress }: Props) {
                   </Text>
                 </View>
 
-                {/* TIMELINE */}
-
                 <View style={styles.lineColumn}>
                   {!isLast && (
                     <View
@@ -200,42 +215,37 @@ export default function TodayScheduleCard({ schedule, onPress }: Props) {
                       styles.dot,
                       {
                         backgroundColor: active
-                          ? Colors.primary
-                          : isDark
-                            ? "#718397"
-                            : "#CBD7E2",
+                          ? Colors.coral
+                          : inactiveDotColor,
                       },
                       active && styles.activeDot,
                     ]}
                   />
                 </View>
 
-                {/* ACTIVITY */}
-
                 <View
-                  style={[styles.activity, active && styles.activeActivity]}
+                  style={[
+                    styles.activity,
+                    active && {
+                      backgroundColor: isDark
+                        ? "rgba(255,255,255,0.11)"
+                        : "rgba(255,255,255,0.30)",
+                    },
+                  ]}
                 >
                   <View
                     style={[
                       styles.icon,
                       {
                         backgroundColor: active
-                          ? Colors.primaryLight
-                          : isDark
-                            ? "rgba(255,255,255,0.08)"
-                            : "rgba(255,255,255,0.42)",
+                          ? activeIconBackground
+                          : iconBackground,
                       },
                     ]}
                   >
                     <Icon
                       size={19}
-                      color={
-                        active
-                          ? Colors.primary
-                          : isDark
-                            ? "#FFFFFF"
-                            : Colors.text
-                      }
+                      color={active ? Colors.coral : iconColor}
                       strokeWidth={2}
                     />
                   </View>
@@ -283,37 +293,42 @@ const styles = StyleSheet.create({
 
   header: {
     flexDirection: "row",
+
     alignItems: "center",
+
     justifyContent: "space-between",
+
     marginBottom: 24,
   },
 
   eyebrow: {
     fontSize: 10,
+
     fontWeight: "800",
+
     letterSpacing: 2.5,
+
     marginBottom: 4,
   },
 
   title: {
     fontSize: 24,
+
     fontWeight: "700",
+
     letterSpacing: -0.5,
   },
 
   arrowButton: {
     width: 42,
+
     height: 42,
+
     borderRadius: 21,
 
-    backgroundColor: "rgba(255,255,255,0.45)",
-
     justifyContent: "center",
-    alignItems: "center",
-  },
 
-  arrowButtonDark: {
-    backgroundColor: "rgba(255,255,255,0.10)",
+    alignItems: "center",
   },
 
   timeline: {
@@ -322,58 +337,80 @@ const styles = StyleSheet.create({
 
   item: {
     minHeight: 78,
+
     flexDirection: "row",
   },
 
   timeColumn: {
     width: 58,
+
     alignItems: "flex-start",
+
     paddingTop: 2,
   },
 
   time: {
     fontSize: 15,
+
     fontWeight: "700",
   },
 
   endTime: {
     fontSize: 11,
+
     fontWeight: "500",
+
     marginTop: 4,
   },
 
   lineColumn: {
     width: 26,
+
     alignItems: "center",
+
     position: "relative",
   },
 
   line: {
     position: "absolute",
+
     top: 13,
+
     bottom: -2,
+
     width: 1,
   },
 
   dot: {
     width: 8,
+
     height: 8,
+
     borderRadius: 4,
+
     marginTop: 5,
+
     zIndex: 2,
   },
 
   activeDot: {
     width: 11,
+
     height: 11,
+
     borderRadius: 5.5,
+
     marginTop: 3.5,
 
-    shadowColor: Colors.primary,
+    shadowColor: Colors.coral,
+
     shadowOpacity: 0.45,
+
     shadowRadius: 7,
+
     shadowOffset: {
       width: 0,
+
       height: 0,
     },
 
@@ -382,41 +419,51 @@ const styles = StyleSheet.create({
 
   activity: {
     flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    marginLeft: 8,
-    marginBottom: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 8,
-    borderRadius: 18,
-  },
 
-  activeActivity: {
-    backgroundColor: "rgba(255,255,255,0.16)",
+    flexDirection: "row",
+
+    alignItems: "center",
+
+    marginLeft: 8,
+
+    marginBottom: 10,
+
+    paddingVertical: 8,
+
+    paddingHorizontal: 8,
+
+    borderRadius: 18,
   },
 
   icon: {
     width: 42,
+
     height: 42,
+
     borderRadius: 14,
 
     justifyContent: "center",
+
     alignItems: "center",
   },
 
   activityText: {
     flex: 1,
+
     marginLeft: 12,
   },
 
   activityTitle: {
     fontSize: 16,
+
     fontWeight: "700",
   },
 
   duration: {
     fontSize: 12,
+
     fontWeight: "500",
+
     marginTop: 4,
   },
 
@@ -426,11 +473,13 @@ const styles = StyleSheet.create({
 
   emptyTitle: {
     fontSize: 17,
+
     fontWeight: "700",
   },
 
   emptySubtitle: {
     fontSize: 14,
+
     marginTop: 5,
   },
 });
