@@ -14,7 +14,11 @@ export default function FixedToggle({ value, onChange }: Props) {
 
       <View style={styles.segment}>
         <Pressable
-          style={[styles.option, !value && styles.selectedOption]}
+          style={({ pressed }) => [
+            styles.option,
+            !value && styles.selectedOption,
+            pressed && styles.pressed,
+          ]}
           onPress={() => onChange(false)}
         >
           <Text style={[styles.text, !value && styles.selectedText]}>
@@ -23,7 +27,11 @@ export default function FixedToggle({ value, onChange }: Props) {
         </Pressable>
 
         <Pressable
-          style={[styles.option, value && styles.selectedOption]}
+          style={({ pressed }) => [
+            styles.option,
+            value && styles.selectedOption,
+            pressed && styles.pressed,
+          ]}
           onPress={() => onChange(true)}
         >
           <Text style={[styles.text, value && styles.selectedText]}>Fixed</Text>
@@ -39,66 +47,52 @@ const styles = StyleSheet.create({
   },
 
   label: {
-    fontSize: 17,
-
-    fontWeight: "700",
-
-    color: Colors.text,
-
-    marginBottom: 10,
+    fontSize: 10,
+    fontWeight: "800",
+    letterSpacing: 2,
+    color: Colors.subtitle,
+    marginBottom: 8,
   },
 
   segment: {
+    height: 58,
     flexDirection: "row",
-
-    backgroundColor: "#F1F5F9",
-
-    borderRadius: 16,
-
+    backgroundColor: Colors.mist,
+    borderRadius: 19,
     padding: 4,
-
-    height: 52,
   },
 
   option: {
     flex: 1,
-
     justifyContent: "center",
-
     alignItems: "center",
-
-    borderRadius: 13,
+    borderRadius: 15,
   },
 
   selectedOption: {
     backgroundColor: Colors.surface,
-
-    shadowColor: "#000",
-
-    shadowOpacity: 0.07,
-
-    shadowRadius: 5,
-
+    shadowColor: Colors.ink,
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
     shadowOffset: {
       width: 0,
-
-      height: 2,
+      height: 3,
     },
+    elevation: 3,
+  },
 
-    elevation: 2,
+  pressed: {
+    opacity: 0.8,
   },
 
   text: {
     fontSize: 15,
-
     fontWeight: "600",
-
     color: Colors.subtitle,
   },
 
   selectedText: {
-    color: Colors.text,
-
+    color: Colors.ink,
     fontWeight: "700",
   },
 });

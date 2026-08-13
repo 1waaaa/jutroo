@@ -1,18 +1,11 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import {
-  ArrowRight,
-  BriefcaseBusiness,
-  Coffee,
-  Dumbbell,
-  GraduationCap,
-  Utensils,
-  Clock3,
-} from "lucide-react-native";
+import { ArrowRight, Clock3 } from "lucide-react-native";
 
 import { Colors } from "../../theme/colors";
 import { ScheduleItem } from "../../mock/schedule";
 import { useDayTheme } from "../../context/DayThemeContext";
+import { ACTIVITY_ICONS } from "../../constants/activityIcons";
 
 interface Props {
   schedule: ScheduleItem[];
@@ -20,42 +13,9 @@ interface Props {
 }
 
 function getActivityIcon(title: string) {
-  const normalized = title.toLowerCase();
+  const key = title.trim().toUpperCase();
 
-  if (
-    normalized.includes("university") ||
-    normalized.includes("school") ||
-    normalized.includes("study")
-  ) {
-    return GraduationCap;
-  }
-
-  if (
-    normalized.includes("gym") ||
-    normalized.includes("workout") ||
-    normalized.includes("training")
-  ) {
-    return Dumbbell;
-  }
-
-  if (
-    normalized.includes("lunch") ||
-    normalized.includes("dinner") ||
-    normalized.includes("breakfast") ||
-    normalized.includes("food")
-  ) {
-    return Utensils;
-  }
-
-  if (normalized.includes("cafe") || normalized.includes("coffee")) {
-    return Coffee;
-  }
-
-  if (normalized.includes("work") || normalized.includes("job")) {
-    return BriefcaseBusiness;
-  }
-
-  return Clock3;
+  return ACTIVITY_ICONS[key] ?? Clock3;
 }
 
 function toMinutes(time: string) {
@@ -293,41 +253,29 @@ const styles = StyleSheet.create({
 
   header: {
     flexDirection: "row",
-
     alignItems: "center",
-
     justifyContent: "space-between",
-
     marginBottom: 24,
   },
 
   eyebrow: {
     fontSize: 10,
-
     fontWeight: "800",
-
     letterSpacing: 2.5,
-
     marginBottom: 4,
   },
 
   title: {
     fontSize: 24,
-
     fontWeight: "700",
-
     letterSpacing: -0.5,
   },
 
   arrowButton: {
     width: 42,
-
     height: 42,
-
     borderRadius: 21,
-
     justifyContent: "center",
-
     alignItems: "center",
   },
 
@@ -337,80 +285,58 @@ const styles = StyleSheet.create({
 
   item: {
     minHeight: 78,
-
     flexDirection: "row",
   },
 
   timeColumn: {
     width: 58,
-
     alignItems: "flex-start",
-
     paddingTop: 2,
   },
 
   time: {
     fontSize: 15,
-
     fontWeight: "700",
   },
 
   endTime: {
     fontSize: 11,
-
     fontWeight: "500",
-
     marginTop: 4,
   },
 
   lineColumn: {
     width: 26,
-
     alignItems: "center",
-
     position: "relative",
   },
 
   line: {
     position: "absolute",
-
     top: 13,
-
     bottom: -2,
-
     width: 1,
   },
 
   dot: {
     width: 8,
-
     height: 8,
-
     borderRadius: 4,
-
     marginTop: 5,
-
     zIndex: 2,
   },
 
   activeDot: {
     width: 11,
-
     height: 11,
-
     borderRadius: 5.5,
-
     marginTop: 3.5,
 
     shadowColor: Colors.coral,
-
     shadowOpacity: 0.45,
-
     shadowRadius: 7,
-
     shadowOffset: {
       width: 0,
-
       height: 0,
     },
 
@@ -419,17 +345,13 @@ const styles = StyleSheet.create({
 
   activity: {
     flex: 1,
-
     flexDirection: "row",
-
     alignItems: "center",
 
     marginLeft: 8,
-
     marginBottom: 10,
 
     paddingVertical: 8,
-
     paddingHorizontal: 8,
 
     borderRadius: 18,
@@ -437,33 +359,26 @@ const styles = StyleSheet.create({
 
   icon: {
     width: 42,
-
     height: 42,
-
     borderRadius: 14,
 
     justifyContent: "center",
-
     alignItems: "center",
   },
 
   activityText: {
     flex: 1,
-
     marginLeft: 12,
   },
 
   activityTitle: {
     fontSize: 16,
-
     fontWeight: "700",
   },
 
   duration: {
     fontSize: 12,
-
     fontWeight: "500",
-
     marginTop: 4,
   },
 
@@ -473,13 +388,11 @@ const styles = StyleSheet.create({
 
   emptyTitle: {
     fontSize: 17,
-
     fontWeight: "700",
   },
 
   emptySubtitle: {
     fontSize: 14,
-
     marginTop: 5,
   },
 });

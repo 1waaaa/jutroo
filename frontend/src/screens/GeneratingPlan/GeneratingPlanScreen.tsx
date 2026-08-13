@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
 
-import { Check, Sparkles } from "lucide-react-native";
+import { Check } from "lucide-react-native";
 
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -34,16 +34,16 @@ export default function GeneratingPlanScreen() {
   useEffect(() => {
     async function generate() {
       setStep(1);
-      await delay(700);
+      await delay(1500);
 
       setStep(2);
-      await delay(700);
+      await delay(1500);
 
       setStep(3);
-      await delay(700);
+      await delay(1500);
 
       setStep(4);
-      await delay(900);
+      await delay(1000);
 
       setSchedule(mockSchedule);
 
@@ -57,22 +57,18 @@ export default function GeneratingPlanScreen() {
     <ScreenContainer>
       <View style={styles.container}>
         <View style={styles.hero}>
-          <View style={styles.sparkleOuter}>
-            <View style={styles.sparkleInner}>
-              <Sparkles size={30} color={Colors.coral} strokeWidth={1.7} />
-            </View>
+          <View style={styles.logoContainer}>
+            <Image
+              source={require("../../../assets/logo/jutro-mark-dark.png")}
+              style={styles.logoMark}
+              resizeMode="contain"
+            />
           </View>
-
-          <Text style={styles.eyebrow}>JUTRO AI</Text>
 
           <AppTitle>
             Building your{"\n"}
             perfect day...
           </AppTitle>
-
-          <Text style={styles.subtitle}>
-            Bringing everything together for a smoother day ahead.
-          </Text>
         </View>
 
         <View style={styles.list}>
@@ -103,12 +99,6 @@ export default function GeneratingPlanScreen() {
             completed={false}
             visible={step >= 4}
           />
-        </View>
-
-        <View style={styles.footer}>
-          <View style={styles.footerDot} />
-
-          <Text style={styles.footerText}>Almost ready</Text>
         </View>
       </View>
     </ScreenContainer>
@@ -173,30 +163,14 @@ const styles = StyleSheet.create({
     width: "100%",
   },
 
-  sparkleOuter: {
-    width: 88,
+  logoContainer: {
+    width: 104,
 
-    height: 88,
+    height: 104,
 
-    borderRadius: 44,
+    borderRadius: 52,
 
-    backgroundColor: "rgba(232,196,119,0.12)",
-
-    justifyContent: "center",
-
-    alignItems: "center",
-
-    marginBottom: 22,
-  },
-
-  sparkleInner: {
-    width: 64,
-
-    height: 64,
-
-    borderRadius: 32,
-
-    backgroundColor: Colors.softCoral,
+    marginBottom: 10,
 
     justifyContent: "center",
 
@@ -204,19 +178,27 @@ const styles = StyleSheet.create({
 
     borderWidth: 1,
 
-    borderColor: "rgba(217,130,114,0.16)",
+    borderColor: Colors.border,
+
+    elevation: 5,
   },
 
-  eyebrow: {
-    fontSize: 10,
+  logoMark: {
+    width: 50,
+
+    height: 68,
+  },
+
+  brand: {
+    fontSize: 11,
 
     fontWeight: "800",
 
-    letterSpacing: 3,
+    letterSpacing: 4,
 
     color: Colors.subtitle,
 
-    marginBottom: 9,
+    marginBottom: 10,
   },
 
   subtitle: {

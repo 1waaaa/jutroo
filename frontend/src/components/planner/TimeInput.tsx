@@ -1,18 +1,16 @@
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-
 import { useState } from "react";
 
 import { Colors } from "../../theme/colors";
 
 interface Props {
-  label: string;
+  label?: string;
   value: string;
   onChange: (value: string) => void;
 }
 
 function formatTime(minutes: number) {
   const hours = Math.floor(minutes / 60);
-
   const mins = minutes % 60;
 
   return `${hours.toString().padStart(2, "0")}:${mins
@@ -26,20 +24,10 @@ function snapTo30(minutes: number) {
 
 export default function TimeInput({ label, value, onChange }: Props) {
   const [editing, setEditing] = useState(false);
-
   const [draft, setDraft] = useState("");
 
   function handleFocus() {
-    /*
-     * Remove ":" so the user can simply
-     * type numbers.
-     *
-     * 0930
-     * 1415
-     * 2000
-     */
     setDraft(value.replace(":", ""));
-
     setEditing(true);
   }
 
@@ -50,15 +38,6 @@ export default function TimeInput({ label, value, onChange }: Props) {
       return;
     }
 
-    /*
-     * Allow:
-     *
-     * 9
-     * 09
-     * 930
-     * 0930
-     * 1430
-     */
     const numeric = draft.replace(/\D/g, "");
 
     let hours = 0;
@@ -69,48 +48,30 @@ export default function TimeInput({ label, value, onChange }: Props) {
       minutes = 0;
     } else {
       hours = Number(numeric.slice(0, -2));
-
       minutes = Number(numeric.slice(-2));
     }
 
-    /*
-     * Invalid time.
-     */
     if (hours > 23 || minutes > 59) {
       setDraft("");
       return;
     }
 
     const totalMinutes = hours * 60 + minutes;
-
-    /*
-     * Snap to nearest 30 min.
-     */
     const snapped = snapTo30(totalMinutes);
-
-    /*
-     * 23:45 → 24:00
-     * We don't want 24:00.
-     */
     const safeMinutes = Math.min(snapped, 23 * 60 + 30);
 
-    const formatted = formatTime(safeMinutes);
-
-    onChange(formatted);
+    onChange(formatTime(safeMinutes));
   }
 
   if (editing) {
     return (
       <View style={styles.container}>
-        <Text style={styles.label}>{label}</Text>
+        {label && <Text style={styles.label}>{label}</Text>}
 
         <TextInput
           autoFocus
           value={draft}
           onChangeText={(text) => {
-            /*
-             * Numbers only.
-             */
             setDraft(text.replace(/\D/g, ""));
           }}
           onBlur={handleBlur}
@@ -127,9 +88,12 @@ export default function TimeInput({ label, value, onChange }: Props) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>{label}</Text>
+      {label && <Text style={styles.label}>{label}</Text>}
 
-      <Pressable style={styles.card} onPress={handleFocus}>
+      <Pressable
+        style={({ pressed }) => [styles.card, pressed && styles.pressed]}
+        onPress={handleFocus}
+      >
         <Text style={styles.time}>{value}</Text>
       </Pressable>
     </View>
@@ -143,57 +107,42 @@ const styles = StyleSheet.create({
 
   label: {
     fontSize: 10,
-
     fontWeight: "800",
-
     letterSpacing: 1,
-
     color: Colors.subtitle,
-
     marginBottom: 5,
-
     textAlign: "center",
   },
 
   card: {
     backgroundColor: Colors.surface,
-
     borderRadius: 18,
-
     borderWidth: 1,
-
     borderColor: Colors.border,
-
     paddingVertical: 13,
-
     alignItems: "center",
+  },
+
+  pressed: {
+    opacity: 0.7,
+    transform: [{ scale: 0.98 }],
   },
 
   time: {
     fontSize: 21,
-
     fontWeight: "800",
-
-    color: Colors.text,
+    color: Colors.ink,
   },
 
   input: {
     backgroundColor: Colors.surface,
-
     borderRadius: 18,
-
     borderWidth: 1.5,
-
-    borderColor: Colors.primary,
-
+    borderColor: Colors.water,
     paddingVertical: 11,
-
     textAlign: "center",
-
     fontSize: 21,
-
     fontWeight: "800",
-
-    color: Colors.text,
+    color: Colors.ink,
   },
 });

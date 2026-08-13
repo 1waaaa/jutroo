@@ -18,6 +18,8 @@ import {
   ConfiguredActivity,
 } from "../../constants/activities";
 
+import { ACTIVITY_ICONS } from "../../constants/activityIcons";
+
 import { RootStackParamList } from "../../navigation/types";
 import { Colors } from "../../theme/colors";
 
@@ -160,7 +162,7 @@ export default function ActivitiesScreen() {
             {ACTIVITIES.map((activity) => (
               <ActivityCard
                 key={activity.id}
-                emoji={activity.emoji}
+                icon={ACTIVITY_ICONS[activity.id]}
                 title={activity.title}
                 configuration={getConfiguration(activity.id)}
                 onPress={() => setSelectedActivity(activity)}

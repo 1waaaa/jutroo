@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { View } from "react-native";
 
 import PrimaryButton from "../PrimaryButton/PrimaryButton";
-import BackButton from "../BackButton/BackButton";
 
 import DurationSelector from "./DurationSelector";
 import FixedToggle from "./FixedToggle";
@@ -129,20 +128,16 @@ export default function ActivityForm({
    */
   if (picker === "time") {
     return (
-      <View>
-        <BackButton onPress={closeTimePicker} />
-
-        <TimePickerSheet
-          title={fixed ? "Choose Your Time" : "Choose Your Time Window"}
-          min={activity.minTime}
-          max={activity.maxTime}
-          start={earliest}
-          end={latest}
-          fixed={fixed}
-          onBack={closeTimePicker}
-          onSelect={handleTimeSelect}
-        />
-      </View>
+      <TimePickerSheet
+        title={fixed ? "Choose Your Time" : "Choose Your Time Window"}
+        min={activity.minTime}
+        max={activity.maxTime}
+        start={earliest}
+        end={latest}
+        fixed={fixed}
+        onBack={closeTimePicker}
+        onSelect={handleTimeSelect}
+      />
     );
   }
 
@@ -170,7 +165,7 @@ export default function ActivityForm({
       />
 
       <PrimaryButton
-        title="✨ Add Activity"
+        title="Add Activity"
         onPress={handleSave}
         disabled={false}
       />

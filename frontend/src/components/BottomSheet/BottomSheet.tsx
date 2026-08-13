@@ -6,6 +6,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  PanResponder,
 } from "react-native";
 
 import { useEffect, useRef } from "react";
@@ -19,15 +20,75 @@ interface Props {
 }
 
 export default function BottomSheet({ visible, onClose, children }: Props) {
-  const translateY = useRef(new Animated.Value(500)).current;
+  const translateY = useRef(new Animated.Value(600)).current;
+
+  const currentTranslateY = useRef(0);
 
   useEffect(() => {
-    Animated.timing(translateY, {
-      toValue: visible ? 0 : 500,
-      duration: 250,
-      useNativeDriver: true,
-    }).start();
-  }, [visible]);
+    if (visible) {
+      currentTranslateY.current = 0;
+
+      Animated.spring(translateY, {
+        toValue: 0,
+        damping: 24,
+        stiffness: 220,
+        mass: 0.8,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      Animated.timing(translateY, {
+        toValue: 600,
+        duration: 220,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [visible, translateY]);
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, gesture) => {
+        return gesture.dy > 5 && Math.abs(gesture.dy) > Math.abs(gesture.dx);
+      },
+
+      onPanResponderGrant: () => {
+        currentTranslateY.current = 0;
+      },
+
+      onPanResponderMove: (_, gesture) => {
+        if (gesture.dy > 0) {
+          translateY.setValue(gesture.dy);
+        }
+      },
+
+      onPanResponderRelease: (_, gesture) => {
+        const shouldClose = gesture.dy > 120 || gesture.vy > 1.2;
+
+        if (shouldClose) {
+          currentTranslateY.current = 600;
+
+          Animated.timing(translateY, {
+            toValue: 600,
+            duration: 180,
+            useNativeDriver: true,
+          }).start(() => {
+            onClose();
+          });
+
+          return;
+        }
+
+        currentTranslateY.current = 0;
+
+        Animated.spring(translateY, {
+          toValue: 0,
+          damping: 24,
+          stiffness: 220,
+          mass: 0.8,
+          useNativeDriver: true,
+        }).start();
+      },
+    }),
+  ).current;
 
   return (
     <Modal
@@ -45,15 +106,13 @@ export default function BottomSheet({ visible, onClose, children }: Props) {
             style={[
               styles.sheet,
               {
-                transform: [
-                  {
-                    translateY,
-                  },
-                ],
+                transform: [{ translateY }],
               },
             ]}
           >
-            <View style={styles.handle} />
+            <View style={styles.dragArea} {...panResponder.panHandlers}>
+              <View style={styles.handle} />
+            </View>
 
             <ScrollView
               showsVerticalScrollIndicator={false}
@@ -75,7 +134,7 @@ const styles = StyleSheet.create({
 
     justifyContent: "flex-end",
 
-    backgroundColor: "rgba(36,52,71,0.35)",
+    backgroundColor: Colors.overlay,
   },
 
   keyboardContainer: {
@@ -91,11 +150,21 @@ const styles = StyleSheet.create({
 
     paddingHorizontal: 24,
 
-    paddingTop: 12,
+    paddingTop: 0,
 
     maxHeight: "92%",
 
     minHeight: "55%",
+
+    overflow: "hidden",
+  },
+
+  dragArea: {
+    height: 48,
+
+    justifyContent: "center",
+
+    alignItems: "center",
   },
 
   handle: {
@@ -103,16 +172,14 @@ const styles = StyleSheet.create({
 
     height: 5,
 
-    backgroundColor: Colors.border,
+    backgroundColor: Colors.handle,
 
     borderRadius: 999,
-
-    alignSelf: "center",
-
-    marginBottom: 24,
   },
 
   content: {
+    paddingTop: 4,
+
     paddingBottom: 30,
   },
 });

@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import { ChevronLeft } from "lucide-react-native";
 
 import BottomSheet from "../BottomSheet/BottomSheet";
 import ActivityForm from "../../components/planner/ActivityForm";
 
 import { Activity, ConfiguredActivity } from "../../constants/activities";
-
 import { Colors } from "../../theme/colors";
 
 interface Props {
@@ -43,11 +43,13 @@ export default function ActivityBottomSheet({
       <View style={styles.container}>
         {!pickerOpen && (
           <View style={styles.header}>
-            <Text style={styles.emoji}>{activity.emoji}</Text>
+            <Pressable style={styles.backButton} onPress={onClose}>
+              <ChevronLeft size={23} color={Colors.text} strokeWidth={2.4} />
+            </Pressable>
 
-            <Text style={styles.title}>{activity.title}</Text>
-
-            <Text style={styles.subtitle}>Configure today's activity</Text>
+            <View style={styles.headerContent}>
+              <Text style={styles.title}>{activity.title}</Text>
+            </View>
           </View>
         )}
 
@@ -68,27 +70,57 @@ const styles = StyleSheet.create({
   },
 
   header: {
+    position: "relative",
+
     alignItems: "center",
-    marginBottom: 24,
+
+    marginBottom: 28,
+
+    paddingTop: 4,
   },
 
-  emoji: {
-    fontSize: 48,
-    marginBottom: 4,
+  backButton: {
+    position: "absolute",
+
+    left: 0,
+    top: 0,
+
+    width: 42,
+    height: 42,
+
+    borderRadius: 21,
+
+    backgroundColor: Colors.mist,
+
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  headerContent: {
+    alignItems: "center",
+
+    paddingHorizontal: 50,
   },
 
   title: {
     fontSize: 30,
-    fontWeight: "700",
+
+    fontWeight: "800",
+
     color: Colors.text,
+
     textAlign: "center",
-    marginTop: 4,
+
+    letterSpacing: -0.8,
   },
 
   subtitle: {
     fontSize: 15,
+
     color: Colors.subtitle,
+
     textAlign: "center",
-    marginTop: 7,
+
+    marginTop: 6,
   },
 });

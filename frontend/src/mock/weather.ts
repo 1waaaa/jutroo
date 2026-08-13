@@ -1,13 +1,13 @@
 import { WeatherResponse } from "../api/weatherApi";
 
 export const mockWeather: WeatherResponse = {
-  temperature: 15,
+  temperature: 25,
   feelsLike: 12,
-  condition: "Nightly",
+  condition: "Sunny",
   description: "Clear sky",
 
   humidity: 48,
-  uv: 3,
+  uv: 6,
   windSpeed: 3.2,
 
   sunrise: "05:31",

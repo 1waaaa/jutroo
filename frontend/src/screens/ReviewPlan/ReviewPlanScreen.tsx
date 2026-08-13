@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, Alert } from "react-native";
+import { Pressable, StyleSheet, Text, Alert, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
@@ -29,7 +29,6 @@ type ReviewRoute = RouteProp<RootStackParamList, "ReviewPlan">;
 
 export default function ReviewPlanScreen() {
   const navigation = useNavigation<NavigationProp>();
-
   const route = useRoute<ReviewRoute>();
 
   const { activities } = route.params;
@@ -44,7 +43,8 @@ export default function ReviewPlanScreen() {
       const storedId = await AsyncStorage.getItem("userId");
 
       /*if (!storedId) {
-        Alert.alert("Error", "User not found.");
+        Alert.alert("Something went wrong", "We couldn't find your account.");
+
         return;
       }*/
 
@@ -57,66 +57,128 @@ export default function ReviewPlanScreen() {
     } catch (error) {
       console.log(error);
 
-      Alert.alert("Oops!", "Failed to generate your plan.");
+      Alert.alert(
+        "Something went wrong",
+        "We couldn't generate your plan. Please try again.",
+      );
     }
   }
 
   return (
     <ScrollScreenContainer>
-      <BackButton onPress={() => navigation.goBack()} />
+      <View style={styles.container}>
+        <BackButton onPress={() => navigation.goBack()} />
 
-      <AppTitle>Review{"\n"}Today's Plan</AppTitle>
+        <View style={styles.header}>
+          <Text style={styles.eyebrow}>ALMOST THERE</Text>
 
-      <AppSubtitle>
-        Take one last look before we build your personalized schedule.
-      </AppSubtitle>
+          <AppTitle>Review{"\n"}Today's Plan</AppTitle>
 
-      {activities.map((configuration) => {
-        const activity = ACTIVITIES.find(
-          (item) => item.id === configuration.type,
-        );
+          <AppSubtitle>
+            Take one last look before we build your personalized schedule.
+          </AppSubtitle>
+        </View>
 
-        if (!activity) return null;
+        <View style={styles.activities}>
+          {activities.map((configuration) => {
+            const activity = ACTIVITIES.find(
+              (item) => item.id === configuration.type,
+            );
 
-        return (
-          <PlannerReviewCard
-            key={activity.id}
-            activity={activity}
-            configuration={configuration}
+            if (!activity) {
+              return null;
+            }
+
+            return (
+              <PlannerReviewCard
+                key={activity.id}
+                activity={activity}
+                configuration={configuration}
+              />
+            );
+          })}
+        </View>
+
+        <PlannerSummaryCard
+          activityCount={activities.length}
+          totalMinutes={totalMinutes}
+        />
+
+        <View style={styles.cta}>
+          <PrimaryButton
+            title="Generate My Day"
+            onPress={handleGenerate}
+            disabled={false}
           />
-        );
-      })}
+        </View>
 
-      <PlannerSummaryCard
-        activityCount={activities.length}
-        totalMinutes={totalMinutes}
-      />
+        <Pressable
+          style={({ pressed }) => [
+            styles.editButton,
+            pressed && styles.editPressed,
+          ]}
+          onPress={() => navigation.goBack()}
+        >
+          <Text style={styles.editArrow}>←</Text>
 
-      <PrimaryButton
-        title="✨ Generate My Day"
-        onPress={handleGenerate}
-        disabled={false}
-      />
-
-      <Pressable onPress={() => navigation.goBack()}>
-        <Text style={styles.edit}>← Edit Activities</Text>
-      </Pressable>
+          <Text style={styles.edit}>Edit Activities</Text>
+        </Pressable>
+      </View>
     </ScrollScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  edit: {
-    marginTop: 18,
+  container: {
+    paddingBottom: 24,
+    paddingTop: 72,
+  },
 
+  header: {
+    alignItems: "center",
+    paddingHorizontal: 8,
     marginBottom: 30,
+  },
 
-    textAlign: "center",
+  eyebrow: {
+    fontSize: 10,
+    fontWeight: "800",
+    letterSpacing: 2.8,
+    color: Colors.water,
+    marginBottom: 10,
+  },
 
+  activities: {
+    gap: 2,
+  },
+
+  cta: {
+    marginTop: 8,
+  },
+
+  editButton: {
+    alignSelf: "center",
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 17,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    borderRadius: 999,
+  },
+
+  editPressed: {
+    backgroundColor: Colors.mist,
+  },
+
+  editArrow: {
+    fontSize: 17,
     color: Colors.subtitle,
+    marginRight: 6,
+  },
 
-    fontSize: 16,
-
-    fontWeight: "600",
+  edit: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: Colors.subtitle,
   },
 });
