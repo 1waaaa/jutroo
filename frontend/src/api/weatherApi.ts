@@ -1,19 +1,19 @@
 import { api } from "./client";
 
+export interface WeatherHour {
+  time: string;
+  temperature: number;
+  uvIndex: number;
+  weatherCode: number;
+}
+
 export interface WeatherResponse {
   temperature: number;
-  feelsLike: number;
+  uvIndex: number;
   condition: string;
-  description: string;
-
-  humidity: number;
-  uv: number;
-  windSpeed: number;
-
-  sunrise: string;
-  sunset: string;
-
-  city: string;
+  weatherCode: number;
+  isDay: number;
+  hourly: WeatherHour[];
 }
 
 export async function getCurrentWeather(userId: number) {

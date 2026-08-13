@@ -1,18 +1,19 @@
 import { createContext, ReactNode, useContext, useState } from "react";
 
-import { ClothingItem, OutfitActivity } from "../constants/outfits";
+import { OutfitActivity } from "../constants/outfits";
+
+export interface GeneratedOutfit {
+  top: string;
+  bottom: string;
+  shoes: string;
+  outerwear: string | null;
+  accessories: string[];
+  reason: string;
+}
 
 export interface SelectedOutfit {
   activity: OutfitActivity;
-
-  top?: ClothingItem;
-
-  bottom?: ClothingItem;
-
-  shoes?: ClothingItem;
-
-  accessory?: ClothingItem;
-
+  generated: GeneratedOutfit;
   reason: string;
 }
 

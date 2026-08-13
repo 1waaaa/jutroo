@@ -1,5 +1,14 @@
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
-import { ArrowUpRight, Check } from "lucide-react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+
+import {
+  ArrowUpRight,
+  Check,
+  Shirt,
+  Footprints,
+  ShoppingBag,
+  Gem,
+  Sparkles,
+} from "lucide-react-native";
 
 import { SelectedOutfit } from "../../context/OutfitContext";
 import { OUTFIT_ACTIVITIES } from "../../constants/outfits";
@@ -15,12 +24,33 @@ export default function TodayOutfitCard({ outfit, onPress }: Props) {
     (item) => item.id === outfit.activity,
   );
 
+  const generated = outfit.generated;
+
   const items = [
-    outfit.top,
-    outfit.bottom,
-    outfit.shoes,
-    outfit.accessory,
-  ].filter(Boolean);
+    {
+      label: "Top",
+      value: generated.top,
+      Icon: Shirt,
+    },
+    {
+      label: "Bottom",
+      value: generated.bottom,
+      Icon: ShoppingBag,
+    },
+    {
+      label: "Shoes",
+      value: generated.shoes,
+      Icon: Footprints,
+    },
+  ];
+
+  if (generated.outerwear) {
+    items.push({
+      label: "Outerwear",
+      value: generated.outerwear,
+      Icon: Shirt,
+    });
+  }
 
   return (
     <Pressable
@@ -46,25 +76,36 @@ export default function TodayOutfitCard({ outfit, onPress }: Props) {
       </View>
 
       <View style={styles.look}>
-        {items.map((item, index) => {
-          if (!item) return null;
-
-          return (
-            <View
-              key={`${item.id}-${index}`}
-              style={[
-                styles.imageWrapper,
-                index > 0 && styles.overlap,
-                {
-                  zIndex: items.length - index,
-                },
-              ]}
-            >
-              <Image source={{ uri: item.uri }} style={styles.image} />
+        {items.slice(0, 3).map(({ label, value, Icon }) => (
+          <View key={label} style={styles.item}>
+            <View style={styles.itemIcon}>
+              <Icon size={23} color={Colors.ink} strokeWidth={1.7} />
             </View>
-          );
-        })}
+
+            <Text style={styles.itemLabel}>{label}</Text>
+
+            <Text style={styles.itemValue} numberOfLines={2}>
+              {value}
+            </Text>
+          </View>
+        ))}
       </View>
+
+      {generated.accessories.length > 0 && (
+        <View style={styles.accessories}>
+          <View style={styles.accessoryHeader}>
+            <View style={styles.accessoryIcon}>
+              <Gem size={16} color={Colors.ink} strokeWidth={1.7} />
+            </View>
+
+            <Text style={styles.accessoryLabel}>ACCESSORIES</Text>
+          </View>
+
+          <Text style={styles.accessoryText} numberOfLines={1}>
+            {generated.accessories.join(" · ")}
+          </Text>
+        </View>
+      )}
 
       <View style={styles.bottom}>
         <View style={styles.reasonContainer}>
@@ -174,68 +215,131 @@ const styles = StyleSheet.create({
   look: {
     flexDirection: "row",
 
-    alignItems: "center",
+    gap: 9,
 
     marginTop: 22,
-
-    paddingLeft: 4,
-
-    minHeight: 112,
   },
 
-  imageWrapper: {
-    width: 104,
+  item: {
+    flex: 1,
 
-    height: 112,
+    minHeight: 122,
 
-    borderRadius: 24,
+    padding: 11,
+
+    borderRadius: 20,
 
     backgroundColor: Colors.ivory,
-
-    padding: 3,
 
     borderWidth: 1,
 
     borderColor: Colors.border,
-
-    shadowColor: Colors.ink,
-
-    shadowOpacity: 0.08,
-
-    shadowRadius: 12,
-
-    shadowOffset: {
-      width: 0,
-      height: 6,
-    },
-
-    elevation: 3,
   },
 
-  overlap: {
-    marginLeft: -34,
+  itemIcon: {
+    width: 39,
+
+    height: 39,
+
+    borderRadius: 14,
+
+    backgroundColor: Colors.surface,
+
+    justifyContent: "center",
+
+    alignItems: "center",
+
+    marginBottom: 10,
   },
 
-  image: {
-    width: "100%",
+  itemLabel: {
+    fontSize: 9,
 
-    height: "100%",
+    fontWeight: "800",
 
-    borderRadius: 21,
+    letterSpacing: 1.3,
+
+    color: Colors.subtitle,
+
+    marginBottom: 4,
+  },
+
+  itemValue: {
+    fontSize: 12,
+
+    lineHeight: 16,
+
+    fontWeight: "700",
+
+    color: Colors.text,
+  },
+
+  accessories: {
+    flexDirection: "row",
+
+    alignItems: "center",
+
+    marginTop: 10,
+
+    paddingHorizontal: 12,
+
+    paddingVertical: 10,
+
+    borderRadius: 16,
 
     backgroundColor: Colors.mist,
   },
 
-  bottom: {
+  accessoryHeader: {
     flexDirection: "row",
 
-    alignItems: "flex-end",
+    alignItems: "center",
 
-    justifyContent: "space-between",
+    marginRight: 9,
+  },
 
-    marginTop: 22,
+  accessoryIcon: {
+    width: 28,
 
-    paddingTop: 17,
+    height: 28,
+
+    borderRadius: 10,
+
+    backgroundColor: Colors.surface,
+
+    justifyContent: "center",
+
+    alignItems: "center",
+
+    marginRight: 7,
+  },
+
+  accessoryLabel: {
+    fontSize: 8,
+
+    fontWeight: "800",
+
+    letterSpacing: 1.2,
+
+    color: Colors.subtitle,
+  },
+
+  accessoryText: {
+    flex: 1,
+
+    fontSize: 11,
+
+    lineHeight: 15,
+
+    fontWeight: "600",
+
+    color: Colors.text,
+  },
+
+  bottom: {
+    marginTop: 18,
+
+    paddingTop: 15,
 
     borderTopWidth: 1,
 
@@ -244,8 +348,6 @@ const styles = StyleSheet.create({
 
   reasonContainer: {
     flex: 1,
-
-    paddingRight: 18,
   },
 
   reasonLabel: {
@@ -268,23 +370,5 @@ const styles = StyleSheet.create({
     color: Colors.text,
 
     fontWeight: "500",
-  },
-
-  view: {
-    flexDirection: "row",
-
-    alignItems: "center",
-
-    gap: 3,
-
-    paddingBottom: 1,
-  },
-
-  viewText: {
-    fontSize: 14,
-
-    fontWeight: "800",
-
-    color: Colors.coral,
   },
 });

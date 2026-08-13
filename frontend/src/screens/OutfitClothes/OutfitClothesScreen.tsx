@@ -3,7 +3,7 @@ import { Alert, Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 import * as ImagePicker from "expo-image-picker";
 
-import { Plus, Trash2, Sparkles, Check } from "lucide-react-native";
+import { Plus, Trash2, Check } from "lucide-react-native";
 
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -32,6 +32,7 @@ import { RootStackParamList } from "../../navigation/types";
 import { Colors } from "../../theme/colors";
 
 import { useOutfit } from "../../context/OutfitContext";
+import { useUser } from "../../context/UserContext";
 
 type NavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -45,7 +46,9 @@ export default function OutfitClothesScreen() {
   const route = useRoute<OutfitRouteProp>();
 
   const { activity } = route.params;
+
   const { setOutfit } = useOutfit();
+  const { userId } = useUser();
 
   const [clothes, setClothes] = useState<ClothingItem[]>([]);
 
@@ -62,7 +65,9 @@ export default function OutfitClothesScreen() {
   async function pickFromGallery(category: ClothingItem["category"]) {
     const categoryInfo = OUTFIT_CATEGORIES.find((item) => item.id === category);
 
-    if (!categoryInfo) return;
+    if (!categoryInfo) {
+      return;
+    }
 
     const currentItems = clothes.filter((item) => item.category === category);
 
@@ -89,11 +94,15 @@ export default function OutfitClothesScreen() {
       quality: 0.8,
     });
 
-    if (result.canceled) return;
+    if (result.canceled) {
+      return;
+    }
 
     const asset = result.assets[0];
 
-    if (!asset) return;
+    if (!asset) {
+      return;
+    }
 
     addClothingItem(category, asset.uri);
   }
@@ -101,7 +110,9 @@ export default function OutfitClothesScreen() {
   async function takePhoto(category: ClothingItem["category"]) {
     const categoryInfo = OUTFIT_CATEGORIES.find((item) => item.id === category);
 
-    if (!categoryInfo) return;
+    if (!categoryInfo) {
+      return;
+    }
 
     const currentItems = clothes.filter((item) => item.category === category);
 
@@ -131,11 +142,15 @@ export default function OutfitClothesScreen() {
       quality: 0.8,
     });
 
-    if (result.canceled) return;
+    if (result.canceled) {
+      return;
+    }
 
     const asset = result.assets[0];
 
-    if (!asset) return;
+    if (!asset) {
+      return;
+    }
 
     addClothingItem(category, asset.uri);
   }
@@ -175,24 +190,41 @@ export default function OutfitClothesScreen() {
       return;
     }
 
-    const tops = getCategoryItems("tops");
-    const bottoms = getCategoryItems("bottoms");
-    const shoes = getCategoryItems("shoes");
-    const accessories = getCategoryItems("accessories");
+    if (!userId) {
+      Alert.alert("Something went wrong", "We couldn't find your account.");
+
+      return;
+    }
 
     try {
-      const top = tops[0];
-      const bottom = bottoms[0];
-      const selectedShoes = shoes[0];
-      const accessory = accessories[0];
+      /*
+       * Send ALL uploaded clothing items
+       * to the backend.
+       *
+       * Gemini will decide which pieces
+       * work best together.
+       */
+      const result = await recommendOutfit({
+        userId,
+        activity,
+        clothes,
+      });
 
+      /*
+       * Save the real AI recommendation.
+       *
+       * We intentionally do NOT choose
+       * clothes[0], tops[0], etc.
+       *
+       * The backend/Gemini is now responsible
+       * for creating the recommendation.
+       */
       setOutfit({
         activity,
-        top,
-        bottom,
-        shoes: selectedShoes,
-        accessory,
-        reason: "This outfit is perfect for your activity and today's weather.",
+
+        generated: result.outfit,
+
+        reason: result.outfit.reason,
       });
 
       navigation.navigate("OutfitResult");
@@ -234,6 +266,7 @@ export default function OutfitClothesScreen() {
       <View style={styles.categories}>
         {OUTFIT_CATEGORIES.map((category) => {
           const items = getCategoryItems(category.id);
+
           const CategoryIcon = OUTFIT_CATEGORY_ICONS[category.id];
 
           return (
@@ -265,7 +298,12 @@ export default function OutfitClothesScreen() {
               <View style={styles.grid}>
                 {items.map((item) => (
                   <View key={item.id} style={styles.imageWrapper}>
-                    <Image source={{ uri: item.uri }} style={styles.image} />
+                    <Image
+                      source={{
+                        uri: item.uri,
+                      }}
+                      style={styles.image}
+                    />
 
                     <View style={styles.selectedBadge}>
                       <Check size={13} color={Colors.ink} strokeWidth={2.8} />
@@ -320,7 +358,7 @@ export default function OutfitClothesScreen() {
 }
 
 function getActivityTitle(activity: OutfitActivity) {
-  const titles: Record<string, string> = {
+  const titles: Record<OutfitActivity, string> = {
     UNIVERSITY: "University",
     GYM: "Gym",
     WALK: "Walk",
@@ -495,6 +533,7 @@ const styles = StyleSheet.create({
     shadowColor: Colors.ink,
     shadowOpacity: 0.1,
     shadowRadius: 5,
+
     shadowOffset: {
       width: 0,
       height: 2,
@@ -522,7 +561,6 @@ const styles = StyleSheet.create({
 
   addCard: {
     width: "31%",
-
     aspectRatio: 0.82,
 
     paddingBottom: 15,
@@ -564,7 +602,12 @@ const styles = StyleSheet.create({
 
   pressed: {
     opacity: 0.75,
-    transform: [{ scale: 0.97 }],
+
+    transform: [
+      {
+        scale: 0.97,
+      },
+    ],
   },
 
   infoCard: {

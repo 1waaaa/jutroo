@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { AppState, AppStateStatus } from "react-native";
 
 import { useNavigation } from "@react-navigation/native";
-
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import { RootStackParamList } from "../../navigation/types";
@@ -21,23 +20,15 @@ import { DayThemeProvider } from "../../context/DayThemeContext";
 import { usePlanner } from "../../context/PlannerContext";
 import { useUser } from "../../context/UserContext";
 import { useOutfit } from "../../context/OutfitContext";
+import { useOnboarding } from "../../context/OnboardingContext";
 
 import { WeatherResponse, getCurrentWeather } from "../../api/weatherApi";
 
 import { HydrationResponse, getWaterGoal } from "../../api/hydrationApi";
 
-import { mockWeather } from "../../mock/weather";
-import { mockHydration } from "../../mock/hydration";
-import { mockSchedule } from "../../mock/schedule";
-
-import { useOnboarding } from "../../context/OnboardingContext";
-
 import Footer from "../../components/home/Footer";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Home">;
-
-// false kada backend bude spreman.
-const USE_MOCK_DATA = true;
 
 const WEATHER_REFRESH_INTERVAL = 60 * 60 * 1000;
 
@@ -50,7 +41,7 @@ export default function HomeScreen() {
 
   const { data } = useOnboarding();
 
-  const { schedule, setSchedule, hasSchedule } = usePlanner();
+  const { schedule, hasSchedule } = usePlanner();
 
   const [loading, setLoading] = useState(true);
 
@@ -58,114 +49,51 @@ export default function HomeScreen() {
 
   const [hydration, setHydration] = useState<HydrationResponse | null>(null);
 
-  /*
-   * Prevent multiple weather requests
-   * from running at the same time.
-   */
   const weatherLoading = useRef(false);
 
-  /*
-   * Fetch current weather.
-   *
-   * This is separate from the initial
-   * Home loading because weather can refresh
-   * without reloading the whole screen.
-   */
   const refreshWeather = useCallback(async () => {
-    if (weatherLoading.current) {
+    if (weatherLoading.current || !userId) {
       return;
     }
 
     weatherLoading.current = true;
 
     try {
-      if (USE_MOCK_DATA) {
-        setWeather(mockWeather);
-        return;
-      }
-
-      if (!userId) {
-        console.log("User ID not found.");
-        return;
-      }
-
       const weatherData = await getCurrentWeather(userId);
 
       setWeather(weatherData);
     } catch (error) {
       console.log("Weather refresh failed.", error);
-
-      /*
-       * If weather already exists,
-       * keep showing it.
-       */
-      if (!weather) {
-        setWeather(mockWeather);
-      }
     } finally {
       weatherLoading.current = false;
     }
-  }, [userId, weather]);
+  }, [userId]);
 
-  /*
-   * Initial Home loading.
-   */
   useEffect(() => {
     async function loadHome() {
+      if (!userId) {
+        setLoading(false);
+        return;
+      }
+
       try {
-        if (USE_MOCK_DATA) {
-          setWeather(mockWeather);
-          setHydration(mockHydration);
-
-          if (!hasSchedule) {
-            setSchedule(mockSchedule);
-          }
-
-          return;
-        }
-
-        if (!userId) {
-          console.log("User ID not found.");
-
-          setWeather(mockWeather);
-          setHydration(mockHydration);
-
-          return;
-        }
-
-        const weatherData = await getCurrentWeather(userId);
-
-        const hydrationData = await getWaterGoal(userId);
+        const [weatherData, hydrationData] = await Promise.all([
+          getCurrentWeather(userId),
+          getWaterGoal(userId),
+        ]);
 
         setWeather(weatherData);
         setHydration(hydrationData);
-
-        /*
-         * Later:
-         *
-         * const plan = await getPlan(userId);
-         * setSchedule(plan.items);
-         */
       } catch (error) {
         console.log("Home loading failed.", error);
-
-        setWeather(mockWeather);
-        setHydration(mockHydration);
-
-        if (!hasSchedule) {
-          setSchedule(mockSchedule);
-        }
       } finally {
         setLoading(false);
       }
     }
 
     loadHome();
-  }, [userId, hasSchedule, setSchedule]);
+  }, [userId]);
 
-  /*
-   * Refresh weather every hour.
-   */
   useEffect(() => {
     const interval = setInterval(() => {
       refreshWeather();
@@ -176,10 +104,6 @@ export default function HomeScreen() {
     };
   }, [refreshWeather]);
 
-  /*
-   * Refresh weather whenever the app
-   * becomes active again.
-   */
   useEffect(() => {
     const handleAppStateChange = (nextState: AppStateStatus) => {
       if (nextState === "active") {
@@ -208,8 +132,7 @@ export default function HomeScreen() {
           <WeatherCard
             temperature={weather.temperature}
             condition={weather.condition}
-            feelsLike={weather.feelsLike}
-            uv={weather.uv}
+            uv={weather.uvIndex}
           />
 
           <TodayScheduleCard

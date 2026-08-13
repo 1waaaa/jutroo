@@ -12,7 +12,6 @@ interface Props {
   temperature: number;
   condition: string;
   uv: number;
-  feelsLike: number;
 }
 
 function isDarkWeather(condition: string) {
@@ -54,12 +53,7 @@ function formatName(name?: string | null) {
   return name.charAt(0).toUpperCase() + name.slice(1);
 }
 
-export default function WeatherCard({
-  temperature,
-  condition,
-  uv,
-  feelsLike,
-}: Props) {
+export default function WeatherCard({ temperature, condition, uv }: Props) {
   const { isDark } = useDayTheme();
 
   const { data } = useOnboarding();
@@ -133,17 +127,6 @@ export default function WeatherCard({
           </Text>
 
           <View style={styles.details}>
-            <Text
-              style={[
-                styles.detail,
-                {
-                  color: secondaryColor,
-                },
-              ]}
-            >
-              Feels like {feelsLike}°
-            </Text>
-
             <View
               style={[
                 styles.dot,

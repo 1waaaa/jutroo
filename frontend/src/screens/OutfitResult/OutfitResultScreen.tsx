@@ -1,10 +1,18 @@
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { useNavigation } from "@react-navigation/native";
 
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
-import { ArrowLeft, Check, Sparkles, Shirt } from "lucide-react-native";
+import {
+  ArrowLeft,
+  Check,
+  Shirt,
+  Sparkles,
+  Footprints,
+  ShoppingBag,
+  Gem,
+} from "lucide-react-native";
 
 import ScrollScreenContainer from "../../components/ScrollScreenContainer/ScrollScreenContainer";
 import AppTitle from "../../components/AppTitle/AppTitle";
@@ -39,15 +47,17 @@ export default function OutfitResultScreen() {
           <ArrowLeft size={22} color={Colors.text} />
         </Pressable>
 
-        <AppTitle>No Outfit{"\n"}Selected</AppTitle>
+        <View style={styles.empty}>
+          <AppTitle>No Outfit{"\n"}Selected</AppTitle>
 
-        <AppSubtitle>You haven't selected an outfit yet.</AppSubtitle>
+          <AppSubtitle>You haven't selected an outfit yet.</AppSubtitle>
 
-        <PrimaryButton
-          title="Choose an Outfit"
-          onPress={() => navigation.navigate("OutfitActivity")}
-          disabled={false}
-        />
+          <PrimaryButton
+            title="Choose an Outfit"
+            onPress={() => navigation.navigate("OutfitActivity")}
+            disabled={false}
+          />
+        </View>
       </ScrollScreenContainer>
     );
   }
@@ -56,31 +66,33 @@ export default function OutfitResultScreen() {
     (item) => item.id === outfit.activity,
   );
 
-  const items = [
+  const generated = outfit.generated;
+
+  const clothingItems = [
     {
-      item: outfit.top,
       title: "Top",
+      value: generated.top,
+      Icon: Shirt,
     },
     {
-      item: outfit.bottom,
       title: "Bottom",
+      value: generated.bottom,
+      Icon: ShoppingBag,
     },
     {
-      item: outfit.shoes,
       title: "Shoes",
+      value: generated.shoes,
+      Icon: Footprints,
     },
-    {
-      item: outfit.accessory,
-      title: "Accessory",
-    },
-  ].filter(
-    (
-      entry,
-    ): entry is {
-      item: NonNullable<typeof entry.item>;
-      title: string;
-    } => Boolean(entry.item),
-  );
+  ];
+
+  if (generated.outerwear) {
+    clothingItems.push({
+      title: "Outerwear",
+      value: generated.outerwear,
+      Icon: Shirt,
+    });
+  }
 
   return (
     <ScrollScreenContainer>
@@ -89,10 +101,15 @@ export default function OutfitResultScreen() {
       </Pressable>
 
       <View style={styles.hero}>
+        <View style={styles.heroIcon}>
+          <Sparkles size={27} color={Colors.coral} strokeWidth={1.8} />
+        </View>
+
         <AppTitle>Your Outfit{"\n"}is Ready</AppTitle>
 
         <AppSubtitle>
-          Here's your {activity?.title.toLowerCase()} outfit.
+          Here's your {activity?.title.toLowerCase()} outfit, styled just for
+          you.
         </AppSubtitle>
       </View>
 
@@ -105,18 +122,52 @@ export default function OutfitResultScreen() {
           </View>
 
           <View style={styles.check}>
-            <Check size={18} color="white" />
+            <Check size={18} color={Colors.surface} strokeWidth={2.5} />
           </View>
         </View>
 
         <View style={styles.items}>
-          {items.map(({ item, title }) => (
-            <OutfitItem key={`${item.id}-${title}`} item={item} title={title} />
+          {clothingItems.map(({ title, value, Icon }) => (
+            <View key={title} style={styles.item}>
+              <View style={styles.itemIcon}>
+                <Icon size={22} color={Colors.ink} strokeWidth={1.7} />
+              </View>
+
+              <View style={styles.itemContent}>
+                <Text style={styles.itemTitle}>{title}</Text>
+
+                <Text style={styles.itemDescription}>{value}</Text>
+              </View>
+            </View>
           ))}
         </View>
+
+        {generated.accessories.length > 0 && (
+          <View style={styles.accessories}>
+            <View style={styles.accessoryHeader}>
+              <View style={styles.accessoryIcon}>
+                <Gem size={19} color={Colors.ink} strokeWidth={1.7} />
+              </View>
+
+              <Text style={styles.accessoryTitle}>Accessories</Text>
+            </View>
+
+            {generated.accessories.map((accessory, index) => (
+              <View key={`${accessory}-${index}`} style={styles.accessoryRow}>
+                <View style={styles.accessoryDot} />
+
+                <Text style={styles.accessoryText}>{accessory}</Text>
+              </View>
+            ))}
+          </View>
+        )}
       </View>
 
       <View style={styles.reasonCard}>
+        <View style={styles.reasonIcon}>
+          <Sparkles size={20} color={Colors.coral} strokeWidth={1.8} />
+        </View>
+
         <View style={styles.reasonContent}>
           <Text style={styles.reasonTitle}>Why this outfit?</Text>
 
@@ -140,74 +191,61 @@ export default function OutfitResultScreen() {
   );
 }
 
-function OutfitItem({
-  item,
-  title,
-}: {
-  item: {
-    id: number;
-    uri: string;
-  };
-
-  title: string;
-}) {
-  return (
-    <View style={styles.item}>
-      <Image
-        source={{
-          uri: item.uri,
-        }}
-        style={styles.itemImage}
-      />
-
-      <Text style={styles.itemTitle}>{title}</Text>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   backButton: {
     width: 44,
     height: 44,
+
     borderRadius: 22,
 
     backgroundColor: Colors.surface,
 
     justifyContent: "center",
     alignItems: "center",
+
     marginTop: 72,
     marginBottom: 18,
+
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+
+  empty: {
+    alignItems: "center",
   },
 
   hero: {
     alignItems: "center",
   },
 
-  icon: {
+  heroIcon: {
     width: 64,
     height: 64,
-    borderRadius: 32,
 
-    backgroundColor: "#EEF6FF",
+    borderRadius: 22,
+
+    backgroundColor: Colors.softCoral,
 
     justifyContent: "center",
     alignItems: "center",
 
-    marginBottom: 14,
+    marginBottom: 15,
+
+    borderWidth: 1,
+    borderColor: "rgba(217,130,114,0.16)",
   },
 
   outfitCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: Colors.surface,
 
     borderRadius: 26,
 
     padding: 20,
 
-    marginTop: 22,
+    marginTop: 24,
 
     borderWidth: 1,
-
-    borderColor: "#EEF2F7",
+    borderColor: Colors.border,
   },
 
   cardHeader: {
@@ -217,15 +255,15 @@ const styles = StyleSheet.create({
 
     alignItems: "center",
 
-    marginBottom: 18,
+    marginBottom: 20,
   },
 
   cardLabel: {
-    fontSize: 12,
+    fontSize: 10,
 
-    fontWeight: "700",
+    fontWeight: "800",
 
-    letterSpacing: 1.2,
+    letterSpacing: 1.8,
 
     color: Colors.subtitle,
   },
@@ -237,7 +275,9 @@ const styles = StyleSheet.create({
 
     color: Colors.text,
 
-    marginTop: 3,
+    marginTop: 4,
+
+    letterSpacing: -0.5,
   },
 
   check: {
@@ -253,65 +293,145 @@ const styles = StyleSheet.create({
   },
 
   items: {
-    flexDirection: "row",
-
-    flexWrap: "wrap",
-
-    gap: 12,
+    gap: 10,
   },
 
   item: {
-    width: "47%",
+    flexDirection: "row",
 
-    position: "relative",
-  },
+    alignItems: "center",
 
-  itemImage: {
-    width: "100%",
-
-    aspectRatio: 0.9,
+    backgroundColor: Colors.ivory,
 
     borderRadius: 18,
 
-    backgroundColor: Colors.surface,
+    padding: 12,
+
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
 
-  itemTitle: {
-    fontSize: 14,
+  itemIcon: {
+    width: 44,
+    height: 44,
 
-    fontWeight: "700",
+    borderRadius: 15,
 
-    color: Colors.text,
-
-    marginTop: 8,
-
-    marginLeft: 4,
-  },
-
-  selectedBadge: {
-    position: "absolute",
-
-    top: 10,
-
-    right: 10,
-
-    width: 28,
-    height: 28,
-
-    borderRadius: 14,
-
-    backgroundColor: Colors.coral,
+    backgroundColor: Colors.mist,
 
     justifyContent: "center",
     alignItems: "center",
+
+    marginRight: 12,
+  },
+
+  itemContent: {
+    flex: 1,
+  },
+
+  itemTitle: {
+    fontSize: 11,
+
+    fontWeight: "800",
+
+    textTransform: "uppercase",
+
+    letterSpacing: 1.1,
+
+    color: Colors.subtitle,
+  },
+
+  itemDescription: {
+    fontSize: 14,
+
+    lineHeight: 19,
+
+    fontWeight: "600",
+
+    color: Colors.text,
+
+    marginTop: 3,
+  },
+
+  accessories: {
+    marginTop: 16,
+
+    paddingTop: 16,
+
+    borderTopWidth: 1,
+
+    borderTopColor: Colors.border,
+  },
+
+  accessoryHeader: {
+    flexDirection: "row",
+
+    alignItems: "center",
+
+    marginBottom: 10,
+  },
+
+  accessoryIcon: {
+    width: 38,
+    height: 38,
+
+    borderRadius: 13,
+
+    backgroundColor: Colors.mist,
+
+    justifyContent: "center",
+    alignItems: "center",
+
+    marginRight: 10,
+  },
+
+  accessoryTitle: {
+    fontSize: 15,
+
+    fontWeight: "800",
+
+    color: Colors.text,
+  },
+
+  accessoryRow: {
+    flexDirection: "row",
+
+    alignItems: "center",
+
+    marginTop: 7,
+
+    paddingLeft: 3,
+  },
+
+  accessoryDot: {
+    width: 6,
+    height: 6,
+
+    borderRadius: 3,
+
+    backgroundColor: Colors.coral,
+
+    marginRight: 10,
+  },
+
+  accessoryText: {
+    flex: 1,
+
+    fontSize: 13,
+
+    lineHeight: 18,
+
+    color: Colors.subtitle,
+
+    fontWeight: "600",
   },
 
   reasonCard: {
     flexDirection: "row",
 
-    alignItems: "center",
+    alignItems: "flex-start",
 
-    backgroundColor: "#F4F8FF",
+    backgroundColor: Colors.ivory,
 
     borderRadius: 20,
 
@@ -321,19 +441,25 @@ const styles = StyleSheet.create({
 
     marginBottom: 24,
 
-    gap: 14,
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
 
   reasonIcon: {
-    width: 46,
-    height: 46,
+    width: 44,
+    height: 44,
 
     borderRadius: 15,
 
-    backgroundColor: "#FFFFFF",
+    backgroundColor: Colors.surface,
 
     justifyContent: "center",
     alignItems: "center",
+
+    marginRight: 12,
+
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
 
   reasonContent: {
@@ -347,13 +473,13 @@ const styles = StyleSheet.create({
 
     color: Colors.text,
 
-    marginBottom: 4,
+    marginBottom: 5,
   },
 
   reason: {
     fontSize: 14,
 
-    lineHeight: 20,
+    lineHeight: 21,
 
     color: Colors.subtitle,
   },
