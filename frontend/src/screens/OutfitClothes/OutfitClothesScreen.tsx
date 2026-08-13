@@ -1,15 +1,12 @@
 import { useState } from "react";
-
 import { Alert, Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 import * as ImagePicker from "expo-image-picker";
 
-import { Plus, Trash2, Sparkles } from "lucide-react-native";
+import { Plus, Trash2, Sparkles, Check } from "lucide-react-native";
 
 import { useNavigation, useRoute } from "@react-navigation/native";
-
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-
 import { RouteProp } from "@react-navigation/native";
 
 import ScrollScreenContainer from "../../components/ScrollScreenContainer/ScrollScreenContainer";
@@ -17,6 +14,7 @@ import BackButton from "../../components/BackButton/BackButton";
 import AppTitle from "../../components/AppTitle/AppTitle";
 import AppSubtitle from "../../components/AppSubtitle/AppSubtitle";
 import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
+
 import { recommendOutfit } from "../../api/outfitApi";
 
 import {
@@ -25,8 +23,12 @@ import {
   OutfitActivity,
 } from "../../constants/outfits";
 
-import { RootStackParamList } from "../../navigation/types";
+import {
+  OUTFIT_ACTIVITY_ICONS,
+  OUTFIT_CATEGORY_ICONS,
+} from "../../constants/outfitIcons";
 
+import { RootStackParamList } from "../../navigation/types";
 import { Colors } from "../../theme/colors";
 
 import { useOutfit } from "../../context/OutfitContext";
@@ -40,11 +42,9 @@ type OutfitRouteProp = RouteProp<RootStackParamList, "OutfitClothes">;
 
 export default function OutfitClothesScreen() {
   const navigation = useNavigation<NavigationProp>();
-
   const route = useRoute<OutfitRouteProp>();
 
   const { activity } = route.params;
-
   const { setOutfit } = useOutfit();
 
   const [clothes, setClothes] = useState<ClothingItem[]>([]);
@@ -89,9 +89,7 @@ export default function OutfitClothesScreen() {
       quality: 0.8,
     });
 
-    if (result.canceled) {
-      return;
-    }
+    if (result.canceled) return;
 
     const asset = result.assets[0];
 
@@ -133,9 +131,7 @@ export default function OutfitClothesScreen() {
       quality: 0.8,
     });
 
-    if (result.canceled) {
-      return;
-    }
+    if (result.canceled) return;
 
     const asset = result.assets[0];
 
@@ -153,13 +149,13 @@ export default function OutfitClothesScreen() {
   }
 
   function openAddOptions(category: ClothingItem["category"]) {
-    Alert.alert("Add clothing", "How would you like to add it?", [
+    Alert.alert("Add clothing", "Choose how you'd like to add this item.", [
       {
-        text: "📷 Take a photo",
+        text: "Take a photo",
         onPress: () => takePhoto(category),
       },
       {
-        text: "🖼 Choose from gallery",
+        text: "Choose from gallery",
         onPress: () => pickFromGallery(category),
       },
       {
@@ -180,86 +176,22 @@ export default function OutfitClothesScreen() {
     }
 
     const tops = getCategoryItems("tops");
-
     const bottoms = getCategoryItems("bottoms");
-
     const shoes = getCategoryItems("shoes");
-
     const accessories = getCategoryItems("accessories");
 
     try {
-      /*
-    ============================================================
-    REAL BACKEND
-    ============================================================
-
-    const response = await recommendOutfit({
-      planId: 5, // kasnije uzimamo pravi planId
-      activity,
-
-      tops,
-      bottoms,
-      shoes,
-      accessories,
-    });
-
-    const top =
-      tops[response.selectedTop];
-
-    const bottom =
-      bottoms[response.selectedBottom];
-
-    const selectedShoes =
-      shoes[response.selectedShoes];
-
-    const accessory =
-      accessories[
-        response.selectedAccessory
-      ];
-
-    setOutfit({
-      activity,
-
-      top,
-      bottom,
-
-      shoes: selectedShoes,
-
-      accessory,
-
-      reason: response.reason,
-    });
-
-    navigation.navigate("OutfitResult");
-
-    return;
-    */
-
-      /*
-    ============================================================
-    MOCK
-    ============================================================
-    */
-
       const top = tops[0];
-
       const bottom = bottoms[0];
-
       const selectedShoes = shoes[0];
-
       const accessory = accessories[0];
 
       setOutfit({
         activity,
-
         top,
-
         bottom,
-
         shoes: selectedShoes,
-
         accessory,
-
         reason: "This outfit is perfect for your activity and today's weather.",
       });
 
@@ -274,160 +206,248 @@ export default function OutfitClothesScreen() {
     }
   }
 
-  const activityInfo = getActivityInfo(activity);
+  const ActivityIcon = OUTFIT_ACTIVITY_ICONS[activity];
 
   return (
     <ScrollScreenContainer>
-      <BackButton onPress={() => navigation.goBack()} />
-
-      <AppTitle>
-        Your{"\n"}
-        {activityInfo.emoji} {activityInfo.title} Outfit
-      </AppTitle>
-
-      <AppSubtitle>
-        Upload the clothes you want the AI to choose from.
-      </AppSubtitle>
-
-      {OUTFIT_CATEGORIES.map((category) => {
-        const items = getCategoryItems(category.id);
-
-        return (
-          <View key={category.id} style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>
-                {category.emoji} {category.title}
-              </Text>
-
-              <Text style={styles.counter}>
-                {items.length}/{category.maxItems}
-              </Text>
-            </View>
-
-            <View style={styles.grid}>
-              {items.map((item) => (
-                <View key={item.id} style={styles.imageWrapper}>
-                  <Image
-                    source={{
-                      uri: item.uri,
-                    }}
-                    style={styles.image}
-                  />
-
-                  <Pressable
-                    style={styles.removeButton}
-                    onPress={() => removeItem(item.id)}
-                  >
-                    <Trash2 size={15} color="white" />
-                  </Pressable>
-                </View>
-              ))}
-
-              {items.length < category.maxItems && (
-                <Pressable
-                  style={styles.addCard}
-                  onPress={() => openAddOptions(category.id)}
-                >
-                  <View style={styles.plusCircle}>
-                    <Plus size={25} color={Colors.primary} />
-                  </View>
-
-                  <Text style={styles.addText}>Add</Text>
-                </Pressable>
-              )}
-            </View>
-          </View>
-        );
-      })}
-
-      <View style={styles.infoCard}>
-        <Sparkles size={20} color={Colors.primary} />
-
-        <Text style={styles.infoText}>
-          We'll consider your activity and today's weather when choosing your
-          outfit.
-        </Text>
+      <View style={styles.back}>
+        <BackButton onPress={() => navigation.goBack()} />
       </View>
 
-      <PrimaryButton
-        title="✨ Get Outfit Recommendation"
-        onPress={handleContinue}
-        disabled={clothes.length === 0}
-      />
+      <View style={styles.hero}>
+        <View style={styles.activityIcon}>
+          {ActivityIcon && (
+            <ActivityIcon size={28} color={Colors.ink} strokeWidth={1.7} />
+          )}
+        </View>
+
+        <AppTitle>
+          Your{"\n"}
+          {getActivityTitle(activity)} Outfit
+        </AppTitle>
+
+        <AppSubtitle>
+          Upload the pieces you want Jutro to style for you.
+        </AppSubtitle>
+      </View>
+
+      <View style={styles.categories}>
+        {OUTFIT_CATEGORIES.map((category) => {
+          const items = getCategoryItems(category.id);
+          const CategoryIcon = OUTFIT_CATEGORY_ICONS[category.id];
+
+          return (
+            <View key={category.id} style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <View style={styles.sectionTitleRow}>
+                  <View style={styles.categoryIcon}>
+                    {CategoryIcon && (
+                      <CategoryIcon
+                        size={19}
+                        color={Colors.ink}
+                        strokeWidth={1.7}
+                      />
+                    )}
+                  </View>
+
+                  <View style={styles.sectionText}>
+                    <Text style={styles.sectionTitle}>{category.title}</Text>
+                  </View>
+                </View>
+
+                <View style={styles.counter}>
+                  <Text style={styles.counterText}>
+                    {items.length}/{category.maxItems}
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.grid}>
+                {items.map((item) => (
+                  <View key={item.id} style={styles.imageWrapper}>
+                    <Image source={{ uri: item.uri }} style={styles.image} />
+
+                    <View style={styles.selectedBadge}>
+                      <Check size={13} color={Colors.ink} strokeWidth={2.8} />
+                    </View>
+
+                    <Pressable
+                      style={({ pressed }) => [
+                        styles.removeButton,
+                        pressed && styles.pressed,
+                      ]}
+                      onPress={() => removeItem(item.id)}
+                    >
+                      <Trash2
+                        size={14}
+                        color={Colors.surface}
+                        strokeWidth={2}
+                      />
+                    </Pressable>
+                  </View>
+                ))}
+
+                {items.length < category.maxItems && (
+                  <Pressable
+                    style={({ pressed }) => [
+                      styles.addCard,
+                      pressed && styles.pressed,
+                    ]}
+                    onPress={() => openAddOptions(category.id)}
+                  >
+                    <View style={styles.plusCircle}>
+                      <Plus size={21} color={Colors.ink} strokeWidth={1.7} />
+                    </View>
+
+                    <Text style={styles.addText}>Add item</Text>
+                  </Pressable>
+                )}
+              </View>
+            </View>
+          );
+        })}
+      </View>
+
+      <View style={styles.buttonContainer}>
+        <PrimaryButton
+          title="Get Outfit Recommendation"
+          onPress={handleContinue}
+          disabled={clothes.length === 0}
+        />
+      </View>
     </ScrollScreenContainer>
   );
 }
 
-function getActivityInfo(activity: OutfitActivity) {
-  const activities = {
-    UNIVERSITY: {
-      title: "University",
-      emoji: "🎓",
-    },
-
-    GYM: {
-      title: "Gym",
-      emoji: "🏋️",
-    },
-
-    WALK: {
-      title: "Walk",
-      emoji: "🚶",
-    },
-
-    SHOPPING: {
-      title: "Shopping",
-      emoji: "🛍️",
-    },
-
-    DINNER: {
-      title: "Dinner",
-      emoji: "🍽️",
-    },
-
-    DATE: {
-      title: "Date",
-      emoji: "❤️",
-    },
+function getActivityTitle(activity: OutfitActivity) {
+  const titles: Record<string, string> = {
+    UNIVERSITY: "University",
+    GYM: "Gym",
+    WALK: "Walk",
+    SHOPPING: "Shopping",
+    DINNER: "Dinner",
+    DATE: "Date",
   };
 
-  return activities[activity];
+  return titles[activity] ?? "Daily";
 }
 
 const styles = StyleSheet.create({
+  back: {
+    marginTop: 72,
+  },
+
+  hero: {
+    alignItems: "center",
+    paddingHorizontal: 8,
+    marginBottom: 8,
+  },
+
+  activityIcon: {
+    width: 68,
+    height: 68,
+    borderRadius: 23,
+
+    backgroundColor: Colors.mist,
+
+    justifyContent: "center",
+    alignItems: "center",
+
+    marginBottom: 16,
+
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+
+  categories: {
+    marginTop: 12,
+  },
+
   section: {
-    marginTop: 24,
+    marginTop: 26,
   },
 
   sectionHeader: {
     flexDirection: "row",
-
     justifyContent: "space-between",
-
     alignItems: "center",
 
-    marginBottom: 12,
+    marginBottom: 13,
+  },
+
+  sectionTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+
+    flex: 1,
+  },
+
+  categoryIcon: {
+    width: 43,
+    height: 43,
+    borderRadius: 15,
+
+    backgroundColor: Colors.mist,
+
+    justifyContent: "center",
+    alignItems: "center",
+
+    marginRight: 11,
+
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+
+  sectionText: {
+    flex: 1,
   },
 
   sectionTitle: {
     fontSize: 18,
-
     fontWeight: "800",
 
     color: Colors.text,
+
+    letterSpacing: -0.3,
   },
 
-  counter: {
-    fontSize: 14,
+  sectionSubtitle: {
+    marginTop: 2,
 
-    fontWeight: "600",
+    fontSize: 12,
+    fontWeight: "500",
 
     color: Colors.subtitle,
   },
 
+  counter: {
+    minWidth: 48,
+    height: 30,
+
+    paddingHorizontal: 10,
+
+    borderRadius: 15,
+
+    backgroundColor: Colors.ivory,
+
+    borderWidth: 1,
+    borderColor: Colors.border,
+
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  counterText: {
+    fontSize: 11,
+    fontWeight: "800",
+
+    color: Colors.subtitle,
+
+    letterSpacing: 0.2,
+  },
+
   grid: {
     flexDirection: "row",
-
     flexWrap: "wrap",
 
     gap: 12,
@@ -435,43 +455,68 @@ const styles = StyleSheet.create({
 
   imageWrapper: {
     width: "31%",
-
     aspectRatio: 0.82,
 
-    borderRadius: 18,
+    borderRadius: 21,
 
     overflow: "hidden",
 
     backgroundColor: Colors.surface,
 
     position: "relative",
+
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
 
   image: {
     width: "100%",
-
     height: "100%",
 
     resizeMode: "cover",
+  },
+
+  selectedBadge: {
+    position: "absolute",
+
+    left: 8,
+    bottom: 8,
+
+    width: 26,
+    height: 26,
+
+    borderRadius: 13,
+
+    backgroundColor: "rgba(255,255,255,0.94)",
+
+    justifyContent: "center",
+    alignItems: "center",
+
+    shadowColor: Colors.ink,
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+
+    elevation: 2,
   },
 
   removeButton: {
     position: "absolute",
 
     top: 8,
-
     right: 8,
 
-    width: 30,
+    width: 28,
+    height: 28,
 
-    height: 30,
+    borderRadius: 14,
 
-    borderRadius: 15,
-
-    backgroundColor: "rgba(0,0,0,0.65)",
+    backgroundColor: "rgba(36,52,71,0.76)",
 
     justifyContent: "center",
-
     alignItems: "center",
   },
 
@@ -480,70 +525,103 @@ const styles = StyleSheet.create({
 
     aspectRatio: 0.82,
 
-    borderRadius: 18,
+    paddingBottom: 15,
 
-    borderWidth: 1.5,
+    borderRadius: 21,
 
-    borderStyle: "dashed",
+    borderWidth: 1,
 
     borderColor: Colors.border,
 
     backgroundColor: Colors.surface,
 
     justifyContent: "center",
-
     alignItems: "center",
   },
 
   plusCircle: {
-    width: 44,
+    width: 32,
+    height: 32,
 
-    height: 44,
+    borderRadius: 24,
 
-    borderRadius: 22,
-
-    backgroundColor: "#EEF6FF",
+    backgroundColor: Colors.mist,
 
     justifyContent: "center",
-
     alignItems: "center",
 
-    marginBottom: 8,
+    marginBottom: 9,
   },
 
   addText: {
-    fontSize: 14,
-
+    fontSize: 12,
     fontWeight: "700",
 
     color: Colors.subtitle,
+
+    letterSpacing: 0.1,
+  },
+
+  pressed: {
+    opacity: 0.75,
+    transform: [{ scale: 0.97 }],
   },
 
   infoCard: {
     flexDirection: "row",
-
     alignItems: "center",
 
-    gap: 12,
+    backgroundColor: Colors.ivory,
 
-    backgroundColor: "#F4F8FF",
+    borderRadius: 23,
 
-    borderRadius: 18,
+    padding: 17,
 
-    padding: 16,
+    marginTop: 30,
+    marginBottom: 22,
 
-    marginTop: 28,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
 
-    marginBottom: 24,
+  infoIcon: {
+    width: 42,
+    height: 42,
+
+    borderRadius: 15,
+
+    backgroundColor: Colors.surface,
+
+    justifyContent: "center",
+    alignItems: "center",
+
+    marginRight: 12,
+
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+
+  infoContent: {
+    flex: 1,
+  },
+
+  infoTitle: {
+    fontSize: 14,
+    fontWeight: "800",
+
+    color: Colors.text,
+
+    marginBottom: 3,
   },
 
   infoText: {
-    flex: 1,
-
-    fontSize: 14,
-
-    lineHeight: 20,
+    fontSize: 12,
+    lineHeight: 18,
 
     color: Colors.subtitle,
+  },
+
+  buttonContainer: {
+    marginBottom: 24,
   },
 });

@@ -42,9 +42,9 @@ export default function TodayScheduleCard({ schedule, onPress }: Props) {
 
   const secondaryColor = isDark ? "rgba(255,255,255,0.58)" : Colors.subtitle;
 
-  const lineColor = isDark ? "rgba(255,255,255,0.16)" : Colors.border;
+  const lineColor = isDark ? "rgba(255,255,255,0.16)" : Colors.handle;
 
-  const inactiveDotColor = isDark ? "rgba(255,255,255,0.38)" : Colors.mist;
+  const inactiveDotColor = isDark ? "rgba(255,255,255,0.38)" : Colors.handle;
 
   const iconColor = isDark ? "#FFFFFF" : Colors.ink;
 

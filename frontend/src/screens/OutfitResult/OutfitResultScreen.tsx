@@ -89,10 +89,6 @@ export default function OutfitResultScreen() {
       </Pressable>
 
       <View style={styles.hero}>
-        <View style={styles.icon}>
-          <Sparkles size={30} color={Colors.primary} />
-        </View>
-
         <AppTitle>Your Outfit{"\n"}is Ready</AppTitle>
 
         <AppSubtitle>
@@ -105,9 +101,7 @@ export default function OutfitResultScreen() {
           <View>
             <Text style={styles.cardLabel}>TODAY'S OUTFIT</Text>
 
-            <Text style={styles.cardTitle}>
-              {activity?.emoji} {activity?.title}
-            </Text>
+            <Text style={styles.cardTitle}>{activity?.title}</Text>
           </View>
 
           <View style={styles.check}>
@@ -123,10 +117,6 @@ export default function OutfitResultScreen() {
       </View>
 
       <View style={styles.reasonCard}>
-        <View style={styles.reasonIcon}>
-          <Shirt size={22} color={Colors.primary} />
-        </View>
-
         <View style={styles.reasonContent}>
           <Text style={styles.reasonTitle}>Why this outfit?</Text>
 
@@ -171,10 +161,6 @@ function OutfitItem({
       />
 
       <Text style={styles.itemTitle}>{title}</Text>
-
-      <View style={styles.selectedBadge}>
-        <Check size={13} color="white" />
-      </View>
     </View>
   );
 }
@@ -189,7 +175,7 @@ const styles = StyleSheet.create({
 
     justifyContent: "center",
     alignItems: "center",
-
+    marginTop: 72,
     marginBottom: 18,
   },
 
@@ -260,7 +246,7 @@ const styles = StyleSheet.create({
 
     borderRadius: 18,
 
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.coral,
 
     justifyContent: "center",
     alignItems: "center",
@@ -314,7 +300,7 @@ const styles = StyleSheet.create({
 
     borderRadius: 14,
 
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.coral,
 
     justifyContent: "center",
     alignItems: "center",

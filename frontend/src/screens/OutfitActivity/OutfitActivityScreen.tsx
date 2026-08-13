@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -29,9 +29,13 @@ export default function OutfitActivityScreen() {
 
   return (
     <ScrollScreenContainer>
-      <BackButton onPress={() => navigation.goBack()} />
-
-      <AppTitle>Which activity{"\n"}are you dressing for?</AppTitle>
+      <View style={styles.back}>
+        <BackButton onPress={() => navigation.goBack()} />
+      </View>
+      <AppTitle>
+        Which activity{"\n"}
+        are you dressing for?
+      </AppTitle>
 
       <AppSubtitle>
         Choose what you're doing and we'll help you build the perfect outfit.
@@ -41,7 +45,7 @@ export default function OutfitActivityScreen() {
         {OUTFIT_ACTIVITIES.map((activity) => (
           <OutfitActivityCard
             key={activity.id}
-            emoji={activity.emoji}
+            activityId={activity.id}
             title={activity.title}
             selected={selectedActivity === activity.id}
             onPress={() => setSelectedActivity(activity.id)}
@@ -65,15 +69,14 @@ export default function OutfitActivityScreen() {
 }
 
 const styles = StyleSheet.create({
+  back: {
+    marginTop: 72,
+  },
   grid: {
     flexDirection: "row",
-
     flexWrap: "wrap",
-
     justifyContent: "space-between",
-
     marginTop: 26,
-
     marginBottom: 24,
   },
 });

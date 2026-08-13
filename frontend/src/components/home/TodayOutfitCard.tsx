@@ -74,12 +74,6 @@ export default function TodayOutfitCard({ outfit, onPress }: Props) {
             {outfit.reason}
           </Text>
         </View>
-
-        <View style={styles.view}>
-          <Text style={styles.viewText}>View</Text>
-
-          <ArrowUpRight size={15} color={Colors.coral} strokeWidth={2.4} />
-        </View>
       </View>
     </Pressable>
   );
