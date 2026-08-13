@@ -1,5 +1,4 @@
 from datetime import datetime
-from itertools import permutations
 
 
 # ---------------------------------------------------------
@@ -14,6 +13,7 @@ def time_to_minutes(value: str) -> int:
 def minutes_to_time(value: int) -> str:
     hour = value // 60
     minute = value % 60
+
     return f"{hour:02d}:{minute:02d}"
 
 
@@ -21,13 +21,9 @@ def minutes_to_time(value: int) -> str:
 # WEATHER SCORES
 # ---------------------------------------------------------
 
-def temperature_score(temperature: float) -> float:
-    """
-    0-100
-
-    Najprijatnije je oko 20-24°C.
-    Ne želimo ni ekstremnu vrućinu ni hladnoću.
-    """
+def temperature_score(
+    temperature: float
+) -> float:
 
     ideal_min = 20
     ideal_max = 24
@@ -42,14 +38,15 @@ def temperature_score(temperature: float) -> float:
 
     score = 100 - difference * 8
 
-    return max(0, min(100, score))
+    return max(
+        0,
+        min(100, score)
+    )
 
 
-def uv_score(uv: float) -> float:
-    """
-    Što je UV manji, termin je bolji
-    za outdoor aktivnosti.
-    """
+def uv_score(
+    uv: float
+) -> float:
 
     if uv <= 2:
         return 100
@@ -66,10 +63,9 @@ def uv_score(uv: float) -> float:
     return 0
 
 
-def weather_score(weather_code: int) -> float:
-    """
-    Procena vremenskih uslova.
-    """
+def weather_score(
+    weather_code: int
+) -> float:
 
     # Vedro
     if weather_code in [0, 1]:
@@ -80,19 +76,29 @@ def weather_score(weather_code: int) -> float:
         return 85
 
     # Slaba kiša
-    if weather_code in [51, 53, 55, 61, 63]:
+    if weather_code in [
+        51, 53, 55,
+        61, 63
+    ]:
         return 40
 
     # Jaka kiša
-    if weather_code in [65, 80, 81, 82]:
+    if weather_code in [
+        65, 80, 81, 82
+    ]:
         return 10
 
     # Sneg
-    if weather_code in [71, 73, 75, 77, 85, 86]:
+    if weather_code in [
+        71, 73, 75,
+        77, 85, 86
+    ]:
         return 20
 
     # Oluja
-    if weather_code in [95, 96, 99]:
+    if weather_code in [
+        95, 96, 99
+    ]:
         return 0
 
     return 50
@@ -102,15 +108,9 @@ def weather_score(weather_code: int) -> float:
 # OUTDOOR SCORE
 # ---------------------------------------------------------
 
-def calculate_outdoor_score(weather: dict) -> float:
-    """
-    Ukupan score termina za outdoor aktivnost.
-
-    Trenutno:
-        temperatura = 40%
-        UV          = 40%
-        vreme       = 20%
-    """
+def calculate_outdoor_score(
+    weather: dict
+) -> float:
 
     temperature = temperature_score(
         weather["temperature"]
@@ -141,9 +141,15 @@ def has_conflict(
     occupied: list[tuple[int, int]]
 ) -> bool:
 
-    for occupied_start, occupied_end in occupied:
+    for (
+        occupied_start,
+        occupied_end
+    ) in occupied:
 
-        if start < occupied_end and end > occupied_start:
+        if (
+            start < occupied_end
+            and end > occupied_start
+        ):
             return True
 
     return False
@@ -158,11 +164,9 @@ def get_weather_for_slot(
     duration: int,
     weather_hours: list[dict]
 ):
-    """
-    Za sada koristimo hourly prognozu.
 
-    Tražimo weather podatke za početni sat.
-    """
+    best_weather = None
+    best_difference = None
 
     for weather in weather_hours:
 
@@ -170,12 +174,23 @@ def get_weather_for_slot(
             weather["time"]
         )
 
-        weather_start = dt.hour * 60 + dt.minute
+        weather_start = (
+            dt.hour * 60
+            + dt.minute
+        )
 
-        if weather_start == start:
-            return weather
+        difference = abs(
+            weather_start - start
+        )
 
-    return None
+        if (
+            best_difference is None
+            or difference < best_difference
+        ):
+            best_difference = difference
+            best_weather = weather
+
+    return best_weather
 
 
 # ---------------------------------------------------------
@@ -188,6 +203,15 @@ def generate_possible_slots(
     occupied
 ):
 
+    if activity.duration is None:
+        return []
+
+    if activity.earliest is None:
+        return []
+
+    if activity.latest is None:
+        return []
+
     earliest = time_to_minutes(
         activity.earliest
     )
@@ -198,9 +222,14 @@ def generate_possible_slots(
 
     duration = activity.duration
 
+    if duration <= 0:
+        return []
+
+    if earliest >= latest:
+        return []
+
     possible_slots = []
 
-    # Idemo na svakih 30 minuta
     step = 30
 
     current = earliest
@@ -209,7 +238,6 @@ def generate_possible_slots(
 
         end = current + duration
 
-        # Ne sme da se preklapa
         if not has_conflict(
             current,
             end,
@@ -222,8 +250,6 @@ def generate_possible_slots(
                 weather_hours
             )
 
-            # Ako nemamo weather podatke
-            # ipak možemo napraviti slot
             if activity.outdoor:
 
                 if weather is None:
@@ -235,8 +261,7 @@ def generate_possible_slots(
                 )
 
             else:
-                # Indoor aktivnosti ne zavise
-                # od vremena
+
                 score = 50
 
             possible_slots.append({
@@ -266,6 +291,12 @@ def add_fixed_activities(
         if not activity.fixed:
             continue
 
+        if activity.start is None:
+            continue
+
+        if activity.end is None:
+            continue
+
         start = time_to_minutes(
             activity.start
         )
@@ -274,11 +305,19 @@ def add_fixed_activities(
             activity.end
         )
 
+        if end <= start:
+            continue
+
+        duration = activity.duration
+
+        if duration is None:
+            duration = end - start
+
         plan.append({
             "type": activity.type,
             "start": activity.start,
             "end": activity.end,
-            "duration": activity.duration,
+            "duration": duration,
             "fixed": True,
             "outdoor": activity.outdoor,
         })
@@ -307,7 +346,7 @@ def find_best_combination(
     if current_plan is None:
         current_plan = []
 
-    # Svi smo obradili
+    # Sve aktivnosti obrađene
     if index >= len(activities):
 
         return {
@@ -321,13 +360,11 @@ def find_best_combination(
 
     slots = possible_slots[index]
 
-    # Probaj svaki mogući termin
     for slot in slots:
 
         start = slot["start"]
         end = slot["end"]
 
-        # Dodatna provera konflikta
         if has_conflict(
             start,
             end,
@@ -361,29 +398,20 @@ def find_best_combination(
             current_score + slot["score"]
         )
 
-        if (
-            best_result is None
-            or result["score"] > best_result["score"]
-        ):
-            best_result = result
+        if result is not None:
+
+            if (
+                best_result is None
+                or result["score"]
+                > best_result["score"]
+            ):
+                best_result = result
 
         current_plan.pop()
         occupied.pop()
 
-    # Ako ova aktivnost nema nijedan termin
     if best_result is None:
-
-        result = find_best_combination(
-            activities,
-            possible_slots,
-            index + 1,
-            occupied,
-            current_plan,
-            current_score
-        )
-
-        if result is not None:
-            return result
+        return None
 
     return best_result
 
@@ -399,8 +427,11 @@ def generate_plan(
 
     plan = []
 
-    # Fiksni termini
     occupied = []
+
+    # --------------------------------
+    # FIXED
+    # --------------------------------
 
     add_fixed_activities(
         activities,
@@ -408,7 +439,10 @@ def generate_plan(
         plan
     )
 
-    # Samo fleksibilne aktivnosti
+    # --------------------------------
+    # FLEXIBLE
+    # --------------------------------
+
     flexible = [
         activity
         for activity in activities
@@ -416,14 +450,29 @@ def generate_plan(
     ]
 
     # Aktivnosti sa užim windowom
-    # prvo dobijaju prednost
+    # imaju prednost
     flexible.sort(
         key=lambda activity:
-        time_to_minutes(activity.latest)
-        - time_to_minutes(activity.earliest)
+        (
+            time_to_minutes(
+                activity.latest
+            )
+            -
+            time_to_minutes(
+                activity.earliest
+            )
+        )
+        if (
+            activity.latest is not None
+            and activity.earliest is not None
+        )
+        else 999999
     )
 
-    # Mogući slotovi za svaku aktivnost
+    # --------------------------------
+    # POSSIBLE SLOTS
+    # --------------------------------
+
     possible_slots = []
 
     for activity in flexible:
@@ -438,25 +487,33 @@ def generate_plan(
             slots
         )
 
-    # Pronađi najbolju kombinaciju
-    result = find_best_combination(
-        flexible,
-        possible_slots,
-        occupied=occupied
-    )
+    # --------------------------------
+    # BEST COMBINATION
+    # --------------------------------
 
-    if result is not None:
+    if flexible:
 
-        plan.extend(
-            result["plan"]
+        result = find_best_combination(
+            flexible,
+            possible_slots,
+            occupied=occupied
         )
 
-    # Sortiranje po vremenu
+        if result is not None:
+
+            plan.extend(
+                result["plan"]
+            )
+
+    # --------------------------------
+    # SORT
+    # --------------------------------
+
     plan.sort(
         key=lambda item:
-        time_to_minutes(item["start"])
-        if item["start"]
-        else 9999
+        time_to_minutes(
+            item["start"]
+        )
     )
 
     return plan

@@ -1,8 +1,10 @@
 import requests
 
 
-def get_current_weather(latitude: float, longitude: float):
-
+def get_current_weather(
+    latitude: float,
+    longitude: float
+):
     url = (
         "https://api.open-meteo.com/v1/forecast"
         f"?latitude={latitude}"
@@ -13,7 +15,10 @@ def get_current_weather(latitude: float, longitude: float):
         "&forecast_days=2"
     )
 
-    response = requests.get(url)
+    response = requests.get(
+        url,
+        timeout=10
+    )
 
     if response.status_code != 200:
         raise Exception("Weather API unavailable")
@@ -30,17 +35,30 @@ def get_current_weather(latitude: float, longitude: float):
         1: "Mainly clear",
         2: "Partly cloudy",
         3: "Cloudy",
+        51: "Drizzle",
+        53: "Drizzle",
+        55: "Drizzle",
         61: "Rain",
         63: "Rain",
         65: "Heavy rain",
         71: "Snow",
+        73: "Snow",
+        75: "Heavy snow",
+        80: "Rain showers",
+        81: "Rain showers",
+        82: "Heavy rain showers",
         95: "Thunderstorm",
+        96: "Thunderstorm",
+        99: "Thunderstorm",
     }
 
     return {
         "temperature": current["temperature_2m"],
         "uvIndex": hourly["uv_index"][0],
-        "condition": weather_map.get(weather_code, "Unknown"),
+        "condition": weather_map.get(
+            weather_code,
+            "Unknown"
+        ),
         "weatherCode": weather_code,
         "isDay": current["is_day"],
 

@@ -1,8 +1,12 @@
 from pydantic import BaseModel
 
+
 class ActivityRequest(BaseModel):
     type: str
+
     fixed: bool
+
+    outdoor: bool = False
 
     duration: int | None = None
 
