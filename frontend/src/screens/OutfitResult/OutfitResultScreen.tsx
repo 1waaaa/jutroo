@@ -6,11 +6,11 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import {
   ArrowLeft,
   Check,
+  Gem,
   Sparkles,
   Shirt,
   Footprints,
   ShoppingBag,
-  Gem,
 } from "lucide-react-native";
 
 import ScrollScreenContainer from "../../components/ScrollScreenContainer/ScrollScreenContainer";
@@ -36,9 +36,6 @@ export default function OutfitResultScreen() {
 
   const { outfit } = useOutfit();
 
-  /*
-   * No outfit available.
-   */
   if (!outfit) {
     return (
       <ScrollScreenContainer>
@@ -70,9 +67,6 @@ export default function OutfitResultScreen() {
 
   const generated = outfit.generated;
 
-  /*
-   * Clothing selected by Gemini.
-   */
   const clothingItems = [
     {
       title: "Top",
@@ -102,6 +96,8 @@ export default function OutfitResultScreen() {
         <ArrowLeft size={22} color={Colors.text} />
       </Pressable>
 
+      {/* HERO */}
+
       <View style={styles.hero}>
         <View style={styles.heroIcon}>
           <Sparkles size={27} color={Colors.coral} strokeWidth={1.8} />
@@ -114,6 +110,8 @@ export default function OutfitResultScreen() {
           you.
         </AppSubtitle>
       </View>
+
+      {/* OUTFIT CARD */}
 
       <View style={styles.outfitCard}>
         <View style={styles.cardHeader}>
@@ -128,6 +126,8 @@ export default function OutfitResultScreen() {
           </View>
         </View>
 
+        {/* CLOTHING ITEMS */}
+
         <View style={styles.items}>
           {clothingItems.map(({ title, item, Icon }) => {
             if (!item) {
@@ -141,6 +141,7 @@ export default function OutfitResultScreen() {
                     uri: item.image,
                   }}
                   style={styles.itemImage}
+                  resizeMode="cover"
                 />
 
                 <View style={styles.itemContent}>
@@ -152,14 +153,16 @@ export default function OutfitResultScreen() {
                     <Text style={styles.itemTitle}>{title}</Text>
                   </View>
 
-                  <Text style={styles.itemDescription} numberOfLines={1}>
-                    {item.filename}
+                  <Text style={styles.itemDescription}>
+                    Selected from your wardrobe
                   </Text>
                 </View>
               </View>
             );
           })}
         </View>
+
+        {/* ACCESSORIES */}
 
         {generated.accessories.length > 0 && (
           <View style={styles.accessories}>
@@ -171,23 +174,24 @@ export default function OutfitResultScreen() {
               <Text style={styles.accessoryTitle}>Accessories</Text>
             </View>
 
-            {generated.accessories.map((accessory) => (
-              <View key={accessory.id} style={styles.accessoryItem}>
-                <Image
-                  source={{
-                    uri: accessory.image,
-                  }}
-                  style={styles.accessoryImage}
-                />
-
-                <Text style={styles.accessoryText} numberOfLines={1}>
-                  {accessory.filename}
-                </Text>
-              </View>
-            ))}
+            <View style={styles.accessoryList}>
+              {generated.accessories.map((accessory) => (
+                <View key={accessory.id} style={styles.accessoryItem}>
+                  <Image
+                    source={{
+                      uri: accessory.image,
+                    }}
+                    style={styles.accessoryImage}
+                    resizeMode="cover"
+                  />
+                </View>
+              ))}
+            </View>
           </View>
         )}
       </View>
+
+      {/* WHY THIS OUTFIT */}
 
       <View style={styles.reasonCard}>
         <View style={styles.reasonIcon}>
@@ -201,11 +205,15 @@ export default function OutfitResultScreen() {
         </View>
       </View>
 
+      {/* BACK HOME */}
+
       <PrimaryButton
         title="Back to Home"
         onPress={() => navigation.navigate("Home")}
         disabled={false}
       />
+
+      {/* CREATE DIFFERENT */}
 
       <Pressable
         style={styles.changeButton}
@@ -338,10 +346,10 @@ const styles = StyleSheet.create({
   },
 
   itemImage: {
-    width: 58,
-    height: 58,
+    width: 64,
+    height: 64,
 
-    borderRadius: 14,
+    borderRadius: 16,
 
     backgroundColor: Colors.mist,
   },
@@ -389,11 +397,9 @@ const styles = StyleSheet.create({
 
     fontWeight: "600",
 
-    color: Colors.text,
+    color: Colors.subtitle,
 
-    marginTop: 5,
-
-    maxWidth: "90%",
+    marginTop: 6,
   },
 
   accessories: {
@@ -436,33 +442,28 @@ const styles = StyleSheet.create({
     color: Colors.text,
   },
 
-  accessoryItem: {
+  accessoryList: {
     flexDirection: "row",
 
-    alignItems: "center",
+    flexWrap: "wrap",
 
-    marginTop: 8,
+    gap: 10,
+  },
+
+  accessoryItem: {
+    width: 64,
+    height: 64,
+
+    borderRadius: 16,
+
+    overflow: "hidden",
+
+    backgroundColor: Colors.mist,
   },
 
   accessoryImage: {
-    width: 44,
-    height: 44,
-
-    borderRadius: 13,
-
-    backgroundColor: Colors.mist,
-
-    marginRight: 10,
-  },
-
-  accessoryText: {
-    flex: 1,
-
-    fontSize: 13,
-
-    color: Colors.subtitle,
-
-    fontWeight: "600",
+    width: "100%",
+    height: "100%",
   },
 
   reasonCard: {

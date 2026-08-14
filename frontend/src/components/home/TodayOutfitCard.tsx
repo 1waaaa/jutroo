@@ -1,13 +1,6 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
-import {
-  ArrowUpRight,
-  Check,
-  Shirt,
-  Footprints,
-  ShoppingBag,
-  Gem,
-} from "lucide-react-native";
+import { ArrowUpRight, Check, Gem } from "lucide-react-native";
 
 import { SelectedOutfit } from "../../context/OutfitContext";
 import { OUTFIT_ACTIVITIES } from "../../constants/outfits";
@@ -25,31 +18,13 @@ export default function TodayOutfitCard({ outfit, onPress }: Props) {
 
   const generated = outfit.generated;
 
-  const items = [
-    {
-      label: "Top",
-      value: generated.top,
-      Icon: Shirt,
-    },
-    {
-      label: "Bottom",
-      value: generated.bottom,
-      Icon: ShoppingBag,
-    },
-    {
-      label: "Shoes",
-      value: generated.shoes,
-      Icon: Footprints,
-    },
-  ];
-
-  if (generated.outerwear) {
-    items.push({
-      label: "Outerwear",
-      value: generated.outerwear,
-      Icon: Shirt,
-    });
-  }
+  const images = [
+    generated.top,
+    generated.bottom,
+    generated.shoes,
+    generated.outerwear,
+    ...generated.accessories,
+  ].filter(Boolean);
 
   return (
     <Pressable
@@ -57,6 +32,7 @@ export default function TodayOutfitCard({ outfit, onPress }: Props) {
       onPress={onPress}
     >
       {/* HEADER */}
+
       <View style={styles.header}>
         <View>
           <View style={styles.labelRow}>
@@ -75,30 +51,39 @@ export default function TodayOutfitCard({ outfit, onPress }: Props) {
         </View>
       </View>
 
-      {/* CLOTHING ITEMS */}
-      <View style={styles.look}>
-        {items.slice(0, 3).map(({ label, value, Icon }) => {
-          if (!value) {
-            return null;
-          }
+      {/* OUTFIT IMAGES */}
 
-          return (
-            <View key={`${label}-${value.id}`} style={styles.item}>
-              <View style={styles.itemIcon}>
-                <Icon size={23} color={Colors.ink} strokeWidth={1.7} />
+      {images.length > 0 && (
+        <View style={styles.look}>
+          {images.slice(0, 4).map((item, index) => {
+            if (!item) {
+              return null;
+            }
+
+            return (
+              <View
+                key={`${item.id}-${index}`}
+                style={[
+                  styles.imageWrapper,
+                  index > 0 && styles.overlap,
+                  {
+                    zIndex: images.length - index,
+                  },
+                ]}
+              >
+                <Image
+                  source={{ uri: item.image }}
+                  style={styles.image}
+                  resizeMode="cover"
+                />
               </View>
-
-              <Text style={styles.itemLabel}>{label}</Text>
-
-              <Text style={styles.itemValue} numberOfLines={2}>
-                {value.filename}
-              </Text>
-            </View>
-          );
-        })}
-      </View>
+            );
+          })}
+        </View>
+      )}
 
       {/* ACCESSORIES */}
+
       {generated.accessories.length > 0 && (
         <View style={styles.accessories}>
           <View style={styles.accessoryHeader}>
@@ -109,22 +94,26 @@ export default function TodayOutfitCard({ outfit, onPress }: Props) {
             <Text style={styles.accessoryLabel}>ACCESSORIES</Text>
           </View>
 
-          <Text style={styles.accessoryText} numberOfLines={1}>
-            {generated.accessories
-              .map((accessory) => accessory.filename)
-              .join(" · ")}
-          </Text>
+          <View style={styles.accessoryImages}>
+            {generated.accessories.slice(0, 3).map((accessory) => (
+              <Image
+                key={accessory.id}
+                source={{ uri: accessory.image }}
+                style={styles.accessoryImage}
+                resizeMode="cover"
+              />
+            ))}
+          </View>
         </View>
       )}
 
-      {/* REASON */}
+      {/* WHY THIS LOOK */}
+
       <View style={styles.bottom}>
         <View style={styles.reasonContainer}>
           <Text style={styles.reasonLabel}>WHY THIS LOOK</Text>
 
-          <Text style={styles.reason} numberOfLines={2}>
-            {outfit.reason}
-          </Text>
+          <Text style={styles.reason}>{outfit.reason}</Text>
         </View>
       </View>
     </Pressable>
@@ -227,63 +216,57 @@ const styles = StyleSheet.create({
   look: {
     flexDirection: "row",
 
-    gap: 9,
+    alignItems: "center",
 
     marginTop: 22,
+
+    paddingLeft: 4,
+
+    minHeight: 112,
   },
 
-  item: {
-    flex: 1,
+  imageWrapper: {
+    width: 104,
 
-    minHeight: 122,
+    height: 112,
 
-    padding: 11,
-
-    borderRadius: 20,
+    borderRadius: 24,
 
     backgroundColor: Colors.ivory,
+
+    padding: 3,
 
     borderWidth: 1,
 
     borderColor: Colors.border,
+
+    shadowColor: Colors.ink,
+
+    shadowOpacity: 0.08,
+
+    shadowRadius: 12,
+
+    shadowOffset: {
+      width: 0,
+
+      height: 6,
+    },
+
+    elevation: 3,
   },
 
-  itemIcon: {
-    width: 39,
-
-    height: 39,
-
-    borderRadius: 14,
-
-    backgroundColor: Colors.surface,
-
-    justifyContent: "center",
-
-    alignItems: "center",
-
-    marginBottom: 10,
+  overlap: {
+    marginLeft: -34,
   },
 
-  itemLabel: {
-    fontSize: 9,
+  image: {
+    width: "100%",
 
-    fontWeight: "800",
+    height: "100%",
 
-    letterSpacing: 1.3,
+    borderRadius: 21,
 
-    color: Colors.subtitle,
-
-    marginBottom: 4,
-  },
-
-  itemValue: {
-    fontSize: 12,
-
-    lineHeight: 16,
-
-    fontWeight: "700",
-
-    color: Colors.text,
+    backgroundColor: Colors.mist,
   },
 
   accessories: {
@@ -307,7 +290,7 @@ const styles = StyleSheet.create({
 
     alignItems: "center",
 
-    marginRight: 9,
+    marginRight: 10,
   },
 
   accessoryIcon: {
@@ -336,16 +319,24 @@ const styles = StyleSheet.create({
     color: Colors.subtitle,
   },
 
-  accessoryText: {
+  accessoryImages: {
+    flexDirection: "row",
+
+    alignItems: "center",
+
+    gap: 6,
+
     flex: 1,
+  },
 
-    fontSize: 11,
+  accessoryImage: {
+    width: 34,
 
-    lineHeight: 15,
+    height: 34,
 
-    fontWeight: "600",
+    borderRadius: 10,
 
-    color: Colors.text,
+    backgroundColor: Colors.surface,
   },
 
   bottom: {
@@ -377,7 +368,7 @@ const styles = StyleSheet.create({
   reason: {
     fontSize: 13,
 
-    lineHeight: 18,
+    lineHeight: 19,
 
     color: Colors.text,
 
