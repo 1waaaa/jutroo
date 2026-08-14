@@ -127,11 +127,13 @@ export default function ActivitiesScreen() {
                 } selected`}
           </Text>
 
-          <PrimaryButton
-            title="Review Today's Plan"
-            onPress={handleContinue}
-            disabled={configuredCount === 0}
-          />
+          <View style={styles.cta}>
+            <PrimaryButton
+              title="Review Today's Plan"
+              onPress={handleContinue}
+              disabled={configuredCount === 0}
+            />
+          </View>
 
           {configuredCount > 0 && (
             <Pressable
@@ -180,6 +182,10 @@ const styles = StyleSheet.create({
 
   activities: {
     gap: 0,
+  },
+
+  cta: {
+    paddingHorizontal: 10,
   },
 
   bottom: {

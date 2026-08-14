@@ -99,10 +99,6 @@ export default function OutfitResultScreen() {
       {/* HERO */}
 
       <View style={styles.hero}>
-        <View style={styles.heroIcon}>
-          <Sparkles size={27} color={Colors.coral} strokeWidth={1.8} />
-        </View>
-
         <AppTitle>Your Outfit{"\n"}is Ready</AppTitle>
 
         <AppSubtitle>
@@ -146,10 +142,6 @@ export default function OutfitResultScreen() {
 
                 <View style={styles.itemContent}>
                   <View style={styles.itemTitleRow}>
-                    <View style={styles.itemIcon}>
-                      <Icon size={19} color={Colors.ink} strokeWidth={1.7} />
-                    </View>
-
                     <Text style={styles.itemTitle}>{title}</Text>
                   </View>
 
@@ -167,10 +159,6 @@ export default function OutfitResultScreen() {
         {generated.accessories.length > 0 && (
           <View style={styles.accessories}>
             <View style={styles.accessoryHeader}>
-              <View style={styles.accessoryIcon}>
-                <Gem size={19} color={Colors.ink} strokeWidth={1.7} />
-              </View>
-
               <Text style={styles.accessoryTitle}>Accessories</Text>
             </View>
 

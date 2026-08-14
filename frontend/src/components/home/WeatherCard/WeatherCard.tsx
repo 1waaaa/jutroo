@@ -77,7 +77,7 @@ export default function WeatherCard({
 
   return (
     <View style={styles.hero}>
-      <WeatherVideoBackground condition={condition} />
+      <WeatherVideoBackground condition={condition} isDark={dark} />
 
       <View style={styles.content}>
         <View style={styles.topRow}>

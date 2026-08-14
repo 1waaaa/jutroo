@@ -5,10 +5,15 @@ import { LinearGradient } from "expo-linear-gradient";
 
 interface Props {
   condition: string;
+  isDark: boolean;
 }
 
-function getVideo(condition: string) {
+function getVideo(condition: string, isDark: boolean) {
   const normalized = condition.toLowerCase();
+
+  if (isDark) {
+    return require("../../../../assets/weather/night.mp4");
+  }
 
   if (normalized.includes("rain") || normalized.includes("drizzle")) {
     return require("../../../../assets/weather/rain.mp4");
@@ -18,15 +23,11 @@ function getVideo(condition: string) {
     return require("../../../../assets/weather/cloudy.mp4");
   }
 
-  if (normalized.includes("night") || normalized.includes("moon")) {
-    return require("../../../../assets/weather/night.mp4");
-  }
-
   return require("../../../../assets/weather/sunny.mp4");
 }
 
-export default function WeatherVideoBackground({ condition }: Props) {
-  const source = getVideo(condition);
+export default function WeatherVideoBackground({ condition, isDark }: Props) {
+  const source = getVideo(condition, isDark);
 
   const player = useVideoPlayer(source, (player) => {
     player.loop = true;

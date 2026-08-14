@@ -10,11 +10,7 @@ import TimePickerSheet from "./TimePickerSheet";
 
 import ActivitySummaryCard from "../ActivitySummaryCard/ActivitySummaryCard";
 
-import {
-  Activity,
-  ConfiguredActivity,
-  FIXED_ACTIVITIES,
-} from "../../constants/activities";
+import { Activity, ConfiguredActivity } from "../../constants/activities";
 
 interface Props {
   activity: Activity;
@@ -34,7 +30,7 @@ export default function ActivityForm({
   onSave,
   onPickerChange,
 }: Props) {
-  const isLocked = FIXED_ACTIVITIES.includes(activity.id);
+  const isLocked = activity.id === "UNIVERSITY" || activity.id === "WORK";
 
   const [picker, setPicker] = useState<PickerType>("none");
 
@@ -49,11 +45,11 @@ export default function ActivityForm({
   const fixed = isLocked ? true : userFixed;
 
   const [earliest, setEarliest] = useState(
-    initialConfiguration?.earliest ?? activity.minTime,
+    initialConfiguration?.earliest || activity.minTime,
   );
 
   const [latest, setLatest] = useState(
-    initialConfiguration?.latest ?? activity.maxTime,
+    initialConfiguration?.latest || activity.maxTime,
   );
 
   function toMinutes(time: string) {
@@ -62,6 +58,15 @@ export default function ActivityForm({
     return hours * 60 + minutes;
   }
 
+  /*
+   * Fixed activity:
+   *
+   * duration = end - start
+   *
+   * Flexible activity:
+   *
+   * duration is selected manually.
+   */
   useEffect(() => {
     if (!fixed) {
       return;
@@ -94,15 +99,33 @@ export default function ActivityForm({
   }
 
   function handleSave() {
-    onSave({
+    const configuration: ConfiguredActivity = {
       type: activity.id,
+
       duration,
+
       fixed,
+
       earliest,
+
       latest,
-    });
+    };
+
+    /*
+     * Backend za fixed aktivnosti
+     * očekuje start i end.
+     */
+    if (fixed) {
+      configuration.start = earliest;
+      configuration.end = latest;
+    }
+
+    onSave(configuration);
   }
 
+  /*
+   * TIME PICKER
+   */
   if (picker === "time") {
     return (
       <TimePickerSheet
@@ -118,6 +141,9 @@ export default function ActivityForm({
     );
   }
 
+  /*
+   * NORMAL FORM
+   */
   return (
     <View>
       {!isLocked && <FixedToggle value={userFixed} onChange={setUserFixed} />}

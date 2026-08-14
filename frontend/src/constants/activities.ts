@@ -10,10 +10,10 @@ export interface ConfiguredActivity {
   type: string;
   duration: number;
   fixed: boolean;
+
   earliest: string;
   latest: string;
 
-  // Koristi se samo za fixed aktivnosti.
   start?: string;
   end?: string;
 }
@@ -37,7 +37,6 @@ export const ACTIVITIES: Activity[] = [
     maxTime: "20:00",
     outdoor: false,
   },
-
   {
     id: "WORK",
     title: "Work",
@@ -45,7 +44,6 @@ export const ACTIVITIES: Activity[] = [
     maxTime: "20:00",
     outdoor: false,
   },
-
   {
     id: "GYM",
     title: "Gym",
@@ -53,7 +51,6 @@ export const ACTIVITIES: Activity[] = [
     maxTime: "22:00",
     outdoor: false,
   },
-
   {
     id: "WALK",
     title: "Walk",
@@ -61,7 +58,6 @@ export const ACTIVITIES: Activity[] = [
     maxTime: "22:00",
     outdoor: true,
   },
-
   {
     id: "SHOPPING",
     title: "Shopping",
@@ -69,7 +65,6 @@ export const ACTIVITIES: Activity[] = [
     maxTime: "21:00",
     outdoor: false,
   },
-
   {
     id: "CAFE",
     title: "Cafe",
@@ -77,7 +72,6 @@ export const ACTIVITIES: Activity[] = [
     maxTime: "23:00",
     outdoor: false,
   },
-
   {
     id: "DINNER",
     title: "Dinner",
@@ -85,7 +79,6 @@ export const ACTIVITIES: Activity[] = [
     maxTime: "23:00",
     outdoor: false,
   },
-
   {
     id: "DATE",
     title: "Date",

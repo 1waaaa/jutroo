@@ -59,9 +59,22 @@ export default function ReviewPlanScreen() {
 
         return {
           ...activity,
+
           outdoor: activityDefinition?.outdoor ?? false,
+
+          ...(activity.fixed
+            ? {
+                start: activity.start ?? activity.earliest,
+                end: activity.end ?? activity.latest,
+              }
+            : {}),
         };
       });
+
+      console.log(
+        "Sending planner activities:",
+        JSON.stringify(plannerActivities, null, 2),
+      );
 
       const result = await generatePlan({
         userId: Number(storedId),
