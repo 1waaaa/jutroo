@@ -20,35 +20,14 @@ import { DayThemeProvider } from "../../context/DayThemeContext";
 import { usePlanner } from "../../context/PlannerContext";
 import { useUser } from "../../context/UserContext";
 import { useOutfit } from "../../context/OutfitContext";
-import { useOnboarding } from "../../context/OnboardingContext";
 
 import { WeatherResponse, getCurrentWeather } from "../../api/weatherApi";
 
 import { HydrationResponse, getWaterGoal } from "../../api/hydrationApi";
 
-import { mockWeather } from "../../mock/weather";
-import { mockHydration } from "../../mock/hydration";
-import { mockSchedule } from "../../mock/schedule";
-
 import Footer from "../../components/home/Footer";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Home">;
-
-/*
- * ============================================================
- * DEVELOPMENT ONLY
- * ============================================================
- *
- * true  -> Home can be previewed without onboarding/backend user
- * false -> Home uses real backend data only
- *
- * Kada zavrsimo testiranje UI-ja:
- *
- * const TEST_HOME = false;
- *
- * ============================================================
- */
-const TEST_HOME = false;
 
 const WEATHER_REFRESH_INTERVAL = 60 * 60 * 1000;
 
@@ -58,8 +37,6 @@ export default function HomeScreen() {
   const { outfit } = useOutfit();
 
   const { userId } = useUser();
-
-  const { data } = useOnboarding();
 
   const { schedule, hasSchedule } = usePlanner();
 
@@ -71,20 +48,7 @@ export default function HomeScreen() {
 
   const weatherLoading = useRef(false);
 
-  /*
-   * ============================================================
-   * WEATHER REFRESH
-   * ============================================================
-   */
-
   const refreshWeather = useCallback(async () => {
-    /*
-     * In test mode we don't need backend refresh.
-     */
-    if (TEST_HOME) {
-      return;
-    }
-
     if (weatherLoading.current || !userId) {
       return;
     }
@@ -102,40 +66,10 @@ export default function HomeScreen() {
     }
   }, [userId]);
 
-  /*
-   * ============================================================
-   * LOAD HOME
-   * ============================================================
-   */
-
   useEffect(() => {
     async function loadHome() {
-      /*
-       * --------------------------------------------------------
-       * TEST MODE
-       * --------------------------------------------------------
-       *
-       * Use mock data only to preview the Home UI.
-       * This does NOT affect the real backend flow.
-       */
-      if (TEST_HOME) {
-        setWeather(mockWeather);
-        setHydration(mockHydration);
-
-        setLoading(false);
-
-        return;
-      }
-
-      /*
-       * --------------------------------------------------------
-       * REAL BACKEND MODE
-       * --------------------------------------------------------
-       */
-
       if (!userId) {
         setLoading(false);
-
         return;
       }
 
@@ -146,7 +80,6 @@ export default function HomeScreen() {
         ]);
 
         setWeather(weatherData);
-
         setHydration(hydrationData);
       } catch (error) {
         console.log("Home loading failed.", error);
@@ -158,12 +91,6 @@ export default function HomeScreen() {
     loadHome();
   }, [userId]);
 
-  /*
-   * ============================================================
-   * REFRESH WEATHER EVERY HOUR
-   * ============================================================
-   */
-
   useEffect(() => {
     const interval = setInterval(() => {
       refreshWeather();
@@ -173,12 +100,6 @@ export default function HomeScreen() {
       clearInterval(interval);
     };
   }, [refreshWeather]);
-
-  /*
-   * ============================================================
-   * REFRESH WEATHER WHEN APP BECOMES ACTIVE
-   * ============================================================
-   */
 
   useEffect(() => {
     const handleAppStateChange = (nextState: AppStateStatus) => {
@@ -197,21 +118,9 @@ export default function HomeScreen() {
     };
   }, [refreshWeather]);
 
-  /*
-   * ============================================================
-   * LOADING
-   * ============================================================
-   */
-
   if (loading || !weather || !hydration) {
     return null;
   }
-
-  /*
-   * ============================================================
-   * HOME
-   * ============================================================
-   */
 
   return (
     <DayThemeProvider>
@@ -221,6 +130,7 @@ export default function HomeScreen() {
             temperature={weather.temperature}
             condition={weather.condition}
             uv={weather.uvIndex}
+            isDay={weather.isDay}
           />
 
           <TodayScheduleCard

@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { MapPin } from "lucide-react-native";
 
@@ -12,18 +12,20 @@ interface Props {
   temperature: number;
   condition: string;
   uv: number;
+  isDay: number;
 }
 
-function isDarkWeather(condition: string) {
+function isDarkWeather(condition: string, isDay: number) {
   const normalized = condition.toLowerCase();
 
   return (
-    normalized.includes("night") ||
-    normalized.includes("moon") ||
+    isDay === 0 ||
     normalized.includes("rain") ||
     normalized.includes("drizzle") ||
     normalized.includes("cloud") ||
-    normalized.includes("overcast")
+    normalized.includes("overcast") ||
+    normalized.includes("snow") ||
+    normalized.includes("thunderstorm")
   );
 }
 
@@ -53,12 +55,17 @@ function formatName(name?: string | null) {
   return name.charAt(0).toUpperCase() + name.slice(1);
 }
 
-export default function WeatherCard({ temperature, condition, uv }: Props) {
+export default function WeatherCard({
+  temperature,
+  condition,
+  uv,
+  isDay,
+}: Props) {
   const { isDark } = useDayTheme();
 
   const { data } = useOnboarding();
 
-  const dark = isDark || isDarkWeather(condition);
+  const dark = isDark || isDarkWeather(condition, isDay);
 
   const textColor = dark ? "#FFFFFF" : Colors.text;
 

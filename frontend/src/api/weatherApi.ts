@@ -16,7 +16,9 @@ export interface WeatherResponse {
   hourly: WeatherHour[];
 }
 
-export async function getCurrentWeather(userId: number) {
+export async function getCurrentWeather(
+  userId: number,
+): Promise<WeatherResponse> {
   const response = await api.get<WeatherResponse>(
     `/api/weather/current/${userId}`,
   );
