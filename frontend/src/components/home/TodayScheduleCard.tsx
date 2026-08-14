@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { ArrowRight, Clock3 } from "lucide-react-native";
 
 import { Colors } from "../../theme/colors";
-import { ScheduleItem } from "../../mock/schedule";
+import { ScheduleItem } from "../../api/plannerApi";
 import { useDayTheme } from "../../context/DayThemeContext";
 import { ACTIVITY_ICONS } from "../../constants/activityIcons";
 

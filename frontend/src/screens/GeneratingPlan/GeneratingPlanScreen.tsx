@@ -12,9 +12,6 @@ import AppTitle from "../../components/AppTitle/AppTitle";
 import { RootStackParamList } from "../../navigation/types";
 import { Colors } from "../../theme/colors";
 
-import { usePlanner } from "../../context/PlannerContext";
-import { mockSchedule } from "../../mock/schedule";
-
 type NavigationProp = NativeStackNavigationProp<
   RootStackParamList,
   "GeneratingPlan"
@@ -23,8 +20,6 @@ type NavigationProp = NativeStackNavigationProp<
 export default function GeneratingPlanScreen() {
   const navigation = useNavigation<NavigationProp>();
 
-  const { setSchedule } = usePlanner();
-
   const [step, setStep] = useState(0);
 
   function delay(ms: number) {
@@ -32,26 +27,48 @@ export default function GeneratingPlanScreen() {
   }
 
   useEffect(() => {
+    let cancelled = false;
+
     async function generate() {
       setStep(1);
       await delay(1500);
 
+      if (cancelled) return;
+
       setStep(2);
       await delay(1500);
+
+      if (cancelled) return;
 
       setStep(3);
       await delay(1500);
 
+      if (cancelled) return;
+
       setStep(4);
       await delay(1000);
 
-      setSchedule(mockSchedule);
+      if (cancelled) return;
 
+      /*
+       * Plan je VEĆ generisan u ReviewPlanScreen-u
+       * i sačuvan u PlannerContext-u.
+       *
+       * Ovde samo završavamo loading animaciju
+       * i prelazimo na ekran sa pravim planom.
+       *
+       * NE stavljamo mockSchedule ovde,
+       * jer bi pregazio rezultat backend-a.
+       */
       navigation.replace("GeneratedSchedule");
     }
 
     generate();
-  }, []);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [navigation]);
 
   return (
     <ScreenContainer>

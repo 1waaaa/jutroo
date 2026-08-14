@@ -18,7 +18,9 @@ import { ACTIVITIES } from "../../constants/activities";
 import { RootStackParamList } from "../../navigation/types";
 import { Colors } from "../../theme/colors";
 
-import { generatePlan } from "../../api/plannerApi";
+import { generatePlan, mapPlanToSchedule } from "../../api/plannerApi";
+
+import { usePlanner } from "../../context/PlannerContext";
 
 type NavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -33,6 +35,8 @@ export default function ReviewPlanScreen() {
 
   const { activities } = route.params;
 
+  const { setSchedule } = usePlanner();
+
   const totalMinutes = activities.reduce(
     (sum, activity) => sum + activity.duration,
     0,
@@ -42,20 +46,35 @@ export default function ReviewPlanScreen() {
     try {
       const storedId = await AsyncStorage.getItem("userId");
 
-      /*if (!storedId) {
+      if (!storedId) {
         Alert.alert("Something went wrong", "We couldn't find your account.");
 
         return;
-      }*/
+      }
 
-      await generatePlan({
-        userId: Number(storedId),
-        activities,
+      const plannerActivities = activities.map((activity) => {
+        const activityDefinition = ACTIVITIES.find(
+          (item) => item.id === activity.type,
+        );
+
+        return {
+          ...activity,
+          outdoor: activityDefinition?.outdoor ?? false,
+        };
       });
+
+      const result = await generatePlan({
+        userId: Number(storedId),
+        activities: plannerActivities,
+      });
+
+      const schedule = mapPlanToSchedule(result.plan);
+
+      setSchedule(schedule);
 
       navigation.replace("GeneratingPlan");
     } catch (error) {
-      console.log(error);
+      console.log("Plan generation failed:", error);
 
       Alert.alert(
         "Something went wrong",

@@ -10,7 +10,11 @@ import TimePickerSheet from "./TimePickerSheet";
 
 import ActivitySummaryCard from "../ActivitySummaryCard/ActivitySummaryCard";
 
-import { Activity, ConfiguredActivity } from "../../constants/activities";
+import {
+  Activity,
+  ConfiguredActivity,
+  FIXED_ACTIVITIES,
+} from "../../constants/activities";
 
 interface Props {
   activity: Activity;
@@ -30,7 +34,7 @@ export default function ActivityForm({
   onSave,
   onPickerChange,
 }: Props) {
-  const isLocked = activity.id === "UNIVERSITY" || activity.id === "WORK";
+  const isLocked = FIXED_ACTIVITIES.includes(activity.id);
 
   const [picker, setPicker] = useState<PickerType>("none");
 
@@ -45,11 +49,11 @@ export default function ActivityForm({
   const fixed = isLocked ? true : userFixed;
 
   const [earliest, setEarliest] = useState(
-    initialConfiguration?.earliest || activity.minTime,
+    initialConfiguration?.earliest ?? activity.minTime,
   );
 
   const [latest, setLatest] = useState(
-    initialConfiguration?.latest || activity.maxTime,
+    initialConfiguration?.latest ?? activity.maxTime,
   );
 
   function toMinutes(time: string) {
@@ -58,13 +62,6 @@ export default function ActivityForm({
     return hours * 60 + minutes;
   }
 
-  /*
-   * Fixed:
-   * duration = end - start
-   *
-   * Flexible:
-   * duration is chosen manually.
-   */
   useEffect(() => {
     if (!fixed) {
       return;
@@ -75,10 +72,6 @@ export default function ActivityForm({
     setDuration(Math.max(30, calculatedDuration));
   }, [fixed, earliest, latest]);
 
-  /*
-   * Called when the user finishes
-   * choosing the time range.
-   */
   function handleTimeSelect(start: string, end: string) {
     setEarliest(start);
     setLatest(end);
@@ -88,18 +81,12 @@ export default function ActivityForm({
     onPickerChange?.(false);
   }
 
-  /*
-   * Open the time picker.
-   */
   function openTimePicker() {
     setPicker("time");
 
     onPickerChange?.(true);
   }
 
-  /*
-   * Close the time picker.
-   */
   function closeTimePicker() {
     setPicker("none");
 
@@ -109,23 +96,13 @@ export default function ActivityForm({
   function handleSave() {
     onSave({
       type: activity.id,
-
       duration,
-
       fixed,
-
       earliest,
-
       latest,
     });
   }
 
-  /*
-   * TIME PICKER MODE
-   *
-   * ActivityBottomSheet knows that
-   * picker is open and hides its header.
-   */
   if (picker === "time") {
     return (
       <TimePickerSheet
@@ -140,10 +117,6 @@ export default function ActivityForm({
       />
     );
   }
-
-  /*
-   * NORMAL FORM
-   */
 
   return (
     <View>
