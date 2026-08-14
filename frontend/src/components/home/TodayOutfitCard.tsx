@@ -7,7 +7,6 @@ import {
   Footprints,
   ShoppingBag,
   Gem,
-  Sparkles,
 } from "lucide-react-native";
 
 import { SelectedOutfit } from "../../context/OutfitContext";
@@ -57,6 +56,7 @@ export default function TodayOutfitCard({ outfit, onPress }: Props) {
       style={({ pressed }) => [styles.container, pressed && styles.pressed]}
       onPress={onPress}
     >
+      {/* HEADER */}
       <View style={styles.header}>
         <View>
           <View style={styles.labelRow}>
@@ -75,22 +75,30 @@ export default function TodayOutfitCard({ outfit, onPress }: Props) {
         </View>
       </View>
 
+      {/* CLOTHING ITEMS */}
       <View style={styles.look}>
-        {items.slice(0, 3).map(({ label, value, Icon }) => (
-          <View key={label} style={styles.item}>
-            <View style={styles.itemIcon}>
-              <Icon size={23} color={Colors.ink} strokeWidth={1.7} />
+        {items.slice(0, 3).map(({ label, value, Icon }) => {
+          if (!value) {
+            return null;
+          }
+
+          return (
+            <View key={`${label}-${value.id}`} style={styles.item}>
+              <View style={styles.itemIcon}>
+                <Icon size={23} color={Colors.ink} strokeWidth={1.7} />
+              </View>
+
+              <Text style={styles.itemLabel}>{label}</Text>
+
+              <Text style={styles.itemValue} numberOfLines={2}>
+                {value.filename}
+              </Text>
             </View>
-
-            <Text style={styles.itemLabel}>{label}</Text>
-
-            <Text style={styles.itemValue} numberOfLines={2}>
-              {value}
-            </Text>
-          </View>
-        ))}
+          );
+        })}
       </View>
 
+      {/* ACCESSORIES */}
       {generated.accessories.length > 0 && (
         <View style={styles.accessories}>
           <View style={styles.accessoryHeader}>
@@ -102,11 +110,14 @@ export default function TodayOutfitCard({ outfit, onPress }: Props) {
           </View>
 
           <Text style={styles.accessoryText} numberOfLines={1}>
-            {generated.accessories.join(" · ")}
+            {generated.accessories
+              .map((accessory) => accessory.filename)
+              .join(" · ")}
           </Text>
         </View>
       )}
 
+      {/* REASON */}
       <View style={styles.bottom}>
         <View style={styles.reasonContainer}>
           <Text style={styles.reasonLabel}>WHY THIS LOOK</Text>
@@ -139,6 +150,7 @@ const styles = StyleSheet.create({
 
   pressed: {
     transform: [{ scale: 0.985 }],
+
     opacity: 0.94,
   },
 

@@ -1,14 +1,13 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { useNavigation } from "@react-navigation/native";
-
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import {
   ArrowLeft,
   Check,
-  Shirt,
   Sparkles,
+  Shirt,
   Footprints,
   ShoppingBag,
   Gem,
@@ -37,6 +36,9 @@ export default function OutfitResultScreen() {
 
   const { outfit } = useOutfit();
 
+  /*
+   * No outfit available.
+   */
   if (!outfit) {
     return (
       <ScrollScreenContainer>
@@ -68,31 +70,31 @@ export default function OutfitResultScreen() {
 
   const generated = outfit.generated;
 
+  /*
+   * Clothing selected by Gemini.
+   */
   const clothingItems = [
     {
       title: "Top",
-      value: generated.top,
+      item: generated.top,
       Icon: Shirt,
     },
     {
       title: "Bottom",
-      value: generated.bottom,
+      item: generated.bottom,
       Icon: ShoppingBag,
     },
     {
       title: "Shoes",
-      value: generated.shoes,
+      item: generated.shoes,
       Icon: Footprints,
     },
-  ];
-
-  if (generated.outerwear) {
-    clothingItems.push({
+    {
       title: "Outerwear",
-      value: generated.outerwear,
+      item: generated.outerwear,
       Icon: Shirt,
-    });
-  }
+    },
+  ].filter((item) => item.item !== null);
 
   return (
     <ScrollScreenContainer>
@@ -127,19 +129,36 @@ export default function OutfitResultScreen() {
         </View>
 
         <View style={styles.items}>
-          {clothingItems.map(({ title, value, Icon }) => (
-            <View key={title} style={styles.item}>
-              <View style={styles.itemIcon}>
-                <Icon size={22} color={Colors.ink} strokeWidth={1.7} />
-              </View>
+          {clothingItems.map(({ title, item, Icon }) => {
+            if (!item) {
+              return null;
+            }
 
-              <View style={styles.itemContent}>
-                <Text style={styles.itemTitle}>{title}</Text>
+            return (
+              <View key={`${title}-${item.id}`} style={styles.item}>
+                <Image
+                  source={{
+                    uri: item.image,
+                  }}
+                  style={styles.itemImage}
+                />
 
-                <Text style={styles.itemDescription}>{value}</Text>
+                <View style={styles.itemContent}>
+                  <View style={styles.itemTitleRow}>
+                    <View style={styles.itemIcon}>
+                      <Icon size={19} color={Colors.ink} strokeWidth={1.7} />
+                    </View>
+
+                    <Text style={styles.itemTitle}>{title}</Text>
+                  </View>
+
+                  <Text style={styles.itemDescription} numberOfLines={1}>
+                    {item.filename}
+                  </Text>
+                </View>
               </View>
-            </View>
-          ))}
+            );
+          })}
         </View>
 
         {generated.accessories.length > 0 && (
@@ -152,11 +171,18 @@ export default function OutfitResultScreen() {
               <Text style={styles.accessoryTitle}>Accessories</Text>
             </View>
 
-            {generated.accessories.map((accessory, index) => (
-              <View key={`${accessory}-${index}`} style={styles.accessoryRow}>
-                <View style={styles.accessoryDot} />
+            {generated.accessories.map((accessory) => (
+              <View key={accessory.id} style={styles.accessoryItem}>
+                <Image
+                  source={{
+                    uri: accessory.image,
+                  }}
+                  style={styles.accessoryImage}
+                />
 
-                <Text style={styles.accessoryText}>{accessory}</Text>
+                <Text style={styles.accessoryText} numberOfLines={1}>
+                  {accessory.filename}
+                </Text>
               </View>
             ))}
           </View>
@@ -305,28 +331,45 @@ const styles = StyleSheet.create({
 
     borderRadius: 18,
 
-    padding: 12,
+    padding: 10,
 
     borderWidth: 1,
     borderColor: Colors.border,
   },
 
-  itemIcon: {
-    width: 44,
-    height: 44,
+  itemImage: {
+    width: 58,
+    height: 58,
 
-    borderRadius: 15,
+    borderRadius: 14,
+
+    backgroundColor: Colors.mist,
+  },
+
+  itemContent: {
+    flex: 1,
+
+    marginLeft: 12,
+  },
+
+  itemTitleRow: {
+    flexDirection: "row",
+
+    alignItems: "center",
+  },
+
+  itemIcon: {
+    width: 30,
+    height: 30,
+
+    borderRadius: 10,
 
     backgroundColor: Colors.mist,
 
     justifyContent: "center",
     alignItems: "center",
 
-    marginRight: 12,
-  },
-
-  itemContent: {
-    flex: 1,
+    marginRight: 8,
   },
 
   itemTitle: {
@@ -342,15 +385,15 @@ const styles = StyleSheet.create({
   },
 
   itemDescription: {
-    fontSize: 14,
-
-    lineHeight: 19,
+    fontSize: 12,
 
     fontWeight: "600",
 
     color: Colors.text,
 
-    marginTop: 3,
+    marginTop: 5,
+
+    maxWidth: "90%",
   },
 
   accessories: {
@@ -368,7 +411,7 @@ const styles = StyleSheet.create({
 
     alignItems: "center",
 
-    marginBottom: 10,
+    marginBottom: 12,
   },
 
   accessoryIcon: {
@@ -393,23 +436,21 @@ const styles = StyleSheet.create({
     color: Colors.text,
   },
 
-  accessoryRow: {
+  accessoryItem: {
     flexDirection: "row",
 
     alignItems: "center",
 
-    marginTop: 7,
-
-    paddingLeft: 3,
+    marginTop: 8,
   },
 
-  accessoryDot: {
-    width: 6,
-    height: 6,
+  accessoryImage: {
+    width: 44,
+    height: 44,
 
-    borderRadius: 3,
+    borderRadius: 13,
 
-    backgroundColor: Colors.coral,
+    backgroundColor: Colors.mist,
 
     marginRight: 10,
   },
@@ -418,8 +459,6 @@ const styles = StyleSheet.create({
     flex: 1,
 
     fontSize: 13,
-
-    lineHeight: 18,
 
     color: Colors.subtitle,
 

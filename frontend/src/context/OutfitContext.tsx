@@ -2,12 +2,19 @@ import { createContext, ReactNode, useContext, useState } from "react";
 
 import { OutfitActivity } from "../constants/outfits";
 
+export interface GeneratedClothingItem {
+  id: string;
+  filename: string;
+  content_type: string;
+  image: string;
+}
+
 export interface GeneratedOutfit {
-  top: string;
-  bottom: string;
-  shoes: string;
-  outerwear: string | null;
-  accessories: string[];
+  top: GeneratedClothingItem | null;
+  bottom: GeneratedClothingItem | null;
+  shoes: GeneratedClothingItem | null;
+  outerwear: GeneratedClothingItem | null;
+  accessories: GeneratedClothingItem[];
   reason: string;
 }
 

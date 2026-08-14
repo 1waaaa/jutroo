@@ -665,6 +665,6 @@ const styles = StyleSheet.create({
   },
 
   buttonContainer: {
-    marginBottom: 24,
+    marginVertical: 24,
   },
 });

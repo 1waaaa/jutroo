@@ -2,12 +2,19 @@ import { api } from "./client";
 
 import { ClothingItem, OutfitActivity } from "../constants/outfits";
 
+export interface GeneratedClothingItem {
+  id: string;
+  filename: string;
+  content_type: string;
+  image: string;
+}
+
 export interface GeneratedOutfit {
-  top: string;
-  bottom: string;
-  shoes: string;
-  outerwear: string | null;
-  accessories: string[];
+  top: GeneratedClothingItem | null;
+  bottom: GeneratedClothingItem | null;
+  shoes: GeneratedClothingItem | null;
+  outerwear: GeneratedClothingItem | null;
+  accessories: GeneratedClothingItem[];
   reason: string;
 }
 
@@ -33,7 +40,8 @@ export async function recommendOutfit(
   formData.append("activity", request.activity);
 
   request.clothes.forEach((item, index) => {
-    const extension = item.uri.split(".").pop()?.toLowerCase() || "jpg";
+    const extension =
+      item.uri.split(".").pop()?.split("?")[0].toLowerCase() || "jpg";
 
     const mimeType =
       extension === "png"
@@ -42,11 +50,29 @@ export async function recommendOutfit(
           ? "image/webp"
           : "image/jpeg";
 
-    formData.append("clothes", {
+    const file = {
       uri: item.uri,
       name: `clothing_${index}.${extension}`,
       type: mimeType,
-    } as any);
+    } as any;
+
+    switch (item.category) {
+      case "tops":
+        formData.append("tops", file);
+        break;
+
+      case "bottoms":
+        formData.append("bottoms", file);
+        break;
+
+      case "shoes":
+        formData.append("shoes", file);
+        break;
+
+      case "accessories":
+        formData.append("accessories", file);
+        break;
+    }
   });
 
   const response = await api.post<OutfitRecommendResponse>(
