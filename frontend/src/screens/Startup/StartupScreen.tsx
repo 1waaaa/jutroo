@@ -1,21 +1,14 @@
 import { useEffect } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import { RootStackParamList } from "../../navigation/types";
 
-import {
-  hasCompletedOnboarding,
-  resetOnboarding,
-} from "../../services/storageService";
-
 import { useUser } from "../../context/UserContext";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Startup">;
-
-const DEV_RESET = false;
 
 export default function StartupScreen() {
   const navigation = useNavigation<NavigationProp>();
@@ -24,27 +17,14 @@ export default function StartupScreen() {
 
   useEffect(() => {
     async function check() {
-      if (DEV_RESET) {
-        await resetOnboarding();
-      }
+      // OBRIŠI CEO ASYNC STORAGE
+      // await AsyncStorage.clear();
 
-      const completed = await hasCompletedOnboarding();
-      if (!completed) {
-        navigation.replace("Splash");
-        return;
-      }
-
-      const storedId = await AsyncStorage.getItem("userId");
-
-      if (storedId) {
-        setUserId(Number(storedId));
-      }
-
-      navigation.replace("Home");
+      navigation.replace("Splash");
     }
 
     check();
-  }, []);
+  }, [navigation]);
 
   return (
     <View style={styles.container}>

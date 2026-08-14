@@ -23,13 +23,29 @@ import { useOutfit } from "../../context/OutfitContext";
 
 import { WeatherResponse, getCurrentWeather } from "../../api/weatherApi";
 
-import { HydrationResponse, getWaterGoal } from "../../api/hydrationApi";
-
 import Footer from "../../components/home/Footer";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Home">;
 
 const WEATHER_REFRESH_INTERVAL = 60 * 60 * 1000;
+
+/*
+ * Fallback weather.
+ *
+ * Koristi se samo ako weather još nije učitan
+ * ili backend trenutno nije dostupan.
+ *
+ * Kada API vrati pravi weather,
+ * Home će automatski koristiti stvarne podatke.
+ */
+const fallbackWeather: WeatherResponse = {
+  temperature: 24,
+  uvIndex: 3,
+  condition: "Partly cloudy",
+  weatherCode: 2,
+  isDay: 1,
+  hourly: [],
+};
 
 export default function HomeScreen() {
   const navigation = useNavigation<NavigationProp>();
@@ -40,13 +56,21 @@ export default function HomeScreen() {
 
   const { schedule, hasSchedule } = usePlanner();
 
-  const [loading, setLoading] = useState(true);
-
   const [weather, setWeather] = useState<WeatherResponse | null>(null);
 
-  const [hydration, setHydration] = useState<HydrationResponse | null>(null);
-
   const weatherLoading = useRef(false);
+
+  /*
+   * Ako pravi weather postoji,
+   * koristi njega.
+   *
+   * Ako ne postoji, koristi fallback.
+   */
+  const displayWeather = weather ?? fallbackWeather;
+
+  /*
+   * WEATHER
+   */
 
   const refreshWeather = useCallback(async () => {
     if (weatherLoading.current || !userId) {
@@ -60,36 +84,36 @@ export default function HomeScreen() {
 
       setWeather(weatherData);
     } catch (error) {
-      console.log("Weather refresh failed.", error);
+      console.log("Weather refresh failed:", error);
+
+      /*
+       * Namerno ne brišemo postojeći weather.
+       *
+       * Ako je prethodni API poziv uspeo,
+       * zadržavamo njegove podatke.
+       *
+       * Ako nikada nije uspeo,
+       * displayWeather koristi fallback.
+       */
     } finally {
       weatherLoading.current = false;
     }
   }, [userId]);
 
+  /*
+   * Initial weather load.
+   *
+   * Home više ne čeka weather da bi se prikazao.
+   * Weather će se učitati u pozadini.
+   */
+
   useEffect(() => {
-    async function loadHome() {
-      if (!userId) {
-        setLoading(false);
-        return;
-      }
+    refreshWeather();
+  }, [refreshWeather]);
 
-      try {
-        const [weatherData, hydrationData] = await Promise.all([
-          getCurrentWeather(userId),
-          getWaterGoal(userId),
-        ]);
-
-        setWeather(weatherData);
-        setHydration(hydrationData);
-      } catch (error) {
-        console.log("Home loading failed.", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadHome();
-  }, [userId]);
+  /*
+   * Refresh weather every hour.
+   */
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -100,6 +124,10 @@ export default function HomeScreen() {
       clearInterval(interval);
     };
   }, [refreshWeather]);
+
+  /*
+   * Refresh weather when app becomes active.
+   */
 
   useEffect(() => {
     const handleAppStateChange = (nextState: AppStateStatus) => {
@@ -118,19 +146,19 @@ export default function HomeScreen() {
     };
   }, [refreshWeather]);
 
-  if (loading || !weather || !hydration) {
-    return null;
-  }
+  /*
+   * HOME
+   */
 
   return (
     <DayThemeProvider>
       <DayBackground>
         <ScrollScreenContainer>
           <WeatherCard
-            temperature={weather.temperature}
-            condition={weather.condition}
-            uv={weather.uvIndex}
-            isDay={weather.isDay}
+            temperature={displayWeather.temperature}
+            condition={displayWeather.condition}
+            uv={displayWeather.uvIndex}
+            isDay={displayWeather.isDay}
           />
 
           <TodayScheduleCard
@@ -155,7 +183,7 @@ export default function HomeScreen() {
             onPress={() => navigation.navigate("Activities")}
           />
 
-          <HydrationCard waterGoal={hydration.goal} />
+          <HydrationCard waterGoal={2.3} />
 
           {outfit ? (
             <TodayOutfitCard
