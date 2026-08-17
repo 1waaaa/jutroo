@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AppState, AppStateStatus } from "react-native";
+import * as Notifications from "expo-notifications";
 
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -28,16 +29,8 @@ import Footer from "../../components/home/Footer";
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Home">;
 
 const WEATHER_REFRESH_INTERVAL = 60 * 60 * 1000;
+const HIGH_UV_THRESHOLD = 6;
 
-/*
- * Fallback weather.
- *
- * Koristi se samo ako weather još nije učitan
- * ili backend trenutno nije dostupan.
- *
- * Kada API vrati pravi weather,
- * Home će automatski koristiti stvarne podatke.
- */
 const fallbackWeather: WeatherResponse = {
   temperature: 24,
   uvIndex: 3,
@@ -47,30 +40,28 @@ const fallbackWeather: WeatherResponse = {
   hourly: [],
 };
 
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
+
 export default function HomeScreen() {
   const navigation = useNavigation<NavigationProp>();
 
   const { outfit } = useOutfit();
-
   const { userId } = useUser();
-
   const { schedule, hasSchedule } = usePlanner();
 
   const [weather, setWeather] = useState<WeatherResponse | null>(null);
 
   const weatherLoading = useRef(false);
+  const notificationScheduled = useRef(false);
 
-  /*
-   * Ako pravi weather postoji,
-   * koristi njega.
-   *
-   * Ako ne postoji, koristi fallback.
-   */
   const displayWeather = weather ?? fallbackWeather;
-
-  /*
-   * WEATHER
-   */
 
   const refreshWeather = useCallback(async () => {
     if (weatherLoading.current || !userId) {
@@ -85,35 +76,14 @@ export default function HomeScreen() {
       setWeather(weatherData);
     } catch (error) {
       console.log("Weather refresh failed:", error);
-
-      /*
-       * Namerno ne brišemo postojeći weather.
-       *
-       * Ako je prethodni API poziv uspeo,
-       * zadržavamo njegove podatke.
-       *
-       * Ako nikada nije uspeo,
-       * displayWeather koristi fallback.
-       */
     } finally {
       weatherLoading.current = false;
     }
   }, [userId]);
 
-  /*
-   * Initial weather load.
-   *
-   * Home više ne čeka weather da bi se prikazao.
-   * Weather će se učitati u pozadini.
-   */
-
   useEffect(() => {
     refreshWeather();
   }, [refreshWeather]);
-
-  /*
-   * Refresh weather every hour.
-   */
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -124,10 +94,6 @@ export default function HomeScreen() {
       clearInterval(interval);
     };
   }, [refreshWeather]);
-
-  /*
-   * Refresh weather when app becomes active.
-   */
 
   useEffect(() => {
     const handleAppStateChange = (nextState: AppStateStatus) => {
@@ -146,9 +112,52 @@ export default function HomeScreen() {
     };
   }, [refreshWeather]);
 
-  /*
-   * HOME
-   */
+  useEffect(() => {
+    if (!weather) {
+      return;
+    }
+
+    if (weather.uvIndex < HIGH_UV_THRESHOLD) {
+      return;
+    }
+
+    if (notificationScheduled.current) {
+      return;
+    }
+
+    notificationScheduled.current = true;
+
+    let timeoutId: ReturnType<typeof setTimeout>;
+
+    async function scheduleUVNotification() {
+      const permissions = await Notifications.getPermissionsAsync();
+
+      if (!permissions.granted) {
+        const requested = await Notifications.requestPermissionsAsync();
+
+        if (!requested.granted) {
+          return;
+        }
+      }
+
+      timeoutId = setTimeout(async () => {
+        await Notifications.scheduleNotificationAsync({
+          content: {
+            title: "Hey! UV is high",
+            body: "Don't forget your sunscreen and try to stay in the shade.",
+            sound: true,
+          },
+          trigger: null,
+        });
+      }, 10000);
+    }
+
+    scheduleUVNotification();
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [weather]);
 
   return (
     <DayThemeProvider>
